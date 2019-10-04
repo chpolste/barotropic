@@ -67,6 +67,11 @@ class Grid:
         self.longitudes = self.lon[0,:]
         self.latitudes = self.lat[:,0]
 
+    @property
+    def shape(self):
+        """Grid dimensions"""
+        return self.phi.shape
+
     def circumference(self, lat):
         """Circumference of the sphere at constant latitude"""
         return 2 * np.pi * self.rsphere * np.cos(np.deg2rad(lat))
