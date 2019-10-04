@@ -1,4 +1,5 @@
 import numpy as np
+from numbers import Number
 from .constants import ZONAL
 
 
@@ -49,6 +50,31 @@ class State:
         # No meridional wind
         v = np.zeros_like(u)
         return cls.from_wind(grid, time, u, v)
+
+    # Arithmetic operators
+
+    def add_wind(self, other):
+        """Wind-based addition of model fields"""
+        if isinstance(other, State):
+            assert self.grid is other.grid
+            u = self.u + other.u
+            v = self.v + other.v
+        else:
+            u, v = other
+            assert self.grid.shape == u.shape
+            assert self.grid.shape == v.shape
+        return State.from_wind(self.grid, self.time, u, v)
+
+    def add_vorticity(self, other):
+        """Relative vorticity-based addition of model fields"""
+        if isinstance(other, State):
+            assert self.grid is other.grid
+            # Add vorticity to PV so that planetary vorticity is not doubled
+            pv = self.pv + other.vorticity
+        else:
+            assert self.grid.shape == other.shape
+            pv = self.pv + other
+        return State(self.grid, self.time, pv=pv)
 
     # Field accessors
 
@@ -163,15 +189,6 @@ class State:
         icoslat[ 0,:] = 0.
         icoslat[-1,:] = 0.
         return np.flipud(icoslat * bf.lwa)
-
-    # Arithmetic operators
-
-    def add_wind(self, other):
-        """Wind-based addition of model fields"""
-        assert self.grid is other.grid
-        u = self.u + other.u
-        v = self.v + other.v
-        return State.from_wind(self.grid, 0, u, v)
 
     # Shortcut to model integration
 
