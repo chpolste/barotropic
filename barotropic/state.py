@@ -1,5 +1,5 @@
 import numpy as np
-from numbers import Number
+from . import diagnostic
 from .constants import ZONAL
 
 
@@ -17,6 +17,7 @@ class State:
         self._v = None
         self._vorticity = None
         self._streamfunction = None
+        # Memoized diagnostics
         self._fawa = None
         self._falwa = None
 
@@ -162,46 +163,26 @@ class State:
     def energy(self):
         return 0.5 * (self.u * self.u + self.v * self.v)
 
+    # Shortcuts to diagnostic fields
+
     @property
     def fawa(self):
         """Finite-amplitude wave activity according to Nakamura and Zhu (2010)"""
         if self._fawa is None:
-            grid = self.grid
-            levels = 2 * grid.latitudes.size
-            qq, yy = grid.zonalize_eqlat(self.pv, levels=levels, interpolate=None, quad="sptrapz")
-            q_int = np.vectorize(lambda q: grid.quad_sptrapz(self.pv, self.pv - q))
-            y_int = np.vectorize(lambda y: grid.quad_sptrapz(self.pv, grid.lat - y))
-            wa = (q_int(qq) - y_int(yy)) / grid.circumference(yy)
-            self._fawa = np.interp(grid.latitudes, yy, wa, left=0, right=0)
+            self._fawa, _ = diagnostic.fawa(self, interpolate=self.grid.latitudes)
         return self._fawa
 
     @property
     def falwa(self):
-        """Local Finite-amplitude wave activity according to Huang and Nakamura (2016)"""
+        """Finite-amplitude local wave activity according to Huang and Nakamura (2016)"""
         if self._falwa is None:
-            grid = self.grid
-            levels = 2 * grid.latitudes.size
-            qq, yy = grid.zonalize_eqlat(self.pv, levels=levels, interpolate=grid.latitudes, quad="sptrapz")
-            q_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(self.pv - q, self.pv - q), 2, 1)
-            y_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(self.pv - q, grid.lat - y), 2, 1)
-            icoslat = 1. / np.cos(np.deg2rad(yy))
-            icoslat[ 0] = 0.
-            icoslat[-1] = 0.
-            self._falwa = np.stack(icoslat * (q_int(qq, yy) - y_int(qq, yy)))
+            self._falwa = diagnostic.falwa(self, interpolate=self.grid.latitudes)
         return self._falwa
 
     @property
     def falwa_hn2016(self):
-        from hn2016_falwa.oopinterface import BarotropicField
-        # hn2016_falwa expects latitudes to start at south pole
-        xlon = self.grid.longitudes
-        ylat = np.flip(self.grid.latitudes)
-        bf = BarotropicField(xlon, ylat, pv_field=np.flipud(self.pv))
-        # hn2016_falwa does not normalize with cosine of latitude
-        icoslat = 1. / np.cos(self.grid.phi)
-        icoslat[ 0,:] = 0.
-        icoslat[-1,:] = 0.
-        return np.flipud(icoslat * bf.lwa)
+        """Local Finite-amplitude wave activity according to Huang and Nakamura (2016)"""
+        return diagnostic.falwa_hn2016(self, normalize_icos=True)
 
     # Shortcut to model integration
 

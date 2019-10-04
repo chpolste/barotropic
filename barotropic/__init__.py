@@ -27,7 +27,7 @@ Nakamura, N., & Zhu, D. (2010). Finite-amplitude wave activity and diffusive
 
 """
 
-from . import rhs, plot
+from . import diagnostic, plot, rhs
 from .constants import *
 from .grid import Grid
 from .model import BarotropicModel

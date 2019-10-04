@@ -279,7 +279,7 @@ class Grid:
         # If nothing is specified about the contour levels, use as many as
         # there are gridpoints in meridional direction
         if levels is None:
-            levels = self.latitudes.size
+            levels = 2 * self.latitudes.size
         # If contours is specified as the number of contours to use, distribute
         # contours linearly between the min and max found in field. Omit min
         # and max as field >= min everywhere and field >= max most likely only
