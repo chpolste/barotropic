@@ -20,6 +20,8 @@ class State:
         # Memoized diagnostics
         self._fawa = None
         self._falwa = None
+        self._falwa_filtered = None
+        self._dominant_wavenumber = None
 
     @classmethod
     def from_wind(cls, grid, time, u, v):
@@ -180,9 +182,25 @@ class State:
         return self._falwa
 
     @property
+    def falwa_filtered(self):
+        """TODO"""
+        if self._falwa_filtered is None:
+            self._falwa_filtered = diagnostic.filter_by_wavenumber(self.falwa,
+                    self.dominant_wavenumber, self.grid)
+        return self._falwa_filtered
+
+    @property
     def falwa_hn2016(self):
         """Local Finite-amplitude wave activity according to Huang and Nakamura (2016)"""
         return diagnostic.falwa_hn2016(self, normalize_icos=True)
+
+    @property
+    def dominant_wavenumber(self):
+        """TODO"""
+        if self._dominant_wavenumber is None:
+            self._dominant_wavenumber = diagnostic.dominant_wavenumber(self.v, self.grid,
+                    smoothing=(9, 31))
+        return self._dominant_wavenumber
 
     # Shortcut to model integration
 
