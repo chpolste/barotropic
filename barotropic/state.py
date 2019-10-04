@@ -51,6 +51,19 @@ class State:
         v = np.zeros_like(u)
         return cls.from_wind(grid, time, u, v)
 
+    @classmethod
+    def held_1985(cls, grid, time=0., A=25., B=30., C=300.):
+        """Zonal wind profile similar to that of the upper troposphere
+
+        Introduced by Held (1985), also used by Held and Phillips (1987) and
+        Ghinassi et al. (2018).
+        """
+        cosphi = np.cos(grid.phi)
+        sinphi = np.sin(grid.phi)
+        u = A * cosphi - B * cosphi**3 + C * cosphi**6 * sinphi**2
+        v = np.zeros_like(u)
+        return cls.from_wind(grid, time, u, v)
+
     # Arithmetic operators
 
     def add_wind(self, other):
