@@ -25,6 +25,11 @@ Nakamura, N., & Zhu, D. (2010). Finite-amplitude wave activity and diffusive
     Atmospheric Sciences, 67(9), 2701-2716.
     https://doi.org/10.1175/2010JAS3432.1
 
+Zimin, A. V., Szunyogh, I., Patil, D. J., Hunt, B. R., & Ott, E. (2003).
+    Extracting envelopes of Rossby wave packets. Monthly weather review,
+    131(5), 1011-1017.
+    https://doi.org/10.1175/1520-0493(2003)131<1011:EEORWP>2.0.CO;2
+
 """
 
 from . import diagnostic, plot, rhs

@@ -201,6 +201,11 @@ class State:
                     smoothing=(9, 31))
         return self._dominant_wavenumber
 
+    @property
+    def rwp_envelope(self):
+        """RWP envelope according to Zimin et al. (2003)"""
+        return diagnostic.envelope_hilbert(self.v, 2, 10)
+
     # Shortcut to model integration
 
     def run(self, model, *args, **kwargs):

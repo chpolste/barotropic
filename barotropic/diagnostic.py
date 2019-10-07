@@ -14,6 +14,17 @@ def _pv_grid(field, grid):
     else:
         return field, grid
 
+def _restrict_fourier_zonal(field, kmin, kmax):
+    """Restrict the zonal Fourier spectrum to a range of wavenumbers
+    
+    Reduce the Fourier spectrum of real-valued `field` to contributions from
+    wavenumbers `kmin` to `kmax` (both inclusive).
+    """
+    xfft = np.fft.rfft(field, axis=ZONAL)
+    xfft[:,      :kmin] = 0.
+    xfft[:,kmax+1:    ] = 0.
+    return np.fft.irfft(xfft, axis=ZONAL)  
+
 
 def fawa(pv_or_state, grid=None, levels=None, interpolate=None):
     """Finite-amplitude wave activity according to Nakamura and Zhu (2010)
@@ -105,10 +116,8 @@ def dominant_wavenumber(field, grid, n_scales=120, smoothing=(9, 31)):
     """
     import pywt
     from scipy import signal
-    # Truncate zonal fourier spectrum of meridional wind at wavenumber 20
-    xfft = np.fft.rfft(field, axis=ZONAL)
-    xfft[:,20:] = 0.
-    x = np.fft.irfft(xfft, axis=ZONAL)  
+    # Truncate zonal fourier spectrum of meridional wind after wavenumber 20
+    x = _restrict_fourier_zonal(field, 0, 20)
     # Triplicate field to avoid boundary issues (pywt.cwt does not support
     # periodic mode as of version 1.1)
     x = np.hstack([x, x, x])
@@ -175,4 +184,16 @@ def filter_by_wavenumber(field, wavenumber):
     idx = np.floor(nlon / wavenumber).astype(int) // 2
     ii, jj = np.indices(field.shape)
     return convs[idx,ii,jj]
+
+
+def envelope_hilbert(field, wavenumber_min=2, wavenumber_max=10):
+    """Compute envelope of wave packets using the Hilbert transform
+
+    Applied to the merdional wind for RWP detection by Zimin et al. (2003).
+
+    Requires `scipy.signal`.
+    """
+    from scipy import signal
+    x = _restrict_fourier_zonal(field, wavenumber_min, wavenumber_max)
+    return np.abs(signal.hilbert(x, axis=ZONAL))
 
