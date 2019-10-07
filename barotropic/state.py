@@ -178,25 +178,24 @@ class State:
     def falwa(self):
         """Finite-amplitude local wave activity according to Huang and Nakamura (2016)"""
         if self._falwa is None:
-            self._falwa = diagnostic.falwa(self, interpolate=self.grid.latitudes)
+            self._falwa, _ = diagnostic.falwa(self, interpolate=self.grid.latitudes)
         return self._falwa
 
     @property
     def falwa_filtered(self):
-        """TODO"""
+        """Filtered Finite-amplitude local wave activity as in Ghinassi et al. (2018)"""
         if self._falwa_filtered is None:
-            self._falwa_filtered = diagnostic.filter_by_wavenumber(self.falwa,
-                    self.dominant_wavenumber, self.grid)
+            self._falwa_filtered = diagnostic.filter_by_wavenumber(self.falwa, self.dominant_wavenumber)
         return self._falwa_filtered
 
     @property
     def falwa_hn2016(self):
-        """Local Finite-amplitude wave activity according to Huang and Nakamura (2016)"""
+        """Finite-amplitude local wave activity according to Huang and Nakamura (2016)"""
         return diagnostic.falwa_hn2016(self, normalize_icos=True)
 
     @property
     def dominant_wavenumber(self):
-        """TODO"""
+        """Dominant zonal wavenumber at every gridpoint based on v"""
         if self._dominant_wavenumber is None:
             self._dominant_wavenumber = diagnostic.dominant_wavenumber(self.v, self.grid,
                     smoothing=(9, 31))

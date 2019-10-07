@@ -1,74 +1,108 @@
+"""Diagnostic fields for the barotropic model"""
+
 import numpy as np
-from .constants import ZONAL
+from .constants import ZONAL, MERIDIONAL
+# To reduce non-optional dependencies, additional packages are loaded on demand
+# in some methods. They include: pywt, scipy.signal, hn2016_falwa
 
 
-# TODO take pv and grid as arguments, not state
-def fawa(state, levels=None, interpolate=None):
+
+def _pv_grid(field, grid):
+    """If no grid is given (`grid=None`), assume `field` is a State"""
+    if grid is None:
+        return field.pv, field.grid
+    else:
+        return field, grid
+
+
+def fawa(pv_or_state, grid=None, levels=None, interpolate=None):
     """Finite-amplitude wave activity according to Nakamura and Zhu (2010)
     
-    TODO `levels`
-    TODO `interpolate`
+    `levels` specifies the number of contours used in the equivalent latitude
+    zonalization. By default, FAWA is returned on the computed equivalent
+    latitudes. To obtain FAWA interpolated to a specific set of latitudes,
+    specify these as an array with the `interpolate` argument.
     """
-    grid = state.grid
-    # ...
-    qq, yy = grid.zonalize_eqlat(state.pv, levels=levels, interpolate=None, quad="sptrapz")
-    # ...
-    q_int = np.vectorize(lambda q: grid.quad_sptrapz(state.pv, state.pv - q))
-    y_int = np.vectorize(lambda y: grid.quad_sptrapz(state.pv, grid.lat - y))
-    wa = (q_int(qq) - y_int(yy)) / grid.circumference(yy)
-    # ...
+    pv, grid = _pv_grid(pv_or_state, grid)
+    # Compute zonalized background state of PV
+    qq, yy = grid.zonalize_eqlat(pv, levels=levels, interpolate=None, quad="sptrapz")
+    # Use formulation that integrates PV over areas north of PV
+    # contour/equivalent latitude and then computes difference
+    q_int = np.vectorize(lambda q: grid.quad_sptrapz(pv, pv - q))
+    y_int = np.vectorize(lambda y: grid.quad_sptrapz(pv, grid.lat - y))
+    # Normalize by zonal circumference at each latitude
+    fawa = (q_int(qq) - y_int(yy)) / grid.circumference(yy)
+    # Interpolate to a given set of latitudes if specified
     if interpolate is not None:
-        qq = np.interp(interpolate, yy, wa, left=0, right=0)
+        fawa = np.interp(interpolate, yy, fawa, left=0, right=0)
         yy = interpolate
-    return qq, yy
+    return fawa, yy
 
 
-# TODO take pv and grid as arguments, not state
-def falwa(state, levels=None, interpolate=None):
-    """Local Finite-amplitude wave activity according to Huang and Nakamura (2016)
-    
-    TODO `levels`
-    """
-    grid = state.grid
-    # ...
-    # TODO interpolate later
-    qq, yy = grid.zonalize_eqlat(state.pv, levels=levels, interpolate=interpolate, quad="sptrapz")
-    # ...
-    q_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(state.pv - q, state.pv - q), 2, 1)
-    y_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(state.pv - q, grid.lat - y), 2, 1)
-    # ...
-    icoslat = 1. / np.cos(np.deg2rad(yy))
-    icoslat[ 0] = 0.
-    icoslat[-1] = 0.
-    # ...
-    return np.stack(icoslat * (q_int(qq, yy) - y_int(qq, yy)))
-
-
-# TODO take pv and grid as arguments, not state
-def falwa_hn2016(state, normalize_icos=True):
+def falwa(pv_or_state, grid=None, levels=None, interpolate=None):
     """Finite-amplitude local wave activity according to Huang and Nakamura (2016)
     
-    Uses implementation of package `hn2016_falwa`.
+    `levels` specifies the number of contours used in the equivalent latitude
+    zonalization. By default, FALWA is returned on a longitude/equivalent
+    latitude grid. To obtain FALWA interpolated to a specific set of latitudes,
+    specify these as an array with the `interpolate` argument.
+    """
+    pv, grid = _pv_grid(pv_or_state, grid)
+    # Compute zonalized background state of PV
+    qq, yy = grid.zonalize_eqlat(pv, levels=levels, quad="sptrapz")
+    # Use formulation that integrates PV over areas north of PV
+    # contour/equivalent latitude and then computes difference
+    q_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, pv - q), 2, 1)
+    y_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, grid.lat - y), 2, 1)
+    # Stack meridional integrals (normalized by cosine of latitude) along zonal
+    # direction to obtain full field again
+    falwa = np.stack((q_int(qq, yy) - y_int(qq, yy)) / np.cos(np.deg2rad(yy)))
+    # Interpolate to a given set of latitudes if specified
+    if interpolate is not None:
+        interp = lambda _: np.interp(interpolate, yy, _, right=0., left=0.)
+        falwa = np.apply_along_axis(interp, MERIDIONAL, falwa)
+        yy = interpolate
+    return falwa, yy
+
+
+def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
+    """Finite-amplitude local wave activity according to Huang and Nakamura (2016)
+
+    Values of FALWA are returned on the grid.
+    
+    Uses the implementation of package `hn2016_falwa`.
     See: https://github.com/csyhuang/hn2016_falwa
     """
     from hn2016_falwa.oopinterface import BarotropicField
+    pv, grid = _pv_grid(pv_or_state, grid)
     # hn2016_falwa expects latitudes to start at south pole
-    xlon = state.grid.longitudes
-    ylat = np.flip(state.grid.latitudes)
-    bf = BarotropicField(xlon, ylat, pv_field=np.flipud(state.pv))
+    xlon = grid.longitudes
+    ylat = np.flip(grid.latitudes)
+    bf = BarotropicField(xlon, ylat, pv_field=np.flipud(pv))
     # Extract local wave activity field and flip back
     lwa = np.flipud(bf.lwa)
     # hn2016_falwa does not normalize with cosine of latitude by default
     if normalize_icos:
-        icoslat = 1. / np.cos(state.grid.phi)
-        icoslat[ 0,:] = 0.
-        icoslat[-1,:] = 0.
+        icoslat = 1. / np.cos(grid.phi)
+        icoslat[ 0,:] = 0. # handle div/0 problem at 1 / cos( 90°)
+        icoslat[-1,:] = 0. # handle div/0 problem at 1 / cos(-90°)
         lwa = icoslat * lwa
     return lwa
 
 
 def dominant_wavenumber(field, grid, n_scales=120, smoothing=(9, 31)):
-    """"""
+    """Compute the dominant zonal wavenumber at every gridpoint of field
+
+    Implements the procedure of Ghinassi et al. (2018) based on wavelet
+    analysis.
+
+    `n_scales` determines the number of scales used in the continuous wavelet
+    transform. The `smoothing` parameters determine the width of the Hann
+    filter in zonal and meridional direction as the number of gridpoints (see
+    scipy.signal.windows.hann).
+    
+    Requires `pywt` (version >= 1.1.0) and `scipy.signal`.
+    """
     import pywt
     from scipy import signal
     # Truncate zonal fourier spectrum of meridional wind at wavenumber 20
@@ -93,35 +127,52 @@ def dominant_wavenumber(field, grid, n_scales=120, smoothing=(9, 31)):
     wavenum = pywt.scale2frequency(morlet, scales) * grid.shape[ZONAL]
     # Dominant wavenumber is that of maximum power in the spectrum
     dom_wavenum = wavenum[np.argmax(power, axis=0)]
-    # Smooth dominant wavenumber with 2D-Hann window
+    # Smooth dominant wavenumber with 2-dimensional Hann window
     # TODO specify smoothing in °lat/lon instead of number of gridpoints
     smooth_lon, smooth_lat = smoothing
     hann2d = np.outer(signal.windows.hann(smooth_lat), signal.windows.hann(smooth_lon))
     hann2d = hann2d / np.sum(hann2d)
     # TODO boundary="wrap" is not correct in meridional direction as it
-    # connects north- and south pole
+    #      connects north- and south pole
     return signal.convolve2d(dom_wavenum, hann2d, mode="same", boundary="wrap")
 
 
-def filter_by_wavenumber(field, wavenumber, grid):
-    """"""
+def filter_by_wavenumber(field, wavenumber):
+    """Zonal Hann smoothing based on a space-dependent wavenumber field
+    
+    Apply Hann smoothing in zonal direction to the input `field` with the Hann
+    window width governed at every gridpoint by the wavenumber at the same
+    location in the `wavenumber` field.
+
+    Used by Ghinassi et al. (2018) to filter the FALWA field, discounting phase
+    information in order to diagnose wave packets as a whole.
+
+    Requires `scipy.signal`.
+    """
     from scipy import signal
-    nlon = grid.shape[ZONAL]
-    # ...
+    nlon = field.shape[ZONAL]
+    # Limit wavenumbers to 1 and above. The Hann window at this point goes once
+    # around the entire globe already.
     wavenumber = np.clip(wavenumber, 1., None)
-    # ...
+    # Precompute the smoothed fields for all possible odd gridpoint-widths.
+    # While this produces a lot of unused data, it allows to use more
+    # numpy-accelerated operations which should outperform any pure-Python and
+    # loop-based implementation. Widths and indices are mapped by 2n+1 -> n.
     convs = []
     for n in range(1, nlon + 2, 2):
         hann = signal.hann(n)
+        # Normalize
         hann = hann / np.sum(hann)
-        hann = hann[None,:]
-        # ...
-        convs.append(signal.convolve2d(field, hann, mode="same"))
+        # Apply window along the zonal axis
+        convs.append(signal.convolve2d(field, hann[None,:], mode="same"))
+    # Stack into 3-dimensional array
     convs = np.stack(convs)
-    # ...
-    # TODO accept wavenumber as single number
+    # The window width in gridpoints is given by the total number of gridpoints in
+    # zonal direction divided by the wavenumber. This width is transformed into
+    # an index for the precomputed smoothed fields
+    # TODO accept wavenumber as single number (find more general replacement
+    #      for astype(int) method)
     idx = np.floor(nlon / wavenumber).astype(int) // 2
-    # ...
-    ii, jj = np.indices(grid.shape)
-    return convs[idx, ii, jj]
+    ii, jj = np.indices(field.shape)
+    return convs[idx,ii,jj]
 
