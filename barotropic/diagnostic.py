@@ -101,16 +101,16 @@ def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
     return lwa
 
 
-def dominant_wavenumber(field, grid, n_scales=120, smoothing=(9, 31)):
+def dominant_wavenumber(field, grid, n_scales=120, smoothing=(21, 7)):
     """Compute the dominant zonal wavenumber at every gridpoint of field
 
     Implements the procedure of Ghinassi et al. (2018) based on wavelet
     analysis.
 
     `n_scales` determines the number of scales used in the continuous wavelet
-    transform. The `smoothing` parameters determine the width of the Hann
-    filter in zonal and meridional direction as the number of gridpoints (see
-    scipy.signal.windows.hann).
+    transform. The `smoothing` parameters determine the full width at half
+    maximum of the Hann filter in zonal and meridional direction in degrees
+    longitude/latitude.
     
     Requires `pywt` (version >= 1.1.0) and `scipy.signal`.
     """
@@ -136,14 +136,19 @@ def dominant_wavenumber(field, grid, n_scales=120, smoothing=(9, 31)):
     wavenum = pywt.scale2frequency(morlet, scales) * grid.shape[ZONAL]
     # Dominant wavenumber is that of maximum power in the spectrum
     dom_wavenum = wavenum[np.argmax(power, axis=0)]
-    # Smooth dominant wavenumber with 2-dimensional Hann window
-    # TODO specify smoothing in °lat/lon instead of number of gridpoints
+    # Smooth dominant wavenumber with Hann windows. Window width is given as
+    # full width at half maximum, which is half of the full width. Choose the
+    # nearest odd number of gridpoints available to the desired value.
     smooth_lon, smooth_lat = smoothing
-    hann2d = np.outer(signal.windows.hann(smooth_lat), signal.windows.hann(smooth_lon))
-    hann2d = hann2d / np.sum(hann2d)
-    # TODO boundary="wrap" is not correct in meridional direction as it
-    #      connects north- and south pole
-    return signal.convolve2d(dom_wavenum, hann2d, mode="same", boundary="wrap")
+    hann_lon = signal.windows.hann(int(smooth_lon / 360 * grid.shape[ZONAL]) * 2 + 1)
+    hann_lon = hann_lon / np.sum(hann_lon)
+    hann_lat = signal.windows.hann(int(smooth_lat / 180 * grid.shape[MERIDIONAL]) * 2 + 1)
+    hann_lat = hann_lat / np.sum(hann_lat)
+    # Apply zonal filter first with periodic boundary
+    dom_wavenum = signal.convolve2d(dom_wavenum, hann_lon[None,:], mode="same", boundary="wrap")
+    # Then apply meridional filter with symmetrical boundary
+    dom_wavenum = signal.convolve2d(dom_wavenum, hann_lat[:,None], mode="same", boundary="symm")
+    return dom_wavenum
 
 
 def filter_by_wavenumber(field, wavenumber):
@@ -173,7 +178,7 @@ def filter_by_wavenumber(field, wavenumber):
         # Normalize
         hann = hann / np.sum(hann)
         # Apply window along the zonal axis
-        convs.append(signal.convolve2d(field, hann[None,:], mode="same"))
+        convs.append(signal.convolve2d(field, hann[None,:], mode="same", boundary="wrap"))
     # Stack into 3-dimensional array
     convs = np.stack(convs)
     # The window width in gridpoints is given by the total number of gridpoints in

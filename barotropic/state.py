@@ -197,8 +197,7 @@ class State:
     def dominant_wavenumber(self):
         """Dominant zonal wavenumber at every gridpoint based on v"""
         if self._dominant_wavenumber is None:
-            self._dominant_wavenumber = diagnostic.dominant_wavenumber(self.v, self.grid,
-                    smoothing=(9, 31))
+            self._dominant_wavenumber = diagnostic.dominant_wavenumber(self.v, self.grid, smoothing=(21, 7))
         return self._dominant_wavenumber
 
     @property
