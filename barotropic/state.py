@@ -208,15 +208,24 @@ class State:
     # Shortcut to model integration
 
     def run(self, model, *args, **kwargs):
+        """See barotropic.BarotropicModel.run"""
         return model.run(self, *args, **kwargs)
 
-    # Shortcuts to plotting
+    # Shortcuts to plotting. Do not return figures here, so user does not have
+    # to put semicolons in Jupyter notebooks to suppress double figure output.
 
     def plot_summary(self, *args, **kwargs):
+        """See barotropic.plot.summary"""
         from . import plot
-        return plot.summary(self, *args, **kwargs)
+        plot.summary(self, *args, **kwargs)
 
     def plot_wave_activity(self, *args, **kwargs):
+        """See barotropic.plot.wave_activity"""
         from . import plot
-        return plot.wave_activity(self, *args, **kwargs)
+        plot.wave_activity(self, *args, **kwargs)
+
+    def plot_rwp_diagnostic(self, *args, **kwargs):
+        """See barotropic.plot.rwp_diagnostic"""
+        from . import plot
+        plot.rwp_diagnostic(self, *args, **kwargs)
 
