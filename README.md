@@ -21,3 +21,8 @@ Additional dependencies for plotting and some diagnostics:
 
 These are imported on demand and not required to just run the model.
 
+
+## Usage
+
+Consult the docstrings and the provided [examples](examples).
+
