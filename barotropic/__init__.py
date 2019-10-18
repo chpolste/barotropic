@@ -1,4 +1,4 @@
-"""Barotropic model on the sphere (pseudospectral discretization)
+"""A barotropic model on the sphere
 
 
 References
@@ -37,4 +37,6 @@ from .constants import *
 from .grid import Grid
 from .model import BarotropicModel
 from .state import State
+
+__version__ = "1.0.0.devel"
 

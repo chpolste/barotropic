@@ -16,10 +16,22 @@ Additional dependencies for plotting and some diagnostics:
 
 - [matplotlib](https://github.com/matplotlib/matplotlib)
 - [scipy](https://github.com/scipy/scipy)
-- [pywt](https://github.com/PyWavelets/pywt) (1.1 or newer)
+- [PyWavelets](https://github.com/PyWavelets/pywt) (>= 1.1)
 - [hn2016_falwa](https://github.com/csyhuang/hn2016_falwa)
 
 These are imported on demand and not required to just run the model.
+
+
+## Installation
+
+Installation as a package requires [setuptools](https://pypi.org/project/setuptools/).
+From the root directory of the repository run
+
+    pip install .
+
+Optional dependencies are specified as an [extra](https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies) and can be turned into required dependencies by installing with
+
+    pip install .[with-optional]
 
 
 ## Usage
