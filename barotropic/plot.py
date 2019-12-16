@@ -1,3 +1,4 @@
+from numbers import Number
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mpl_ticker
@@ -39,6 +40,11 @@ def configure_lat_y(ax, hemisphere):
     ax.yaxis.set_major_formatter(mpl_ticker.StrMethodFormatter("{x:.0f}°"))
     ax.set_ylim(0 if hemisphere == "N" else -90, 0 if hemisphere == "S" else 90)
 
+def set_title_time(ax, time, loc="right"):
+    ax.set_title(
+        "t = {:.1f} h".format(time / HOUR) if isinstance(time, Number) else time.isoformat(), 
+        loc=loc
+    )
 
 # Predefined figures
 
@@ -76,7 +82,8 @@ def summary(state, figsize=(11, 7), hemisphere="both", pv_cmap="viridis", pv_max
     configure_lon_x(ax12)
     configure_lat_y(ax12, hemisphere)
     ax12.set_title("PV [$10^{-4} \\mathrm{s}^{-1}$] and wind vectors", loc="left")
-    ax12.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
+    set_title_time(ax12, state.time)
+    #ax12.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
     # Panel: Zonal mean zonal wind line plot
     ax21.vlines([0], -90, 90, linestyle="--", linewidth=0.5, color="#666666")
     zmu = np.mean(state.u, axis=ZONAL)
@@ -93,7 +100,8 @@ def summary(state, figsize=(11, 7), hemisphere="both", pv_cmap="viridis", pv_max
     configure_lon_x(ax22)
     configure_lat_y(ax22, hemisphere)
     ax22.set_title("meridional wind [$\\mathrm{m} \\mathrm{s}^{-1}$] and streamfunction", loc="left")
-    ax22.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
+    set_title_time(ax22, state.time)
+    #ax22.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
     fig.tight_layout()
     return fig
 
@@ -127,7 +135,8 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", falwa_cmap="YlOrRd"
     configure_lon_x(ax12)
     configure_lat_y(ax12, hemisphere)
     ax12.set_title("deviation from equiv. lat. PV [$10^{-4} \\mathrm{s}^{-1}$] and PV", loc="left")
-    ax12.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
+    set_title_time(ax12, state.time)
+    #ax12.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
     # Panel: FAWA
     ax21.vlines([0], -90, 90, linestyle="--", linewidth=0.5, color="#666666")
     ax21.plot(state.fawa, grid.latitudes, color="#000000")
@@ -140,7 +149,8 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", falwa_cmap="YlOrRd"
     configure_lon_x(ax22)
     configure_lat_y(ax22, hemisphere)
     ax22.set_title("FALWA [$\\mathrm{m} \\mathrm{s}^{-1}$] and PV", loc="left")
-    ax22.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
+    set_title_time(ax22, state.time)
+    #ax22.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
     fig.tight_layout()
     return fig
 
@@ -184,7 +194,8 @@ def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", v_max=None, rwp_
     for ax in (ax1, ax2, ax3):
         configure_lon_x(ax)
         configure_lat_y(ax, hemisphere)
-        ax.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
+        set_title_time(ax, state.time)
+        #ax.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
     fig.tight_layout()
     return fig
 

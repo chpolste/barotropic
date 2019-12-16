@@ -1,3 +1,4 @@
+from numbers import Number
 import numpy as np
 from .state import State
 
@@ -47,8 +48,9 @@ class BarotropicModel:
     
     def euler(self, state_now, dt):
         """Step forward in time by `dt` starting from `state_now`"""
-        pv_new_spectral = state_now.pv_spectral + dt * self._pv_tendency_spectral(state_now)
-        pv_new_spectral = self._apply_diffusion(state_now.grid, dt, pv_new_spectral)
+        dts = _to_seconds(dt)
+        pv_new_spectral = state_now.pv_spectral + dts * self._pv_tendency_spectral(state_now)
+        pv_new_spectral = self._apply_diffusion(state_now.grid, dts, pv_new_spectral)
         state_new = State(
                 grid=state_now.grid,
                 time=state_now.time + dt,
@@ -68,11 +70,12 @@ class BarotropicModel:
         """
         # Determine timestep from temporal difference of old and current state
         dt = state_now.time - state_old.time
+        dts = _to_seconds(dt)
         # Evaluate the PV tendency at the current state and use it to advance
         # from the old state with twice the time step
-        pv_new_spectral = state_old.pv_spectral + 2 * dt * self._pv_tendency_spectral(state_now)
+        pv_new_spectral = state_old.pv_spectral + 2 * dts * self._pv_tendency_spectral(state_now)
         # Apply numerical diffusion
-        pv_new_spectral = self._apply_diffusion(state_now.grid, dt, pv_new_spectral)
+        pv_new_spectral = self._apply_diffusion(state_now.grid, dts, pv_new_spectral)
         state_new = State(
                 grid=state_now.grid,
                 time=state_now.time + dt,
@@ -96,4 +99,15 @@ class BarotropicModel:
     def _apply_diffusion(self, grid, dt, pv_spectral):
         eigenvalues_exp = grid.laplacian_eigenvalues ** self.diffusion_order
         return pv_spectral / ( 1. + 2. * dt * self.diffusion_kappa * eigenvalues_exp )
+
+
+def _to_seconds(dt):
+    """Return time interval dt as number of seconds
+    
+    Provides compatibility with both timedelta objects and direct input of dt
+    as a number of seconds.
+    """
+    if isinstance(dt, Number):
+        return dt
+    return dt.total_seconds()
 
