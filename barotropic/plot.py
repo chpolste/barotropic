@@ -18,10 +18,10 @@ def hovmoellerify(states, f):
     grid = states[0].grid
     times = np.array([state.time for state in states])
     fields = [f(state) for state in states]
-    if fields[0].size == grid.longitudes.size:
-        return grid.longitudes, times, np.stack(fields)
-    if fields[0].size == grid.latitudes.size:
-        return times, grid.latitudes, np.stack(fields).T
+    if fields[0].size == grid.nlon:
+        return grid.lons, times, np.stack(fields)
+    if fields[0].size == grid.nlat:
+        return times, grid.lats, np.stack(fields).T
     raise ValueError("dimension mismatch: output of reduce has to match number of lons or lats")
 
 
@@ -63,13 +63,13 @@ def summary(state, figsize=(11, 7), hemisphere="both", pv_cmap="viridis", pv_max
     ax11.vlines([0], -90, 90, linestyle="--", linewidth=0.5, color="#666666")
     # Planetary vorticity
     zmpv = np.mean(grid.fcor * 10000, axis=ZONAL)
-    ax11.plot(zmpv, grid.latitudes, color="#999999", label="pla.")
+    ax11.plot(zmpv, grid.lats, color="#999999", label="pla.")
     # Zonal mean relative vorticity
     zmrv = np.mean(state.vorticity * 10000, axis=ZONAL)
-    ax11.plot(zmrv, grid.latitudes, color="#006699", label="rel.")
+    ax11.plot(zmrv, grid.lats, color="#006699", label="rel.")
     # Zonal mean absolute (=potential) vorticity
     zmav = np.mean(pv, axis=ZONAL)
-    ax11.plot(zmav, grid.latitudes, color="#000000", label="pot.")
+    ax11.plot(zmav, grid.lats, color="#000000", label="pot.")
     configure_lat_y(ax11, hemisphere)
     ax11.legend(loc="upper left")
     ax11.set_title("zonal mean vort. [$10^{-4} \\mathrm{s}^{-1}$]", loc="left")
@@ -87,7 +87,7 @@ def summary(state, figsize=(11, 7), hemisphere="both", pv_cmap="viridis", pv_max
     # Panel: Zonal mean zonal wind line plot
     ax21.vlines([0], -90, 90, linestyle="--", linewidth=0.5, color="#666666")
     zmu = np.mean(state.u, axis=ZONAL)
-    ax21.plot(zmu, grid.latitudes, color="#000000")
+    ax21.plot(zmu, grid.lats, color="#000000")
     ax21.set_title("mean zonal wind [$\\mathrm{m} \\mathrm{s}^{-1}$]", loc="left")
     configure_lat_y(ax21, hemisphere)
     # Panel: Meridional wind and streamfunction
@@ -117,12 +117,12 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", falwa_cmap="YlOrRd"
     # Panel: zonal mean PV and zonalized PV
     ax11.vlines([0], -90, 90, linestyle="--", linewidth=0.5, color="#666666")
     # Zonalized PV
-    eqlat_levels = 2 * grid.latitudes.size
-    zlpv, _ = grid.zonalize_eqlat(pv, levels=eqlat_levels, interpolate=grid.latitudes)
-    ax11.plot(zlpv, grid.latitudes, color="#999999", label="equiv. lat.")
+    eqlat_levels = 2 * grid.nlat
+    zlpv, _ = grid.zonalize_eqlat(pv, levels=eqlat_levels, interpolate=grid.lats)
+    ax11.plot(zlpv, grid.lats, color="#999999", label="equiv. lat.")
     # Zonal mean PV
     zmpv = np.mean(pv, axis=ZONAL)
-    ax11.plot(zmpv, grid.latitudes, color="#000000", label="mean")
+    ax11.plot(zmpv, grid.lats, color="#000000", label="mean")
     configure_lat_y(ax11, hemisphere)
     ax11.legend(loc="upper left")
     ax11.set_title("zonalized PV [$10^{-4} \\mathrm{s}^{-1}$]", loc="left")
@@ -139,7 +139,7 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", falwa_cmap="YlOrRd"
     #ax12.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
     # Panel: FAWA
     ax21.vlines([0], -90, 90, linestyle="--", linewidth=0.5, color="#666666")
-    ax21.plot(state.fawa, grid.latitudes, color="#000000")
+    ax21.plot(state.fawa, grid.lats, color="#000000")
     ax21.set_title("FAWA [$m s^{-1}$]", loc="left")
     configure_lat_y(ax21, hemisphere)
     # Panel: FALWA

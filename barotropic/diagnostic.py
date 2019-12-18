@@ -87,8 +87,8 @@ def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
     from hn2016_falwa.oopinterface import BarotropicField
     pv, grid = _pv_grid(pv_or_state, grid)
     # hn2016_falwa expects latitudes to start at south pole
-    xlon = grid.longitudes
-    ylat = np.flip(grid.latitudes)
+    xlon = grid.lons
+    ylat = np.flip(grid.lats)
     bf = BarotropicField(xlon, ylat, pv_field=np.flipud(pv))
     # Extract local wave activity field and flip back
     lwa = np.flipud(bf.lwa)

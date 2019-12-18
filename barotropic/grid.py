@@ -15,7 +15,7 @@ class Grid:
     obtain fields that start at the south-pole.
     """
 
-    def __init__(self, rsphere=EARTH_RADIUS, omega=EARTH_OMEGA, latlon_resolution=2.5,
+    def __init__(self, rsphere=EARTH_RADIUS, omega=EARTH_OMEGA, resolution=2.5,
             ntrunc=None, legfunc="stored"):
         """Regular lat-lon grid for a spherical planet
         
@@ -23,8 +23,8 @@ class Grid:
         m and `omega` in 1/s, respectively (the default values correspond to
         those of the Earth).
 
-        The grid resolution is uniform and specified with the
-        `latlon_resolution` parameter in degrees.
+        The grid resolution is uniform and specified with the `resolution`
+        parameter in degrees.
 
         By default (`ntrunc=None`, `legfunc="stored"`), the spherical harmonics are
         truncated after (number of latitudes - 1) functions and precomputed.
@@ -36,25 +36,28 @@ class Grid:
         # Setup longitude and latitude grid. Make sure longitude 0° is not
         # repeated and that both latitudes 90° and -90° exist. Latitudes start
         # at the North pole, which is the convention used by pyspharm.
-        n_lon = int(360. / latlon_resolution)
-        n_lat = int(180. / latlon_resolution) + 1
-        if n_lat % 2 == 0:
-            raise ValueError("Number of latitudes must be odd but is {n_lat}".format(n_lat=n_lat))
-        lons = np.linspace( 0., 360., n_lon, endpoint=False)
-        lats = np.linspace(90., -90., n_lat, endpoint=True)
-        self.lon, self.lat = np.meshgrid(lons, lats)
+        self.nlon = int(360. / resolution)
+        self.nlat = int(180. / resolution) + 1
+        if self.nlat % 2 == 0:
+            raise ValueError("Number of latitudes must be odd but is {}".format(self.nlat))
+        self.lons = np.linspace( 0., 360., self.nlon, endpoint=False)
+        self.lats = np.linspace(90., -90., self.nlat, endpoint=True)
+        self.lon, self.lat = np.meshgrid(self.lons, self.lats)
+        # Grid spacing in degrees
+        self.dlat = resolution
+        self.dlon = resolution
         # Spherical coordinate grid (for use with trigonometric functions)
-        lam = np.deg2rad(lons)
-        phi = np.deg2rad(lats)
-        self.lam, self.phi = np.meshgrid(lam, phi)
+        self.lams = np.deg2rad(self.lons)
+        self.phis = np.deg2rad(self.lats)
+        self.lam, self.phi = np.meshgrid(self.lams, self.phis)
         # Grid spacing in radians
-        self.dlam = 2 * np.pi / self.lam.shape[1]
-        self.dphi = np.pi / self.phi.shape[0]
+        self.dlam = 2 * np.pi / self.lams.size
+        self.dphi = np.pi / self.phis.size
         # Precompute Coriolis field
         self.fcor = self.coriolis(self.lat)
         # Spherical harmonic transform object
-        self._spharm = spharm.Spharmt(n_lon, n_lat, rsphere=rsphere, gridtype="regular", legfunc=legfunc)
-        self._ntrunc = (n_lat - 1) if ntrunc is None else ntrunc
+        self._spharm = spharm.Spharmt(self.nlon, self.nlat, rsphere=rsphere, gridtype="regular", legfunc=legfunc)
+        self._ntrunc = (self.nlat - 1) if ntrunc is None else ntrunc
         _, self.specindxn = spharm.getspecindx(self._ntrunc)
         # Eigenvalues of the horizontal Laplacian for each spherical harmonic.
         # Force use of complex64 datatype (= 2 * float32) because spharm will
@@ -63,9 +66,6 @@ class Grid:
         self.laplacian_eigenvalues = (
                 self.specindxn * (1. + self.specindxn) / rsphere / rsphere
                 ).astype(np.complex64, casting="same_kind")
-        # Keep some additional grid properties for convenience
-        self.longitudes = self.lon[0,:]
-        self.latitudes = self.lat[:,0]
 
     @property
     def shape(self):
@@ -279,7 +279,7 @@ class Grid:
         # If nothing is specified about the contour levels, use as many as
         # there are gridpoints in meridional direction
         if levels is None:
-            levels = 2 * self.latitudes.size
+            levels = 2 * self.nlat
         # If contours is specified as the number of contours to use, distribute
         # contours linearly between the min and max found in field. Omit min
         # and max as field >= min everywhere and field >= max most likely only

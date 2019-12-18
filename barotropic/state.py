@@ -171,14 +171,14 @@ class State:
     def fawa(self):
         """Finite-amplitude wave activity according to Nakamura and Zhu (2010)"""
         if self._fawa is None:
-            self._fawa, _ = diagnostic.fawa(self, interpolate=self.grid.latitudes)
+            self._fawa, _ = diagnostic.fawa(self, interpolate=self.grid.lats)
         return self._fawa
 
     @property
     def falwa(self):
         """Finite-amplitude local wave activity according to Huang and Nakamura (2016)"""
         if self._falwa is None:
-            self._falwa, _ = diagnostic.falwa(self, interpolate=self.grid.latitudes)
+            self._falwa, _ = diagnostic.falwa(self, interpolate=self.grid.lats)
         return self._falwa
 
     @property
