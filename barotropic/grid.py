@@ -123,6 +123,16 @@ class Grid:
         """Compute spectral vorticity and divergence from vector components"""
         return self._spharm.getvrtdivspec(u, v, self._ntrunc)
 
+    def gradient(self, field):
+        """Compute the gridded vector gradient of the field
+        
+        1st component: 1/r d/dφ
+        2nd component: 1/(r sin(φ)) d/dλ
+
+        Computed from spectral representation after transformation of input.
+        """
+        return self._spharm.getgrad(self.to_spectral(field))
+
     # Numerical quadrature
 
     @property
