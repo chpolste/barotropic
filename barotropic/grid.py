@@ -44,15 +44,15 @@ class Grid:
         self.lats = np.linspace(90., -90., self.nlat, endpoint=True)
         self.lon, self.lat = np.meshgrid(self.lons, self.lats)
         # Grid spacing in degrees
-        self.dlat = resolution
         self.dlon = resolution
+        self.dlat = -resolution
         # Spherical coordinate grid (for use with trigonometric functions)
         self.lams = np.deg2rad(self.lons)
         self.phis = np.deg2rad(self.lats)
         self.lam, self.phi = np.meshgrid(self.lams, self.phis)
         # Grid spacing in radians
-        self.dlam = 2 * np.pi / self.lams.size
-        self.dphi = np.pi / self.phis.size
+        self.dlam = np.deg2rad(self.dlon)
+        self.dphi = np.deg2rad(self.dlat)
         # Precompute Coriolis field
         self.fcor = self.coriolis(self.lat)
         # Spherical harmonic transform object
