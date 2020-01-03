@@ -15,7 +15,6 @@ class State:
         self._pv_spectral = pv_spectral
         self._u = None
         self._v = None
-        self._vorticity = None
         self._streamfunction = None
         # Memoized diagnostics
         self._fawa = None
@@ -128,13 +127,6 @@ class State:
         self._u, self._v = self.grid.wind(self.vorticity, np.zeros_like(self.vorticity))
 
     @property
-    def vorticity(self):
-        """Relative vorticity"""
-        if self._vorticity is None:
-            self._vorticity = self.pv - self.grid.fcor
-        return self._vorticity
-
-    @property
     def streamfunction(self):
         """Streamfunction of the wind"""
         if self._streamfunction is None:
@@ -152,6 +144,11 @@ class State:
     def pv_flux_spectral(self):
         """PV flux in spectral space = [q*u, q*v]"""
         return self.grid.divergence_spectral(self.pv * self.u, self.pv * self.v)
+
+    @property
+    def vorticity(self):
+        """Relative vorticity"""
+        return self.pv - self.grid.fcor
 
     @property
     def enstrophy(self):
