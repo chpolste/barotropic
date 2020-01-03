@@ -165,9 +165,7 @@ class State:
     @property
     def stationary_wavenumber(self):
         """Non-dimensionalised stationary wavenumber a²Ks²"""
-        u = np.mean(self.u, axis=ZONAL)
-        q = np.mean(self.pv, axis=ZONAL)
-        return np.cos(self.grid.phis)**2 * self.grid.rsphere * self.grid.ddphi(q, order=4) / u
+        return diagnostic.stationary_wavenumber(self)
 
     # Shortcuts to diagnostic fields
 

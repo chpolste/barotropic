@@ -7,12 +7,15 @@ from .constants import ZONAL, MERIDIONAL
 
 
 
-def _pv_grid(field, grid):
-    """If no grid is given (`grid=None`), assume `field` is a State"""
+def _get_grid_vars(which, grid, field):
+    # If no grid is given, assume field is State-like and take its grid
     if grid is None:
-        return field.pv, field.grid
+        grid = field.grid
+        outs = [getattr(field, attr) for attr in which]
     else:
-        return field, grid
+        outs = [None] * len(which)
+        outs[0] = field
+    return (grid, *outs)
 
 def _restrict_fourier_zonal(field, kmin, kmax):
     """Restrict the zonal Fourier spectrum to a range of wavenumbers
@@ -34,7 +37,7 @@ def fawa(pv_or_state, grid=None, levels=None, interpolate=None):
     latitudes. To obtain FAWA interpolated to a specific set of latitudes,
     specify these as an array with the `interpolate` argument.
     """
-    pv, grid = _pv_grid(pv_or_state, grid)
+    grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
     qq, yy = grid.zonalize_eqlat(pv, levels=levels, interpolate=None, quad="sptrapz")
     # Use formulation that integrates PV over areas north of PV
@@ -58,7 +61,7 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=None):
     latitude grid. To obtain FALWA interpolated to a specific set of latitudes,
     specify these as an array with the `interpolate` argument.
     """
-    pv, grid = _pv_grid(pv_or_state, grid)
+    grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
     qq, yy = grid.zonalize_eqlat(pv, levels=levels, quad="sptrapz")
     # Use formulation that integrates PV over areas north of PV
@@ -85,7 +88,7 @@ def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
     See: https://github.com/csyhuang/hn2016_falwa
     """
     from hn2016_falwa.oopinterface import BarotropicField
-    pv, grid = _pv_grid(pv_or_state, grid)
+    grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # hn2016_falwa expects latitudes to start at south pole
     xlon = grid.lons
     ylat = np.flip(grid.lats)
@@ -202,3 +205,19 @@ def envelope_hilbert(field, wavenumber_min=2, wavenumber_max=10):
     x = _restrict_fourier_zonal(field, wavenumber_min, wavenumber_max)
     return np.abs(signal.hilbert(x, axis=ZONAL))
 
+
+def stationary_wavenumber(u_or_state, grid=None, order=None):
+    """Non-dimensionalised stationary wavenumber a²Ks²"""
+    grid, u, pv = _get_grid_vars(["u", "pv"], grid, u_or_state)
+    # If u is a 2D field, calculate zonal mean
+    if u.ndim != 1:
+        u = np.mean(u, axis=ZONAL)
+    # If no PV field is given, calculate zonal-mean PV from zonal-mean u
+    if pv is None:
+        rv = - grid.ddphi(u * np.cos(grid.phis), order=order) / grid.rsphere / np.cos(grid.phis)
+        pv = grid.coriolis(grid.lats) + rv
+    # If PV is a 2D field, calculate zonal mean
+    elif pv.ndim != 1:
+        pv = np.mean(pv, axis=ZONAL)
+    # Calculate a²Ks²
+    return np.cos(grid.phis)**2 * grid.rsphere * grid.ddphi(pv, order=order) / u
