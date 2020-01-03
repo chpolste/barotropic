@@ -165,6 +165,13 @@ class State:
     def energy(self):
         return 0.5 * (self.u * self.u + self.v * self.v)
 
+    @property
+    def stationary_wavenumber(self):
+        """Non-dimensionalised stationary wavenumber a²Ks²"""
+        u = np.mean(self.u, axis=ZONAL)
+        q = np.mean(self.pv, axis=ZONAL)
+        return np.cos(self.grid.phis)**2 * self.grid.rsphere * self.grid.ddphi(q, order=4) / u
+
     # Shortcuts to diagnostic fields
 
     @property
