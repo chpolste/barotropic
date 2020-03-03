@@ -19,7 +19,6 @@ class State:
         self._v = None
         self._streamfunction = None
         # Memoized diagnostics
-        self._fawa = None
         self._falwa = None
         self._falwa_filtered = None
         self._dominant_wavenumber = None
@@ -253,9 +252,9 @@ class State:
     @property
     def fawa(self):
         """Finite-amplitude wave activity according to Nakamura and Zhu (2010)"""
-        if self._fawa is None:
-            self._fawa, _ = diagnostic.fawa(self, interpolate=self.grid.lats)
-        return self._fawa
+        # Instead of an extra computation with diagnostic.fawa, use that
+        # FAWA is the zonal average of FALWA (Huang and Nakamura 2016)
+        return self.falwa.mean(axis=ZONAL)
 
     @property
     def falwa(self):
