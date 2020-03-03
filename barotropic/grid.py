@@ -322,13 +322,17 @@ class Grid:
         # If nothing is specified about the contour levels, use as many as
         # there are gridpoints in meridional direction
         if levels is None:
-            levels = 2 * self.nlat
+            levels = self.nlat
         # If contours is specified as the number of contours to use, distribute
-        # contours linearly between the min and max found in field. Omit min
-        # and max as field >= min everywhere and field >= max most likely only
-        # in a single point.
+        # contours between the min and max found in field, following sine in
+        # the interval -90° to 90° and scaled and offset such that the min and
+        # max are reached. This should be a decent distribution in the general
+        # case as it resembles the distribution of planetary PV. Omit min and
+        # max contours as field >= min everywhere and field >= max most likely
+        # only in a single point.
         if isinstance(levels, int):
-            q = np.linspace(q_min, q_max, levels + 2)[1:-1]
+            _ = 0.5 * np.pi * np.linspace(-1, 1, levels+2)[1:-1]
+            q = 0.5 * ((q_max - q_min) * np.sin(_) + q_min + q_max)
         # Otherwise use the given contour values
         else:
             q = levels
