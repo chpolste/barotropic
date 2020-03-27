@@ -32,7 +32,7 @@ Zimin, A. V., Szunyogh, I., Patil, D. J., Hunt, B. R., & Ott, E. (2003).
 
 """
 
-from . import diagnostic, plot, rhs
+from . import diagnostic, plot, rhs, init, io
 from .constants import *
 from .grid import Grid
 from .model import BarotropicModel

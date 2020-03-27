@@ -20,11 +20,11 @@ A simulation can be set up, run and visualized in under 10 lines of code, e.g.:
 import barotropic as bt
 
 grid    = bt.Grid(resolution=2.5)
-initial = bt.State.solid_body_rotation(grid, amplitude=15)
+initial = bt.init.solid_body_rotation(grid, amplitude=15)
 forcing = bt.rhs.GaussianMountain(center=(30, 45), stdev=(10, 10), height=2000)
 model   = bt.BarotropicModel(forcing, diffusion_order=2)
 
-last, all_states = model.run(init, 15*bt.MIN, 10*bt.DAY, save_every=6*bt.HOUR)
+last, all_states = model.run(initial, 15*bt.MIN, 10*bt.DAY, save_every=6*bt.HOUR)
 
 last.plot.summary()
 ```
