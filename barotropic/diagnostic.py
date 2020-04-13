@@ -12,9 +12,10 @@ def _get_grid_vars(which, grid, field):
     if grid is None:
         grid = field.grid
         outs = [getattr(field, attr) for attr in which]
+    # Otherwise return grid and field as they are and None for other variables
     else:
         outs = [None] * len(which)
-        outs[0] = field
+        outs[0] = np.asarray(field)
     return (grid, *outs)
 
 def _restrict_fourier_zonal(field, kmin, kmax):
@@ -206,8 +207,25 @@ def envelope_hilbert(field, wavenumber_min=2, wavenumber_max=10):
     return np.abs(signal.hilbert(x, axis=ZONAL))
 
 
-def stationary_wavenumber(u_or_state, grid=None, order=None):
-    """Non-dimensionalised stationary wavenumber a²Ks²"""
+def stationary_wavenumber(u_or_state, grid=None, order=None, min_u=0.001, kind="complex"):
+    """Non-dimensionalised stationary (zonal) wavenumber (Ks)
+
+    Ks² = a²·βM/uM, where a is the radius of the sphere, βM is the Mercator
+    projection gradient of zonal-mean PV and uM is the Mercator projection
+    zonal-mean wind. See e.g. Hoskins and Karoly (1981), Wirth (2020).
+
+    Ks² can be negative. It is set to positive or negative infinity where u is
+    smaller than the threshold given by `min_u`. If u is given as a field or
+    zonal profile and not via a `State` in the first argument, βM is calculated
+    from the wind field using derivatives of order `order`.
+
+    The `kind` parameter determines how the wavenumber is returned:
+    - `kind="complex"` (default) returns the complex number √(Ks²).
+    - `kind="real"` returns the real number Re(Ks) - Im(Ks) where Ks is the
+      complex number √(Ks²). Since Ks² is real, the Im(Ks) is always zero when
+      Re(Ks) is non-zero and vice versa, making this expression of Ks unique.
+    - `kind="squared"` returns Ks².
+    """
     grid, u, pv = _get_grid_vars(["u", "pv"], grid, u_or_state)
     # If u is a 2D field, calculate zonal mean
     if u.ndim != 1:
@@ -219,5 +237,63 @@ def stationary_wavenumber(u_or_state, grid=None, order=None):
     # If PV is a 2D field, calculate zonal mean
     elif pv.ndim != 1:
         pv = np.mean(pv, axis=ZONAL)
-    # Calculate a²Ks²
-    return np.cos(grid.phis)**2 * grid.rsphere * grid.ddphi(pv, order=order) / u
+    # Mercator projection zonal-mean PV gradient (βM) times cosine of latitude
+    ks2 = np.cos(grid.phis)**2 * grid.rsphere * grid.ddphi(pv, order=order)
+    # Divide by u, avoid latitudes with small u
+    small_u = np.isclose(u, 0., atol=min_u)
+    ks2[~small_u] /= u[~small_u]
+    # Set to infinity where u is small, let betam determine the sign. Inf is
+    # preferrable to NaN as does not require special treatment in WKB waveguide
+    # extraction. Avoid 0*inf which is NaN.
+    ks2[small_u & (ks2 != 0.)] *= np.inf
+    # Return one of the 3 variants (see docstring):
+    if kind == "squared":
+        return ks2
+    ks = np.sqrt(ks2.astype(complex))
+    if kind == "complex":
+        return ks
+    if kind == "real":
+        return np.real(ks) - np.imag(ks)
+    raise ValueError("kind argument must be one of 'squared', 'complex', 'real'")
+
+
+def extract_waveguides(ks_or_state, k, grid=None):
+    """Extract waveguide boundaries based on the stationary wavenumber
+
+    `k` is the wavenumber for which the waveguides are extracted. If
+    `ks_or_state` is not a `State` object, `ks` must be the complex variant of
+    the stationary wavenumber and `grid` must be given (the grid is otherwise
+    taken from the `State` object.
+
+    WKB and ray-tracing theory say that Rossby waves are refracted towards
+    latitudes of higher stationary wavenumber. A local maximum in the zonal
+    profile of stationary wavenumber Ks can therefore trap waves and
+    constitutes a waveguide. See e.g. Petoukhov et al. (2013), Wirth (2020).
+    """
+    grid, ks = _get_grid_vars(["stationary_wavenumber"], grid, ks_or_state)
+    # Convert stationary wavenumbers to "real" variant, so there is a proper
+    # ordering (one could also square them, but then the linear interpolation
+    # for the start/end latitudes is not as nice for the non-squared variants)
+    ks = np.real(ks) - np.imag(ks)
+    k  = np.real(k)  - np.imag(k)
+    # There might be more than one waveguide
+    waveguides = []
+    # Scan from the North pole
+    active = ks[0] >= k
+    start = grid.lats[0]
+    # Scan towards the South pole
+    for lat_n, ks_n, ks_s in zip(grid.lats[:-1], ks[:-1], ks[1:]):
+        # Waveguide ends if ks goes below k
+        if active and ks_s < k:
+            end = lat_n + grid.dlat if np.isinf(ks_n) else lat_n - grid.dlat * (ks_n - k) / (ks_s - ks_n)
+            waveguides.append((start, end))
+            active = False
+        # Waveguide starts if ks exceeds k
+        elif not active and ks_s > k:
+            start = lat_n if np.isinf(ks_s) else lat_n - grid.dlat * (ks_n - k) / (ks_s - ks_n)
+            active = True
+    # Last waveguide must end at south pole
+    if active:
+        waveguides.append((start, grid.lats[-1]))
+    return waveguides
+

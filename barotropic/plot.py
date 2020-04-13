@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mpl_ticker
 from .constants import ZONAL, MERIDIONAL, HOUR
+from . import diagnostic
 
 
 # Data processing
@@ -221,6 +222,54 @@ def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, 
         configure_lat_y(ax, hemisphere)
         set_title_time(ax, state.time)
         #ax.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
+    fig.tight_layout()
+    return fig
+
+def waveguides(state, k_waveguides=None, hemisphere="both", xlim_bounds=(-5, 15),
+        legend_loc=None):
+    """Plot stationary wavenumber and WKB waveguide diagnostics"""
+    grid = state.grid
+    # 2-Panel plot
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+    # Zonal-mean zonal wind
+    ax1.set_title("zonal wind [$\\mathrm{m} \\mathrm{s}^{-1}$]", loc="left")
+    ax1.plot(np.mean(state.u, axis=ZONAL), grid.lats, color="#000000")
+    # Stationary wavenumber and waveguides
+    ks = state.stationary_wavenumber
+    ax2.set_title("stationary wavenumber $K_s$", loc="left")
+    # Wavenumbers for which waveguides are highlighted
+    if k_waveguides is None:
+        k_waveguides = tuple()
+    if isinstance(k_waveguides, Number):
+        k_waveguides = (k_waveguides,)
+    for k in k_waveguides:
+        # Collect boundary points of waveguides, intersperse with NaN values
+        # which prevents connection between individual waveguides
+        wg_coords = []
+        for x, y in diagnostic.extract_waveguides(ks, k, grid=grid):
+            wg_coords += [np.nan, x, y]
+        # Let matplotlib choose the color
+        ax2.plot([k]*len(wg_coords), wg_coords, label="k={}".format(k))
+    # Display color-wavenumber labels if desired
+    if legend_loc is not None:
+        ax2.legend(loc=legend_loc)
+    # Stationary wavenumber curve
+    ax2.plot(np.real(ks) - np.imag(ks), grid.lats, color="#000000")
+    # Keep wavenumber limits in given bounds
+    xmin, xmax = ax2.get_xlim()
+    xmin = max(xlim_bounds[0], xmin)
+    xmax = min(xlim_bounds[1], xmax)
+    ax2.set_xlim((xmin, xmax))
+    # Make sure wavenumber ticks are integers
+    xmin = np.ceil(xmin)
+    xmax = np.ceil(xmax)
+    step = np.ceil((xmax - xmin) / 10)
+    xmin += xmin % step # guarantee that 0 is ticked
+    ax2.set_xticks(np.arange(xmin, xmax, step))
+    # Style y-axes as latitude and add a vertical line at 0
+    for ax in (ax1, ax2):
+        configure_lat_y(ax, hemisphere)
+        ax.axvline(0, linestyle="--", linewidth=0.5, color="#666666")
     fig.tight_layout()
     return fig
 

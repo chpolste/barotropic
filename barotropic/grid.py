@@ -138,30 +138,40 @@ class Grid:
     def ddphi(self, f, order=None):
         """Finite difference first derivative in meridional direction: df/dφ
 
-        Accepts both 2D f(φ,λ) = f(lat,lon) and 1D f(φ) = f(lat) fields.
+        Accepts both 2D f(φ,λ) = f(lat,lon) and 1D f(φ) = f(lat) fields. For
+        1D input, the derivatives at the pole points are always set to 0, as
+        the input is assumed to represent a zonally symmetric profile of some
+        quantity (e.g. zonal-mean PV).
 
         2nd order approximation uses 3-point stencil, 4th order approximation
         5-point stencil (centered in inner domain, offset at edges). Stencil
         coefficients from http://web.media.mit.edu/~crtaylor/calculator.html.
         """
+        f = np.asarray(f)
+        assert f.ndim <= 2
+        # Output has same shape as input
         out = np.zeros_like(f)
         if order == 2:
             assert self.nlat >= 3, "Order 2 approximation requires at least 3 latitudes"
-            # numpy.gradient does not accept 2D fields, implement stencil
-            out[0   ,...] = -3*f[0,...] + 4*f[1,...] - f[2,...]
+            # Inner domain: centered difference
             out[1:-1,...] = f[2:,...] - f[:-2,...]
-            out[  -1,...] = f[-3,...] - 4*f[-2,...] + 3*f[-1,...]
+            # Only evaluate pole points for higher dimensions (see docstring)
+            if f.ndim != 1:
+                out[0   ,...] = -3*f[0,...] + 4*f[1,...] - f[2,...]
+                out[  -1,...] = f[-3,...] - 4*f[-2,...] + 3*f[-1,...]
             return out / 2 / self.dphi
         if order == 4 or order is None:
             assert self.nlat >= 5, "Order 4 approximation requires at least 5 latitudes"
-            # North pole: forward/offset 5-point stencil
-            out[0   ,...] = -25*f[0,...] + 48*f[1,...] - 36*f[2,...] + 16*f[3,...] - 3*f[4,...]
-            out[1   ,...] =  -3*f[0,...] - 10*f[1,...] + 18*f[2,...] -  6*f[3,...] +   f[4,...]
-            # Inner domain: centered 5-point stencil
+            # Northern edge of interior domain: offset 5-point stencil
+            out[1   ,...] = -3*f[0,...] - 10*f[1,...] + 18*f[2,...] - 6*f[3,...] + f[4,...]
+            # Interior domain: centered 5-point stencil
             out[2:-2,...] = f[:-4,...] - 8*f[1:-3,...] + 8*f[3:-1,...] - f[4:,...]
-            # South pole: offset/backward 5-point stencil
-            out[  -2,...] =  -f[-5,...] +  6*f[-4,...] - 18*f[-3,...] + 10*f[-2,...] +  3*f[-1,...]
-            out[  -1,...] = 3*f[-5,...] - 16*f[-4,...] + 36*f[-3,...] - 48*f[-2,...] + 25*f[-1,...]
+            # Southern edge of interior domain: offset 5-point stencil
+            out[  -2,...] = -f[-5,...] + 6*f[-4,...] - 18*f[-3,...] + 10*f[-2,...] + 3*f[-1,...]
+            # Only evaluate pole points for higher dimensions (see docstring)
+            if f.ndim != 1:
+                out[0   ,...] = -25*f[0,...] + 48*f[1,...] - 36*f[2,...] + 16*f[3,...] - 3*f[4,...]
+                out[  -1,...] = 3*f[-5,...] - 16*f[-4,...] + 36*f[-3,...] - 48*f[-2,...] + 25*f[-1,...]
             # Common divisor of stencil is 12
             return out / 12 / self.dphi
         raise NotImplementedError("Requested order of approximation not available (choose 2 or 4)")

@@ -124,11 +124,6 @@ class State:
     def energy(self):
         return 0.5 * (self.u * self.u + self.v * self.v)
 
-    @property
-    def stationary_wavenumber(self):
-        """Non-dimensionalised stationary wavenumber a²Ks²"""
-        return diagnostic.stationary_wavenumber(self)
-
     # Shortcuts to diagnostic fields
 
     @property
@@ -169,6 +164,15 @@ class State:
         """RWP envelope according to Zimin et al. (2003)"""
         return diagnostic.envelope_hilbert(self.v, 2, 10)
 
+    @property
+    def stationary_wavenumber(self):
+        """Non-dimensionalised stationary wavenumber (Ks)"""
+        return diagnostic.stationary_wavenumber(self)
+
+    def extract_waveguides(self, *args, **kwargs):
+        """Extract waveguide boundaries based on stationary wavenumber"""
+        return diagnostic.extract_waveguides(self, *args, **kwargs)
+
     # Shortcut to model integration
 
     def run(self, model, *args, **kwargs):
@@ -203,3 +207,7 @@ class StatePlotter:
         from . import plot
         plot.rwp_diagnostic(self._state, *args, **kwargs)
 
+    def waveguides(self, *args, **kwargs):
+        """See barotropic.plot.waveguides"""
+        from . import plot
+        plot.waveguides(self._state, *args, **kwargs)
