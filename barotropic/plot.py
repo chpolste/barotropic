@@ -14,6 +14,7 @@ def reduce_vectors(lon, lat, x, y, ny):
     slicer = slice(spacing // 2, None, spacing), slice(spacing // 2, None, spacing)
     return lon[slicer], lat[slicer], x[slicer], y[slicer]
 
+
 def hovmoellerify(states, f):
     if len(states) == 0:
         raise ValueError("no states given")
@@ -25,6 +26,7 @@ def hovmoellerify(states, f):
     if fields[0].size == grid.nlat:
         return times, grid.lats, np.stack(fields).T
     raise ValueError("dimension mismatch: output of reduce has to match number of lons or lats")
+
 
 def roll_lons(lons, center=180):
     """Center 2D fields around the given meridian
@@ -49,20 +51,24 @@ def symmetric_levels(x, n=10, ext=None):
         return np.array([-1., 1.])
     return np.linspace(-ext, ext, n)
 
+
 def configure_lon_x(ax, offset=0):
     #ax.xaxis.set_major_formatter(mpl_ticker.StrMethodFormatter("{x:.0f}°"))
     ax.set_xticks(np.arange(0, 360, 30))
     ax.set_xticklabels(["{:.0f}°".format((x - offset) % 360) for x in ax.get_xticks()])
 
+
 def configure_lat_y(ax, hemisphere):
     ax.yaxis.set_major_formatter(mpl_ticker.StrMethodFormatter("{x:.0f}°"))
     ax.set_ylim(0 if hemisphere == "N" else -90, 0 if hemisphere == "S" else 90)
+
 
 def set_title_time(ax, time, loc="right"):
     ax.set_title(
         "t = {:.1f} h".format(time / HOUR) if isinstance(time, Number) else time.isoformat(), 
         loc=loc
     )
+
 
 # Predefined figures
 
@@ -127,6 +133,7 @@ def summary(state, figsize=(11, 7), hemisphere="both", center_lon=180, pv_cmap="
     fig.tight_layout()
     return fig
 
+
 def wave_activity(state, figsize=(11, 7), hemisphere="both", center_lon=180, falwa_cmap="YlOrRd"):
     """Plot finite-amplitude wave activity and PV"""
     grid = state.grid
@@ -177,6 +184,7 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", center_lon=180, fal
     fig.tight_layout()
     return fig
 
+
 def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, v_max=None,
         rwp_max=None, rwp_cmap="YlOrRd"):
     """Plot Rossby wave packet diagnostics"""
@@ -196,7 +204,7 @@ def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, 
         ct = ax1.contour(grid.lon, grid.lat, roll(dwn), levels=dwn_levels, colors="k", linestyles="-", linewidths=1)
         ax1.clabel(ct, ct.levels, inline=True, fmt="%d")
     # Common colorbar range for envelope and filtered FALWA
-    env = state.rwp_envelope
+    env = state.envelope_hilbert
     ffalwa = state.falwa_filtered
     if rwp_max is None:
         rwp_max = max(np.max(env), np.max(ffalwa))
@@ -224,6 +232,7 @@ def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, 
         #ax.set_title("t = {:.1f} h".format(state.time / HOUR), loc="right")
     fig.tight_layout()
     return fig
+
 
 def waveguides(state, k_waveguides=None, hemisphere="both", xlim_bounds=(-5, 15),
         legend_loc=None):

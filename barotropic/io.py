@@ -7,7 +7,8 @@ from .grid import Grid
 
 
 def to_dataset(states):
-    raise NotImplementedError("TODO")
+    # TODO
+    raise NotImplementedError("This feature has not been implemented yet")
 
 
 def from_dataset(dataset, names=None, grid_kwargs=None):
@@ -20,6 +21,8 @@ def from_dataset(dataset, names=None, grid_kwargs=None):
     on the dataset coordinates. Additional arguments for the `Grid`
     instanciation can be specified with the `grid_kwargs` argument.
     """
+    # TODO also accept fields of absolute/relative vorticity
+    # TODO write proper error messages
     # Dataset should have 3 dimensions: time, lon, lat
     assert len(dataset.dims) == 3
     # Initialize mapping of coordinate names

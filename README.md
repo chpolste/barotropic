@@ -2,7 +2,7 @@
 
 Integrate the barotropic PV equation on the sphere.
 Fields are represented on a regular latitude-longitude grid while spatial derivatives are evaluated in spectral space (spherical harmonics).
-The model uses a leapfrog time integration scheme with Robert-Asselin filter, initialized by a single Euler-forward step.
+The model uses a leapfrog time integration scheme with Robert-Asselin filter, initialized with an Euler-forward step.
 
 
 ## Features
@@ -10,7 +10,6 @@ The model uses a leapfrog time integration scheme with Robert-Asselin filter, in
 - Initial condition and forcing presets for atmospheric science experiments
 - A range of diagnostic functions to investigate properties of the flow
 - Predefined plotting functions
-- Import of xarray datasets, e.g. to load gridded reanalysis data from grib/netcdf files
 
 The model code is object-oriented, modular and easy to use.
 The implementations are kept simple but sufficiently fast to allow interactive use at moderate spatial and temporal resolutions (e.g. 2.5° spatial resolution with 10 minute timesteps).
@@ -37,7 +36,7 @@ last.plot.summary()
 - [numpy](https://github.com/numpy/numpy)
 - [pyspharm](https://github.com/jswhit/pyspharm)
 
-Additional dependencies for plotting, diagnostics, data import:
+Additional dependencies for plotting, diagnostics, etc.:
 
 - [matplotlib](https://github.com/matplotlib/matplotlib)
 - [scipy](https://github.com/scipy/scipy)
@@ -67,11 +66,12 @@ A few [example notebooks](examples) are provided in which the model is used to r
 Usage of the model involves three classes:
 
 - `Grid`: contains properties of the latitude-longitude grid, provides access to spectral transforms and differentiation and quadrature in space.
-- `BarotropicModel`: set up the right-hand side forcing terms and parameters of the numerical diffusion and integrate forward in time.
-- `State`: provides initial state presets as staticmethods, general access to fields (PV, wind, streamfunction, etc.) and shortcuts to plotting and diagnostic functions.
+- `BarotropicModel`: handles the forcing terms, parameters of the numerical diffusion and time integration.
+- `State`: general access to fields (PV, wind, streamfunction, etc.) and shortcuts to plotting and diagnostic functions.
 
 Convenient model setup and analysis functionality is provided by these submodules:
 
+- `init`: predefined and configurable initial states.
 - `rhs`: contains predefined forcing terms (e.g. pseudo-orography) with overloaded `+` and `*` operators for convenient combination.
 - `diagnostic`: implementation of various diagnostic functions, mainly for analysis of Rossby waves.
 - `plot`: plot presets and general plotting helpers, e.g. to combine multiple `State` objects into a Hovmöller diagram.

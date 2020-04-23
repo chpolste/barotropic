@@ -59,7 +59,7 @@ class BarotropicModel:
         return state_new
 
     def leapfrog(self, state_old, state_now, filter_parameter=0.2):
-        """"Step forward in time using a filtered leapfrog scheme
+        """Step forward in time using a filtered leapfrog scheme
 
         The timestep size is determined from the difference of the given input
         fields `state_old` and `state_now`.

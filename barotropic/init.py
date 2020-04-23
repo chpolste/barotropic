@@ -39,7 +39,7 @@ def gaussian_jet(grid, time=0., amplitude=20., center_lat=45., stdev_lat=5.):
     A linear wind profile in latitude is added to zero wind speeds at both
     poles.
     """
-    u = amplitude * np.exp( -0.5 * (grid.lat - latitude)**2 / stdev**2 )
+    u = amplitude * np.exp( -0.5 * (grid.lat - center_lat)**2 / stdev_lat**2 )
     # Subtract a linear function to set u=0 at the poles
     u_south = u[-1,0]
     u_north = u[ 0,0]

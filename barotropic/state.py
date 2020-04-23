@@ -160,7 +160,7 @@ class State:
         return self._dominant_wavenumber
 
     @property
-    def rwp_envelope(self):
+    def envelope_hilbert(self):
         """RWP envelope according to Zimin et al. (2003)"""
         return diagnostic.envelope_hilbert(self.v, 2, 10)
 
