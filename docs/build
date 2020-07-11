@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+export PYTHONPATH=".."
+pdoc --overwrite --template-dir templates --html --html-no-source --html-dir . barotropic
+# Remove empty lines from generated html-files, saves a few kB
+sed -i "/^\s*$$/d" barotropic/*.html
+

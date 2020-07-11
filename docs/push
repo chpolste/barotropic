@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+git checkout master
+git branch -D gh-pages
+git checkout --orphan gh-pages
+git reset
+./build
+git add -f barotropic
+git commit --author "documentation <docs@build.local>" -m "Add documentation pages"
+git push -f origin gh-pages
+git checkout -f "${current_branch}"
+
