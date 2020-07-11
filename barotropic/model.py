@@ -4,30 +4,55 @@ from .state import State
 
 
 class BarotropicModel:
-    """Integrate the barotropic PV equation on the sphere forward in time"""
+    """Integrate the barotropic PV equation on the sphere forward in time.
+    
+        Dq/Dt = ∂q/∂t + ∇(u·q) = RHS,
+
+    where `q` is the barotropic potential vorticity (i.e. absolute vorticity)
+    and `u` is the divergence-free horizontal wind (which can be obtained from
+    the PV by inversion).
+
+    A `BarotropicModel` instance does not contain state aside from the forcing
+    and diffusion setup and can be reused for multiple integrations with
+    different `barotropic.State`s.
+    """
 
     def __init__(self, rhs=None, diffusion_order=2, diffusion_coeff=1.e15):
-        """Set up a numerical model of the barotropic PV equation on the sphere
+        """BarotropicModel constructor.
 
-        The integrated model equation is
-
-            Dq/Dt = ∂q/∂t + ∇(u·q) = RHS,
-
-        using ∇u = 0. The right-hand side RHS is specified by the argument
-        `rhs` which, when called with the current model state, returns the RHS
-        values in spectral space. Predefined RHS terms are found in the `.rhs`
-        submodule.
-
-        Numerical stability is enhanced by smoothing the PV field with
-        a diffusion term at every step. The order and strength of this
-        diffusion can be tuned with parameters `diffusion_order` and
-        `diffusion_coeff`.
+        - `rhs` specifies the model forcing, which can be built from the components
+          provided in `barotropic.rhs` or a custom implementation with the same
+          interface.
+        - Numerical stability is enhanced by smoothing the PV field with
+          a laplacian diffusion term after every time step. The order and strength
+          of this diffusion can be tuned with parameters `diffusion_order` and
+          `diffusion_coeff`.
         """
         self.rhs = rhs
         self.diffusion_order = diffusion_order
         self.diffusion_coeff = diffusion_coeff
 
     def run(self, state_init, dt, tend, save_every=0):
+        """Run the model until a specified time is reached.
+
+        Initializes with a first-order Euler forward step, then continues with
+        second-order Leapfrog steps.
+
+        - `state_init` is the initial state from which the integration starts.
+        - `dt` is the step size used in the integration.
+        - `tend` is the time after which the integration stops. The model will
+          not try to reach this time exactly, but stop as soon as `tend` is
+          exeeded.
+        - If `save_every` is larger than zero, an intermediate state is saved
+          and then returned every time this time interval is exceeded.
+
+        Time and time intervals should be given as a number type representing
+        seconds if `state_init` uses a number type to denote time, or
+        `datetime.datetime` and `datetime.timedelta` if `state_init` uses
+        `datetime.datetime` to denote time.
+
+        Returns the final state and a list of all saved intermediate states.
+        """
         if tend < state_init.time:
             return state_init, [state_init]
         # First integration with Euler forward step (multistep leapfrog scheme
@@ -47,7 +72,10 @@ class BarotropicModel:
         return state, states
     
     def euler(self, state_now, dt):
-        """Step forward in time by `dt` starting from `state_now`"""
+        """Step forward in time with a first-order Euler-forward scheme
+
+        Advances by `dt` starting from `state_now` and returns the new state.
+        """
         dts = _to_seconds(dt)
         pv_new_spectral = state_now.pv_spectral + dts * self._pv_tendency_spectral(state_now)
         pv_new_spectral = self._apply_diffusion(state_now.grid, dts, pv_new_spectral)
@@ -59,14 +87,14 @@ class BarotropicModel:
         return state_new
 
     def leapfrog(self, state_old, state_now, filter_parameter=0.2):
-        """Step forward in time using a filtered leapfrog scheme
+        """Step forward in time using a filtered leapfrog scheme.
 
-        The timestep size is determined from the difference of the given input
-        fields `state_old` and `state_now`.
+        - The timestep size is determined automatically from the difference of
+          the given input fields `state_old` and `state_now`.
+        - The filter strength can be configured with the `filter_parameter`.
 
-        Both the current and the new model state are returned as the applied
-        Robert-Asselin filter modifies the current state after the integration.
-        The filter strength can be configured with the `filter_parameter`.
+        Both the current and the new model state are returned in a tuple since
+        the Robert-Asselin filter modifies the current state too.
         """
         # Determine timestep from temporal difference of old and current state
         dt = state_now.time - state_old.time

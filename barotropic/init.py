@@ -1,15 +1,22 @@
-""" Preconfigured initial conditions"""
+""" Preconfigured initial conditions and initial condition helpers.
+
+All functions take a `time` parameter which is given to the `State` constructor.
+"""
 
 import numpy as np
 from .state import State
 
 
 def motionless(grid, time=0.):
-    """A motionless state"""
+    """A motionless state."""
     return State(grid, time, pv=grid.coriolis(grid.lat))
 
 
 def zonally_symmetric(grid, time=0., u=None, pv=None):
+    """Turn a given zonal profile of zonal wind or PV into a full 2D-state.
+    
+    Either `u` or `pv` must be specified.
+    """
     # Zonal profile of zonal wind given
     if u is not None and pv is None:
         u = np.asarray(u, dtype=float)
@@ -27,14 +34,22 @@ def zonally_symmetric(grid, time=0., u=None, pv=None):
 
 
 def solid_body_rotation(grid, time=0., amplitude=15.):
-    """A cos(latitude) zonal wind profile"""
+    """A cosine-shaped, zonally-symmetric zonal wind profile.
+    
+    The peak zonal wind speed at the equator is given by the `amplitude`
+    parameter in m/s.
+    """
     u = amplitude * np.cos(grid.phi)
     v = np.zeros_like(u)
     return State.from_wind(grid, time, u, v)
 
 
 def gaussian_jet(grid, time=0., amplitude=20., center_lat=45., stdev_lat=5.):
-    """A bell-shaped zonal jet
+    """A bell-shaped, zonally-symmetric zonal jet.
+
+    - `amplitude` is the peak zonal wind at the center of the jet.
+    - `center_lat` is the center of the jet in degrees latitude.
+    - `stdev_lat` is the standard deviation of the jet in degrees latitude.
 
     A linear wind profile in latitude is added to zero wind speeds at both
     poles.
@@ -50,7 +65,7 @@ def gaussian_jet(grid, time=0., amplitude=20., center_lat=45., stdev_lat=5.):
 
 
 def held_1985(grid, time=0., A=25., B=30., C=300.):
-    """Zonal wind profile similar to that of the upper troposphere
+    """Zonal wind profile similar to that of the upper troposphere.
 
     Introduced by Held (1985), also used by Held and Phillips (1987) and
     Ghinassi et al. (2018).

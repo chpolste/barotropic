@@ -1,30 +1,34 @@
-"""RHS forcing terms in spectral space"""
+"""Predefined RHS forcing terms."""
 
 import functools
 import numbers
 import numpy as np
 
-from .constants import ZONAL
+from .constants import ZONAL as _ZONAL
 
 
 
 class RHS:
-    """RHS term base class that implements arithmetic operators"""
+    """RHS forcing term base class that implements arithmetic operators.
+    
+    Forcing terms should inherit from this class so they can be added and
+    multiplied easily.
+    """
 
     def __add__(self, other):
-        return RHSSum(self, other)
+        return _RHSSum(self, other)
 
     def __radd__(self, other):
-        return RHSSum(other, self)
+        return _RHSSum(other, self)
 
     def __mul__(self, other):
-        return RHSProduct(self, other)
+        return _RHSProduct(self, other)
 
     def __rmul__(self, other):
-        return RHSProduct(other, self)
+        return _RHSProduct(other, self)
 
 
-class RHSSum(RHS):
+class _RHSSum(RHS):
 
     def __init__(self, term1, term2):
         self._term1 = term1
@@ -37,7 +41,7 @@ class RHSSum(RHS):
         return "({} + {})".format(repr(self._term1), repr(self._term2))
 
 
-class RHSProduct(RHS):
+class _RHSProduct(RHS):
 
     def __init__(self, term1, term2):
         self._term1 = term1
@@ -50,8 +54,9 @@ class RHSProduct(RHS):
         return "({} * {})".format(repr(self._term1), repr(self._term2))
 
 
+
 class TimedOffSwitch(RHS):
-    """Turn off another forcing term after a specified amount of time
+    """Turn off another forcing term after a specified amount of time.
 
     The forcing term returns 1 until the specified switch-off time is reached
     after which it returns 0 forever. Multiply with the term that is supposed
@@ -59,7 +64,7 @@ class TimedOffSwitch(RHS):
     """
 
     def __init__(self, tend):
-        """Set the switch-off time with `tend` in s"""
+        """The switch-off time is `tend`."""
         self._tend = tend
 
     def __call__(self, state):
@@ -67,10 +72,19 @@ class TimedOffSwitch(RHS):
 
 
 class LinearRelaxation(RHS):
-    """Linear relaxation towards a reference PV state"""
+    """Linear relaxation towards a reference PV state."""
 
     def __init__(self, rate, reference_pv, mask=None):
-        """"""
+        """Specify the reference PV field and speed of relaxation.
+        
+        The forcing is calculated as
+        
+            rate * (reference_pv - pv),
+
+        where `pv` is the PV field of the current timestep.
+
+        The `mask` parameter does nothing at the moment.
+        """
         self._rate = rate
         self._reference_pv = reference_pv
         # TODO: mask (allows implementation of sponge-like forcing)
@@ -80,19 +94,25 @@ class LinearRelaxation(RHS):
 
 
 class Orography(RHS):
-    """Pseudo-orographic forcing F = -f/H * u·∇h
+    """Pseudo-orographic forcing based on a given gridded orography.
 
-    f is the coriolis parameter, H a scale height, u is the wind vector and
-    h is the height of the orography.
+    The forcing is calculated as
 
-    This is class supports time-invariant orography fields given on a lat-lon
-    grid, which are interpolated to the resolution of the calling model.
-    Otherwise defined orographies can inherit from this class and should only
+        -f/H * u·∇h,
+
+    where `f` is the coriolis parameter in 1/s, `H` a scale height in m, `u`
+    the horizontal wind and `h` is the height of the orography.
+
+    This is class only supports time-invariant orography fields. The fields
+    must be given on a lat-lon grid and will automatically be interpolated if
+    required.
+
+    Other orography forcing terms can inherit from this class and should only
     have to implement the `orography` method.
     """
 
     def __init__(self, lons, lats, orography, scale_height=10000., wind=("act", 1.), fcor_ref=None):
-        """Set up an orographic forcing term for the specified orography
+        """Set up an orographic forcing term for the specified orography.
 
         `orography` (in m), on a lat-lon grid given by `lats` and `lons`. The
         orography is linearly interpolated to the required grid when the
@@ -103,13 +123,16 @@ class Orography(RHS):
         
         `scale_height` should be given in m. The parameter `wind` controls
         which winds are used to evaluate the forcing, with these options:
-        ("act", factor): The actual 2D-wind is used, scaled by the given factor
-        ("zon", factor): The zonal-mean zonal wind is used, scaled by the given
-                         factor. The meridional wind component is set to 0.
-        ("sbr", maxval): A constant solid body rotation wind profile is used
-                         with the given maximum wind speed at the equator. This
-                         can be useful to define a constant orography-based
-                         wavemaker for simple experiments.
+
+        - `("act", factor)`: The actual 2D-wind is used, scaled by the given
+          `factor`.
+        - `("zon", factor)`: The zonal-mean zonal wind is used, scaled by the
+          given `factor`. The meridional wind component is set to 0.
+        - `("sbr", maxval)`: A constant solid body rotation wind profile is
+          used with the given maximum wind speed at the equator. This can be
+          useful to define a constant orography-based wavemaker for simple
+          experiments.
+
         If `fcor_ref` is `None` (default), the actual coriolis parameter values
         are used to calculate the forcing, otherwise the given value (in 1/s)
         is used in the calculation of the forcing.
@@ -124,14 +147,14 @@ class Orography(RHS):
         if wind_kind == "act":
             self._get_wind = lambda state: (wind_fact * state.u, wind_fact * state.v)
         elif wind_kind == "zon":
-            self._get_wind = lambda state: (wind_fact * np.mean(state.u, axis=ZONAL, keepdims=True), 0.)
+            self._get_wind = lambda state: (wind_fact * np.mean(state.u, axis=_ZONAL, keepdims=True), 0.)
         elif wind_kind == "sbr":
             self._get_wind = lambda state: (wind_fact * np.cos(state.grid.phis)[:,None], 0.)
         else:
             raise ValueError("wind specification error")
 
     def orography(self, grid):
-        """The orography in m, interpolated to the given grid"""
+        """The orography in m, interpolated to the given grid."""
         # Interpolate given orography to grid. Because np.interp requires
         # increasing x-values, flip sign of lats which range from +90° to -90°.
         lat_interp = lambda x: np.interp(-grid.lats, -self._lats, x)
@@ -142,7 +165,7 @@ class Orography(RHS):
 
     @functools.lru_cache(maxsize=8)
     def _orography_gradient(self, grid):
-        """The vector-valued gradient of the orography
+        """The vector-valued gradient of the orography.
 
         Values are cached since orography is time-invariant and only depends on
         the properties of the grid which do not change during a simulation.
@@ -150,7 +173,7 @@ class Orography(RHS):
         return grid.gradient(self.orography(grid))
 
     def __call__(self, state):
-        """Evaluate the forcing term for the given state"""
+        """Evaluate the forcing term for the given state."""
         grid = state.grid
         # Fixed coriolis parameter if given or use actual values from grid
         fcor = grid.fcor if self._fcor_ref is None else self._fcor_ref
@@ -162,11 +185,11 @@ class Orography(RHS):
 
 
 class GaussianMountain(Orography):
-    """Gaussian-shaped pseudo-orography"""
+    """Gaussian-shaped pseudo-orography."""
 
     def __init__(self, height=1500, center=(30., 45.), stdev=(7.5, 20.), **orog_kwargs):
-        """Gaussian mountain for pseudo-orographic forcing
-        
+        """Gaussian mountain for pseudo-orographic forcing.
+
         The mountain is centered at the (lon, lat)-tuple `center` (in degrees)
         and decays with zonal and meridional standard deviations given by the
         tuple or value `stdev` (in degrees). `height` is the maximum height of
@@ -191,10 +214,10 @@ class GaussianMountain(Orography):
 
 
 class ZonalSineMountains(Orography):
-    """Sinusoidal pseudo-orography in the zonal direction"""
+    """Sinusoidal pseudo-orography in the zonal direction."""
 
     def __init__(self, height=1500, center_lat=45., stdev_lat=10., wavenumber=4, **orog_kwargs):
-        """Sinusoidal mountain-chain for pseudo-orographic forcing
+        """Sinusoidal mountain-chain for pseudo-orographic forcing.
 
         The mountains are centered at latitude `center_lat` (in degrees) and
         decay in meridional direction with a standard deviation of `stdev_lat`

@@ -1,4 +1,4 @@
-"""Input/output"""
+"""Input/output functions (**work in progress**)."""
 
 import numpy as np
 import datetime as dt

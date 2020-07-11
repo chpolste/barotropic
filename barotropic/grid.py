@@ -4,31 +4,44 @@ from .constants import EARTH_RADIUS, EARTH_OMEGA
 
 
 class Grid:
-    """Regular lat-lon grid and operations for a spherical planet
+    """Regular lat-lon grid and operations for a spherical planet.
 
-    Uses (truncated) spherical harmonics for some operations utilizing the
-    pyspharm package.
-
-    The latitudes starts at the north pole, as is convention in pyspharm. This
+    Latitudes start at the north pole, as is convention in `spharm`. This
     results in horizontally flipped images when plotting fields in matplotlib
-    without explicitly specifying the latitude grid. Apply numpy.flipud to
-    obtain fields that start at the south-pole.
+    without explicitly specifying the latitude grid.
+
+    Attributes set during initialization:
+
+    - `nlon`, `nlat`: Number of longitudes/latitudes.
+    - `dlon`, `dlat`: Longitude/latitude spacing in degrees.
+    - `lons`, `lats`: Longitude/latitude coordinates in degrees (1D).
+    - `lon`, `lat`: Longitude/latitude coordinates in degrees (2D).
+    - `dlam`, `dphi`: Longitude/latitude spacing in radians.
+    - `lams`, `phis`: Longitude/latitude coordinates in radians (1D).
+    - `lam`, `phi`: Longitude/latitude coordinates in radians (2D).
+    - `fcor`: Coriolis parameter in 1/s (2D).
+    - `laplacian_eigenvalues`: Eigenvalues of the horizontal Laplace
+      Operator for each spherical harmonic.
+
+    Consider using the `ZONAL` and `MERIDIONAL` constants as convenient and
+    readable accessors for the grid dimensions.
     """
+
 
     def __init__(self, rsphere=EARTH_RADIUS, omega=EARTH_OMEGA, resolution=2.5,
             ntrunc=None, legfunc="stored"):
-        """Regular lat-lon grid for a spherical planet
-        
-        The radius and angular velocity of the planet are given by `rsphere` in
-        m and `omega` in 1/s, respectively (the default values correspond to
-        those of the Earth).
+        """Grid constructor.
 
-        The grid resolution is uniform and specified with the `resolution`
-        parameter in degrees.
-
-        By default (`ntrunc=None`, `legfunc="stored"`), the spherical harmonics are
-        truncated after (number of latitudes - 1) functions and precomputed.
-        See spharm.Spharmt for more information on these parameters.
+        - The radius and angular velocity of the planet are given by `rsphere` in
+          m and `omega` in 1/s, respectively (the default values correspond to
+          those of the Earth).
+        - The grid resolution is uniform and specified with the `resolution`
+          parameter in degrees.
+        - Uses spherical harmonics for some operations utilizing the
+          `spharm`/`pyspharm` package. By default (`ntrunc=None`,
+          `legfunc="stored"`), the spherical harmonics are truncated after (number
+          of latitudes - 1) functions and precomputed. Consult the documentation of
+          `spharm.Spharmt` for more information on these parameters.
         """
         # Planet parameters (radius, angular velocity)
         self.rsphere = rsphere
@@ -69,83 +82,82 @@ class Grid:
 
     @property
     def shape(self):
-        """Grid dimensions"""
+        """Tuple of grid dimensions (`nlat`, `nlon`)."""
         return self.phi.shape
 
     def circumference(self, lat):
-        """Circumference of the sphere at constant latitude"""
+        """Circumference (in m) of the sphere at constant latitude."""
         return 2 * np.pi * self.rsphere * np.cos(np.deg2rad(lat))
 
     def coriolis(self, lat):
-        """Coriolis parameter for a given latitude"""
+        """Coriolis parameter (in m) for a given latitude (in degrees)."""
         return 2. * self.omega * np.sin(np.deg2rad(lat))
 
     # Spectral-grid transforms
 
     def to_spectral(self, field_grid):
-        """Transform gridded field into spectral space"""
+        """Transform a gridded field into spectral space."""
         return self._spharm.grdtospec(field_grid, self._ntrunc)
 
     def to_grid(self, field_spectral):
-        """Transform spectral field into gridded space"""
+        """Transform a spectral field into grid space."""
         return self._spharm.spectogrd(field_spectral)
 
     # Wind computations
 
     def wind(self, vorticity, divergence):
-        """Compute gridded wind components from vorticity and divergence fields"""
+        """Gridded wind components from vorticity and divergence fields."""
         vorticity_spectral = self.to_spectral(vorticity)
         divergence_spectral = self.to_spectral(divergence)
         return self._spharm.getuv(vorticity_spectral, divergence_spectral)
 
     def vorticity(self, u, v):
-        """Compute gridded vorticity from wind components"""
+        """Gridded vorticity from wind components."""
         return self.to_grid(self.vorticity_spectral(u, v))
 
     def vorticity_spectral(self, u, v):
-        """Compute spectral vorticity from wind components"""
+        """Spectral vorticity from wind components."""
         return self.vorticity_divergence_spectral(u, v)[0]
 
     def divergence(self, u, v):
-        """Compute gridded divergence from vector components"""
+        """Gridded divergence from vector components."""
         return self.to_grid(self.divergence_spectral(u, v))
 
     def divergence_spectral(self, u, v):
-        """Compute spectral divergence from vector components"""
+        """Spectral divergence from vector components."""
         return self.vorticity_divergence_spectral(u, v)[1]
 
     def vorticity_divergence(self, u, v):
-        """Compute gridded vorticity and divergence from vector components"""
+        """Gridded vorticity and divergence from vector components."""
         vort, div = vorticity_divergence_spectral(u, v)
         return self.to_grid(vort), self.to_grid(div)
 
     def vorticity_divergence_spectral(self, u, v):
-        """Compute spectral vorticity and divergence from vector components"""
+        """Spectral vorticity and divergence from vector components."""
         return self._spharm.getvrtdivspec(u, v, self._ntrunc)
 
     # General derivatives
 
     def gradient(self, f):
-        """Compute the gridded vector gradient of the 2D field f(φ,λ)
-        
-        1st component: 1/r df/dφ
-        2nd component: 1/(r sin(φ)) df/dλ
+        """Gridded vector gradient of the 2D field f(φ,λ).
 
-        Computed from spectral representation after transformation of input.
+        Returns a tuple containing the two components `1/r df/dφ` and
+        `1/(r sin(φ)) df/dλ`.
         """
         return self._spharm.getgrad(self.to_spectral(f))
 
     def ddphi(self, f, order=None):
-        """Finite difference first derivative in meridional direction: df/dφ
+        """Finite difference first derivative in meridional direction: `df/dφ`.
 
-        Accepts both 2D f(φ,λ) = f(lat,lon) and 1D f(φ) = f(lat) fields. For
-        1D input, the derivatives at the pole points are always set to 0, as
+        Accepts both 2D `f(φ,λ) = f(lat,lon)` and 1D `f(φ) = f(lat)` fields.
+        For 1D input, the derivatives at the poles are always set to zero, as
         the input is assumed to represent a zonally symmetric profile of some
         quantity (e.g. zonal-mean PV).
 
-        2nd order approximation uses 3-point stencil, 4th order approximation
-        5-point stencil (centered in inner domain, offset at edges). Stencil
-        coefficients from http://web.media.mit.edu/~crtaylor/calculator.html.
+        The 2nd order approximation uses a 3-point stencil, the 4th order
+        approximation a 5-point stencil (centered in inner domain, offset at
+        the edges). Stencil coefficients were obtained from
+        http://web.media.mit.edu/~crtaylor/calculator.html.
         """
         f = np.asarray(f)
         assert f.ndim <= 2
@@ -180,10 +192,10 @@ class Grid:
 
     @property
     def gridpoint_area(self):
-        """Surface area associated with each gridpoint based on a dual grid
+        """Surface area associated with each gridpoint based on a dual grid.
         
-        Associated area of gridpoint (lon, lat) in regular grid:
-            r² * dlon * [ sin(lat + dlat) - sin(lat - dlat) ]
+        The associated area of a gridpoint (lon, lat) in a regular grid is
+        given by: `r² * dlon * [ sin(lat + dlat) - sin(lat - dlat) ]`
 
         Used for box-counting quadrature.
         """
@@ -204,36 +216,37 @@ class Grid:
         return gridpoint_area
 
     def quad_boxcount(self, y, where=True):
-        """Surface integral summing (area * value of `y`) at every gridpoint
+        """Surface integral summing (`area * value` of `y`) at every gridpoint.
         
-        Domain of integration (optionally) specified by boolean array `where`.
+        The domain of integration can optionally be specified by a boolean
+        array in the `where` parameter.
         """
         return np.sum(self.gridpoint_area * y, where=where)
 
     def quad_sptrapz(self, y, z=None):
-        """Surface integral based on meridional linear interpolation
+        """Surface integral based on meridional linear interpolation.
         
         See `Grid.quad_sptrapz_meridional`.
         """
         return self.rsphere * self.dlam * np.sum(self.quad_sptrapz_meridional(y, z))
 
     def quad_sptrapz_meridional(self, y, z=None):
-        """Line integral of `y` along meridians using linear interpolation
+        """Line integral of `y` along meridians using linear interpolation.
 
-        A custom domain of integration can be specified with array argument
-        `z`. The domain is determined by the condition z >= 0 using linear
-        interpolation. If `z` is not given, the entire integration domain is
-        the entire surface of the sphere.
+        A custom domain of integration can be specified with parameter `z`. The
+        domain is then determined by the condition `z >= 0` using linear
+        interpolation. If `z` is not given, the integration domain is the
+        entire surface of the sphere.
 
         The quadrature rule is based on the trapezoidal rule adapted for
-        sperical surface domains using the antiderivate of
-            r * (a*lat + b) * cos(lat)
+        sperical surface domains using the antiderivate of `r * (a*lat + b) * cos(lat)`
         to integrate over the piecewise-linear, interpolated segments between
-        gridpoints in the meridional direction.
+        gridpoints in the meridional direction. This implementation is accurate
+        but rather slow.
 
-        No interpolation is carried out in zonal direction (since lines of
+        No interpolation is carried out in the zonal direction (since lines of
         constant latitude are not great-circles, linear interpolation is
-        non-trivial. The boundaries of the domain of integration are therefore
+        non-trivial). The boundaries of the domain of integration are therefore
         not continuous in the zonal direction.
         """
         x = self.phi
@@ -287,12 +300,10 @@ class Grid:
     # Equivalent-latitude zonalization
 
     def equivalent_latitude(self, area):
-        """Latitude such that surface up to North Pole is `area`-sized
+        """Latitude such that surface up to North Pole is `area`-sized.
 
-        Area north of latitude lat:
-          area = 2 * pi * (1 - sin(lat)) * r²
-        Solve for latitude:
-           lat = arcsin(1 - area / 2 / pi / r²)
+        - Area north of latitude `lat`: `area = 2 * pi * (1 - sin(lat)) * r²`.
+        - Solve for latitude: `lat = arcsin(1 - area / 2 / pi / r²)`.
         """
         # Calculate argument of arcsin
         sine = 1. - 0.5 * area / np.pi / self.rsphere**2
@@ -303,28 +314,29 @@ class Grid:
         return np.rad2deg(np.arcsin(sine))
 
     def zonalize_eqlat(self, field, levels=None, interpolate=None, quad="sptrapz"):
-        """Zonalize the field with equivalent latitude coordinates
+        """Zonalize the field with equivalent latitude coordinates.
 
-        Implements zonalization procedure of Nakamura and Zhu (2010).
+        Implements the zonalization procedure of Nakamura and Zhu (2010).
         
-        The number of contours generated from field for the zonalization is
-        determined by the `levels` parameter. If `levels` is an integer, the
-        contours are sampled equidistantly between the highest and lowest
-        occuring value in the field. If `levels` is a list of contour-values,
-        these are used directly. By default (`levels=None`), the number of
-        levels is set equal to the number of latitudes resolved by the grid.
+        - The number of contours generated from the field for the zonalization
+          is determined by the `levels` parameter. If `levels` is an integer,
+          contours are sampled between the highest and lowest occuring value in
+          the field. If `levels` is a list of contour-values, these are used
+          directly. By default (`levels=None`), the number of levels is set
+          equal to the number of latitudes resolved by the grid.
+        - An output latitude grid can be specified with the `interpolate`
+          argument. The zonalized contour values are then interpolated to this
+          grid using linear interpolation. By default (`interpolate=None`), no
+          interpolation is carried out.
+        - The quadrature rule used in the surface integrals of the zonalization
+          computation can be specified with the `quad` argument. Possible
+          values are `"sptrapz"` and `"boxcount"`, corresponding to methods
+          `Grid.quad_sptrapz` and `Grid.quad_boxcount`, respectively. It is highly
+          recommended to use the slower, but much more accurate `"sptrapz"`
+          quadrature to avoid the "jumpiness" of the boxcounting scheme.
 
-        An output latitude grid can be specified with the `interpolate`
-        argument.  The zonalized contour values are then interpolated to this
-        grid using linear interpolation. By default (`interpolate=None`), no
-        interpolation is carried out.
-
-        The quadrature rule used in the surface integrals of the zonalization
-        computation can be specified with the `quad` argument. Possible values
-        are "sptrapz" and "boxcount", corresponding to methods quad_sptrapz and
-        quad_boxcount, respectively. It is highly recommended to use the
-        slower, but much more accurate sptrapz quadrature to avoid the
-        "jumpiness" of the boxcounting scheme.
+        Returns a tuple containing the contour values and associated equivalent
+        latitudes.
         """
         # Select contours for area computations
         q_min = np.min(field)
