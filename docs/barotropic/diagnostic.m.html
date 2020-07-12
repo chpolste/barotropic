@@ -1,0 +1,370 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<title>barotropic.diagnostic | barotropic 2.0.1 documentation</title>
+<style type="text/css">
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+body {
+  background-color: #eee;
+  font-family: Helvetica, sans;
+  font-size: 11pt;
+  line-height: 1.5em;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap-reverse;
+  height: 100%;
+}
+main {
+  flex: 1 1;
+  max-width: 750px;
+  padding: 15px;
+  background-color: #fff;
+  border-left: 2px solid #ccc;
+}
+nav {
+  flex: 0 1;
+  min-width: 250px;
+  padding: 15px;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 300;
+}
+h1 {
+  font-size: 2.2em;
+  line-height: 1.1em;
+  margin: 0 0 0.8em 0;
+}
+h2 {
+  font-size: 1.6em;
+  margin: 1.8em 0 .8em 0;
+}
+h3 {
+  font-size: 1.4em;
+  margin: 20px 0 15px 0;
+}
+
+a {
+  color: #039;
+  text-decoration: none;
+}
+a:hover {
+  color: #09f;
+}
+
+pre, code, .mono, .name {
+  font-family: monospace;
+  font-size: 0.95em;
+}
+code {
+    display: inline-block;
+    line-height: 1.2em;
+}
+
+ul {
+  padding-left: 2em;
+  list-style-type: disc;
+}
+
+hr {
+  border: 1px solid #ccc;
+}
+
+.title .name {
+  font-weight: bold;
+}
+
+.section-title {
+  margin-top: 2em;
+}
+
+.ident {
+  font-weight: bold;
+}
+
+pre {
+  border-left: 2px solid #ccc;
+  padding: 5px 10px;
+}
+
+nav a {
+  color: #000;
+}
+nav a:hover {
+  color: #039;
+}
+nav h1 {
+  font-size: 1.8em;
+  color: #039;
+}
+#index {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+  line-height: 1.4em;
+}
+#index ul ul {
+  list-style-type: circle;
+}
+
+.item {
+  margin: 0 0 25px 0;
+}
+.item .class {
+  margin: 0 0 25px 30px;
+}
+.item .class ul.class_list {
+  margin: 0 0 20px 0;
+}
+.item .name {
+  background: #eee;
+  margin: 0 0 5px 0;
+  padding: 5px 10px 3px 10px;
+  display: inline-block;
+  min-width: 40%;
+  border-bottom: 2px solid #ccc;
+}
+.item .def {
+  padding-left: 40px;
+  text-indent: -30px;
+}
+.item .class-name {
+  display: block;
+}
+.item .inheritance {
+  margin: 3px 0 0 25px;
+}
+.item .inherited {
+  color: #666;
+}
+.item .desc {
+  padding: 0 8px;
+  margin: 3px 0;
+}
+.item .desc p, .item .desc ul, .item .desc pre {
+  margin: 0 0 8px 0;
+}
+
+.desc h1, .desc h2, .desc h3 {
+  font-size: 100% !important;
+}
+
+
+</style>
+</head>
+<body>
+<div id="container">
+
+  
+  <nav id="sidebar">
+    <h1>barotropic 2.0.1</h1>
+    <hr>
+    <p><a href="index.html">barotropic</a>.<a href="diagnostic.m.html">diagnostic</a></p>
+    <hr>
+    <ul id="index">
+
+
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li><a href="#barotropic.diagnostic.dominant_wavenumber">dominant_wavenumber</a></li>
+    <li><a href="#barotropic.diagnostic.envelope_hilbert">envelope_hilbert</a></li>
+    <li><a href="#barotropic.diagnostic.extract_waveguides">extract_waveguides</a></li>
+    <li><a href="#barotropic.diagnostic.falwa">falwa</a></li>
+    <li><a href="#barotropic.diagnostic.falwa_hn2016">falwa_hn2016</a></li>
+    <li><a href="#barotropic.diagnostic.fawa">fawa</a></li>
+    <li><a href="#barotropic.diagnostic.filter_by_wavenumber">filter_by_wavenumber</a></li>
+    <li><a href="#barotropic.diagnostic.stationary_wavenumber">stationary_wavenumber</a></li>
+  </ul>
+
+    </li>
+
+
+    </ul>
+  </nav>
+
+<main id="content">
+
+  
+
+  
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">barotropic.diagnostic</span></h1>
+  <p>Diagnostic fields for the barotropic model.</p>
+  </header>
+
+  <section id="section-items">
+
+
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
+
+      <div class="item">
+        <div class="name def" id="barotropic.diagnostic.dominant_wavenumber">
+        <span class="ident">dominant_wavenumber</span>(field, grid, n_scales=120, smoothing=(21, 7))
+        </div>
+        
+  
+    <div class="desc"><p>Dominant zonal wavenumber at every gridpoint of field.</p>
+<p>Implements the procedure of Ghinassi et al. (2018) based on a wavelet
+analysis of the input field.</p>
+<ul>
+<li><code>n_scales</code> determines the number of scales used in the continuous wavelet
+  transform.</li>
+<li><code>smoothing</code> determines the full width at half maximum of the Hann filter
+  in zonal and meridional direction in degrees longitude/latitude.</li>
+</ul>
+<p>Returns the gridded dominant zonal wavenumber.</p>
+<p>Requires <code>pywt</code> (version &gt;= 1.1.0) and <code>scipy</code>.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.diagnostic.envelope_hilbert">
+        <span class="ident">envelope_hilbert</span>(field, wavenumber_min=2, wavenumber_max=10)
+        </div>
+        
+  
+    <div class="desc"><p>Compute the envelope of wave packets with the Hilbert transform.</p>
+<p>Applied to the merdional wind for RWP detection by Zimin et al. (2003).</p>
+<p>Requires <code>scipy</code>.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.diagnostic.extract_waveguides">
+        <span class="ident">extract_waveguides</span>(ks_or_state, k, grid=None)
+        </div>
+        
+  
+    <div class="desc"><p>Extract waveguide boundaries based on the stationary wavenumber.</p>
+<p>WKB and ray-tracing theory say that Rossby waves are refracted towards
+latitudes of higher stationary wavenumber. A local maximum in the zonal
+profile of stationary wavenumber Ks can therefore trap waves and
+constitutes a waveguide. See e.g. Petoukhov et al. (2013), Wirth (2020).</p>
+<ul>
+<li><code>k</code> is the wavenumber for which the waveguides are extracted.</li>
+<li>If the first parameters is not a <a href="index.html#barotropic.State"><code>barotropic.State</code></a> object, <code>ks</code> must be
+  the complex variant of the stationary wavenumber and <code>grid</code> must be given
+  (the grid is otherwise taken from the <a href="index.html#barotropic.State"><code>barotropic.State</code></a> object.</li>
+</ul>
+<p>Returns a list of tuples that contain the boundary latitudes of the
+detected waveguides (one tuple per waveguide).</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.diagnostic.falwa">
+        <span class="ident">falwa</span>(pv_or_state, grid=None, levels=None, interpolate=None)
+        </div>
+        
+  
+    <div class="desc"><p>Finite-Amplitude Local Wave Activity according to Huang and Nakamura (2016).</p>
+<ul>
+<li>If the first parameter is not a <a href="index.html#barotropic.State"><code>barotropic.State</code></a>, <code>grid</code> must be
+  specified.</li>
+<li><code>levels</code> specifies the number of contours generated for the equivalent
+  latitude zonalization.</li>
+<li>By default, FALWA is returned on an equivalent latitude by longitude
+  grid. To obtain FALWA interpolated to a specific set of latitudes,
+  specify these with the <code>interpolate</code> parameter.</li>
+</ul>
+<p>Returns a tuple containing FALWA and its latitude coordinates.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.diagnostic.falwa_hn2016">
+        <span class="ident">falwa_hn2016</span>(pv_or_state, grid=None, normalize_icos=True)
+        </div>
+        
+  
+    <div class="desc"><p>Finite-Amplitude Local Wave Activity according to Huang and Nakamura (2016).</p>
+<p>Uses the implementation of <a href="https://github.com/csyhuang/hn2016_falwa"><code>hn2016_falwa</code></a>.</p>
+<ul>
+<li>If the first parameter is not a <a href="index.html#barotropic.State"><code>barotropic.State</code></a>, <code>grid</code> must be
+  specified.</li>
+<li>By default, FALWA is normalized with the inverse of the cosine of
+  latitude. To disable this normalization, set <code>normalize_icos=False</code>.</li>
+</ul>
+<p>Returns FALWA on the regular latitude/longitude grid.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.diagnostic.fawa">
+        <span class="ident">fawa</span>(pv_or_state, grid=None, levels=None, interpolate=None)
+        </div>
+        
+  
+    <div class="desc"><p>Finite-Amplitude Wave Activity according to Nakamura and Zhu (2010).</p>
+<ul>
+<li>If the first parameter is not a <a href="index.html#barotropic.State"><code>barotropic.State</code></a>, <code>grid</code> must be
+  specified.</li>
+<li><code>levels</code> specifies the number of contours generated for the equivalent
+  latitude zonalization.</li>
+<li>By default, FAWA is returned on the computed equivalent latitudes. To
+  obtain FAWA interpolated to a specific set of latitudes, specify these
+  with the <code>interpolate</code> parameter.</li>
+</ul>
+<p>Returns a tuple containing FAWA and its latitude coordinates.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.diagnostic.filter_by_wavenumber">
+        <span class="ident">filter_by_wavenumber</span>(field, wavenumber)
+        </div>
+        
+  
+    <div class="desc"><p>Zonal Hann smoothing based on a space-dependent wavenumber field.</p>
+<p>Apply Hann smoothing in zonal direction to the input <code>field</code> with the Hann
+window width governed at every gridpoint by the wavenumber at the same
+location in the <code>wavenumber</code> field.</p>
+<p>Used by Ghinassi et al. (2018) to filter the FALWA field, discounting phase
+information in order to diagnose wave packets as a whole.</p>
+<p>Requires <code>scipy</code>.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.diagnostic.stationary_wavenumber">
+        <span class="ident">stationary_wavenumber</span>(u_or_state, grid=None, order=None, min_u=0.001, kind=&#39;complex&#39;)
+        </div>
+        
+  
+    <div class="desc"><p>Non-dimensionalised stationary (zonal) wavenumber (<code>Ks</code>).</p>
+<pre><code>Ks² = a²·βM/uM,
+</code></pre>
+<p>where <code>a</code> is the radius of the sphere, <code>βM</code> is the Mercator projection
+gradient of zonal-mean PV and <code>uM</code> is the Mercator projection zonal-mean
+wind. See e.g. Hoskins and Karoly (1981), Wirth (2020).</p>
+<p><code>Ks²</code> can be negative. It is set to positive or negative infinity where <code>u</code>
+is smaller than the threshold given by <code>min_u</code>. If <code>u</code> is given as a field
+or zonal profile and not via a <a href="index.html#barotropic.State"><code>barotropic.State</code></a> in the first parameter,
+<code>βM</code> is calculated from the wind field using derivatives of order <code>order</code>.</p>
+<p>The <code>kind</code> parameter determines how the wavenumber is returned:</p>
+<ul>
+<li><code>kind="complex"</code> (default) returns the complex number <code>√(Ks²)</code>.</li>
+<li><code>kind="real"</code> returns the real number <code>Re(Ks) - Im(Ks)</code> where <code>Ks</code> is the
+  complex number <code>√(Ks²)</code>. Since <code>Ks²</code> is real, the <code>Im(Ks)</code> is always zero
+  when <code>Re(Ks)</code> is non-zero and vice versa, rendering this expression of
+  <code>Ks</code> unique.</li>
+<li><code>kind="squared"</code> returns <code>Ks²</code>.</li>
+</ul></div>
+
+      </div>
+
+
+  </section>
+
+</main>
+</div>
+</body>
+</html>

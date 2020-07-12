@@ -1,0 +1,239 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<title>barotropic.io | barotropic 2.0.1 documentation</title>
+<style type="text/css">
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+body {
+  background-color: #eee;
+  font-family: Helvetica, sans;
+  font-size: 11pt;
+  line-height: 1.5em;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap-reverse;
+  height: 100%;
+}
+main {
+  flex: 1 1;
+  max-width: 750px;
+  padding: 15px;
+  background-color: #fff;
+  border-left: 2px solid #ccc;
+}
+nav {
+  flex: 0 1;
+  min-width: 250px;
+  padding: 15px;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 300;
+}
+h1 {
+  font-size: 2.2em;
+  line-height: 1.1em;
+  margin: 0 0 0.8em 0;
+}
+h2 {
+  font-size: 1.6em;
+  margin: 1.8em 0 .8em 0;
+}
+h3 {
+  font-size: 1.4em;
+  margin: 20px 0 15px 0;
+}
+
+a {
+  color: #039;
+  text-decoration: none;
+}
+a:hover {
+  color: #09f;
+}
+
+pre, code, .mono, .name {
+  font-family: monospace;
+  font-size: 0.95em;
+}
+code {
+    display: inline-block;
+    line-height: 1.2em;
+}
+
+ul {
+  padding-left: 2em;
+  list-style-type: disc;
+}
+
+hr {
+  border: 1px solid #ccc;
+}
+
+.title .name {
+  font-weight: bold;
+}
+
+.section-title {
+  margin-top: 2em;
+}
+
+.ident {
+  font-weight: bold;
+}
+
+pre {
+  border-left: 2px solid #ccc;
+  padding: 5px 10px;
+}
+
+nav a {
+  color: #000;
+}
+nav a:hover {
+  color: #039;
+}
+nav h1 {
+  font-size: 1.8em;
+  color: #039;
+}
+#index {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+  line-height: 1.4em;
+}
+#index ul ul {
+  list-style-type: circle;
+}
+
+.item {
+  margin: 0 0 25px 0;
+}
+.item .class {
+  margin: 0 0 25px 30px;
+}
+.item .class ul.class_list {
+  margin: 0 0 20px 0;
+}
+.item .name {
+  background: #eee;
+  margin: 0 0 5px 0;
+  padding: 5px 10px 3px 10px;
+  display: inline-block;
+  min-width: 40%;
+  border-bottom: 2px solid #ccc;
+}
+.item .def {
+  padding-left: 40px;
+  text-indent: -30px;
+}
+.item .class-name {
+  display: block;
+}
+.item .inheritance {
+  margin: 3px 0 0 25px;
+}
+.item .inherited {
+  color: #666;
+}
+.item .desc {
+  padding: 0 8px;
+  margin: 3px 0;
+}
+.item .desc p, .item .desc ul, .item .desc pre {
+  margin: 0 0 8px 0;
+}
+
+.desc h1, .desc h2, .desc h3 {
+  font-size: 100% !important;
+}
+
+
+</style>
+</head>
+<body>
+<div id="container">
+
+  
+  <nav id="sidebar">
+    <h1>barotropic 2.0.1</h1>
+    <hr>
+    <p><a href="index.html">barotropic</a>.<a href="io.m.html">io</a></p>
+    <hr>
+    <ul id="index">
+
+
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li><a href="#barotropic.io.from_dataset">from_dataset</a></li>
+    <li><a href="#barotropic.io.to_dataset">to_dataset</a></li>
+  </ul>
+
+    </li>
+
+
+    </ul>
+  </nav>
+
+<main id="content">
+
+  
+
+  
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">barotropic.io</span></h1>
+  <p>Input/output functions (<strong>work in progress</strong>).</p>
+  </header>
+
+  <section id="section-items">
+
+
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
+
+      <div class="item">
+        <div class="name def" id="barotropic.io.from_dataset">
+        <span class="ident">from_dataset</span>(dataset, names=None, grid_kwargs=None)
+        </div>
+        
+  
+    <div class="desc"><p>Load states from u and v components in an xarray Dataset</p>
+<p>If automatic detection of grid and winds based on the coordinate
+attributes of the dataset fails, the association of <code>lat</code>, <code>lon</code>,
+<code>time</code>, <code>u</code> and <code>v</code> can be specified explicitly with a dict given to
+names. A <code>Grid</code> object shared by the returned states is created based
+on the dataset coordinates. Additional arguments for the <code>Grid</code>
+instanciation can be specified with the <code>grid_kwargs</code> argument.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.io.to_dataset">
+        <span class="ident">to_dataset</span>(states)
+        </div>
+        
+  
+
+      </div>
+
+
+  </section>
+
+</main>
+</div>
+</body>
+</html>

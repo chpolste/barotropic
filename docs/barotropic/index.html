@@ -1,0 +1,1312 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<title>barotropic | barotropic 2.0.1 documentation</title>
+<style type="text/css">
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+body {
+  background-color: #eee;
+  font-family: Helvetica, sans;
+  font-size: 11pt;
+  line-height: 1.5em;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap-reverse;
+  height: 100%;
+}
+main {
+  flex: 1 1;
+  max-width: 750px;
+  padding: 15px;
+  background-color: #fff;
+  border-left: 2px solid #ccc;
+}
+nav {
+  flex: 0 1;
+  min-width: 250px;
+  padding: 15px;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 300;
+}
+h1 {
+  font-size: 2.2em;
+  line-height: 1.1em;
+  margin: 0 0 0.8em 0;
+}
+h2 {
+  font-size: 1.6em;
+  margin: 1.8em 0 .8em 0;
+}
+h3 {
+  font-size: 1.4em;
+  margin: 20px 0 15px 0;
+}
+
+a {
+  color: #039;
+  text-decoration: none;
+}
+a:hover {
+  color: #09f;
+}
+
+pre, code, .mono, .name {
+  font-family: monospace;
+  font-size: 0.95em;
+}
+code {
+    display: inline-block;
+    line-height: 1.2em;
+}
+
+ul {
+  padding-left: 2em;
+  list-style-type: disc;
+}
+
+hr {
+  border: 1px solid #ccc;
+}
+
+.title .name {
+  font-weight: bold;
+}
+
+.section-title {
+  margin-top: 2em;
+}
+
+.ident {
+  font-weight: bold;
+}
+
+pre {
+  border-left: 2px solid #ccc;
+  padding: 5px 10px;
+}
+
+nav a {
+  color: #000;
+}
+nav a:hover {
+  color: #039;
+}
+nav h1 {
+  font-size: 1.8em;
+  color: #039;
+}
+#index {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+  line-height: 1.4em;
+}
+#index ul ul {
+  list-style-type: circle;
+}
+
+.item {
+  margin: 0 0 25px 0;
+}
+.item .class {
+  margin: 0 0 25px 30px;
+}
+.item .class ul.class_list {
+  margin: 0 0 20px 0;
+}
+.item .name {
+  background: #eee;
+  margin: 0 0 5px 0;
+  padding: 5px 10px 3px 10px;
+  display: inline-block;
+  min-width: 40%;
+  border-bottom: 2px solid #ccc;
+}
+.item .def {
+  padding-left: 40px;
+  text-indent: -30px;
+}
+.item .class-name {
+  display: block;
+}
+.item .inheritance {
+  margin: 3px 0 0 25px;
+}
+.item .inherited {
+  color: #666;
+}
+.item .desc {
+  padding: 0 8px;
+  margin: 3px 0;
+}
+.item .desc p, .item .desc ul, .item .desc pre {
+  margin: 0 0 8px 0;
+}
+
+.desc h1, .desc h2, .desc h3 {
+  font-size: 100% !important;
+}
+
+
+</style>
+</head>
+<body>
+<div id="container">
+
+  
+  <nav id="sidebar">
+    <h1>barotropic 2.0.1</h1>
+    <hr>
+    <p><a href="index.html">barotropic</a></p>
+    <hr>
+    <ul id="index">
+
+    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+      <ul>
+        <li><a href="diagnostic.m.html">barotropic.diagnostic</a></li>
+        <li><a href="init.m.html">barotropic.init</a></li>
+        <li><a href="io.m.html">barotropic.io</a></li>
+        <li><a href="plot.m.html">barotropic.plot</a></li>
+        <li><a href="rhs.m.html">barotropic.rhs</a></li>
+      </ul>
+    </li>
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li>
+        <a href="#barotropic.BarotropicModel">BarotropicModel</a>
+        
+          
+  <ul>
+    <li><a href="#barotropic.BarotropicModel.__init__">__init__</a></li>
+    <li><a href="#barotropic.BarotropicModel.diffusion_coeff">diffusion_coeff</a></li>
+    <li><a href="#barotropic.BarotropicModel.diffusion_order">diffusion_order</a></li>
+    <li><a href="#barotropic.BarotropicModel.euler">euler</a></li>
+    <li><a href="#barotropic.BarotropicModel.leapfrog">leapfrog</a></li>
+    <li><a href="#barotropic.BarotropicModel.rhs">rhs</a></li>
+    <li><a href="#barotropic.BarotropicModel.run">run</a></li>
+  </ul>
+
+        </li>
+        <li>
+        <a href="#barotropic.Grid">Grid</a>
+        
+          
+  <ul>
+    <li><a href="#barotropic.Grid.__init__">__init__</a></li>
+    <li><a href="#barotropic.Grid.circumference">circumference</a></li>
+    <li><a href="#barotropic.Grid.coriolis">coriolis</a></li>
+    <li><a href="#barotropic.Grid.ddphi">ddphi</a></li>
+    <li><a href="#barotropic.Grid.divergence">divergence</a></li>
+    <li><a href="#barotropic.Grid.divergence_spectral">divergence_spectral</a></li>
+    <li><a href="#barotropic.Grid.dlam">dlam</a></li>
+    <li><a href="#barotropic.Grid.dlat">dlat</a></li>
+    <li><a href="#barotropic.Grid.dlon">dlon</a></li>
+    <li><a href="#barotropic.Grid.dphi">dphi</a></li>
+    <li><a href="#barotropic.Grid.equivalent_latitude">equivalent_latitude</a></li>
+    <li><a href="#barotropic.Grid.fcor">fcor</a></li>
+    <li><a href="#barotropic.Grid.gradient">gradient</a></li>
+    <li><a href="#barotropic.Grid.gridpoint_area">gridpoint_area</a></li>
+    <li><a href="#barotropic.Grid.lams">lams</a></li>
+    <li><a href="#barotropic.Grid.laplacian_eigenvalues">laplacian_eigenvalues</a></li>
+    <li><a href="#barotropic.Grid.lats">lats</a></li>
+    <li><a href="#barotropic.Grid.lons">lons</a></li>
+    <li><a href="#barotropic.Grid.nlat">nlat</a></li>
+    <li><a href="#barotropic.Grid.nlon">nlon</a></li>
+    <li><a href="#barotropic.Grid.omega">omega</a></li>
+    <li><a href="#barotropic.Grid.phis">phis</a></li>
+    <li><a href="#barotropic.Grid.quad_boxcount">quad_boxcount</a></li>
+    <li><a href="#barotropic.Grid.quad_sptrapz">quad_sptrapz</a></li>
+    <li><a href="#barotropic.Grid.quad_sptrapz_meridional">quad_sptrapz_meridional</a></li>
+    <li><a href="#barotropic.Grid.rsphere">rsphere</a></li>
+    <li><a href="#barotropic.Grid.shape">shape</a></li>
+    <li><a href="#barotropic.Grid.to_grid">to_grid</a></li>
+    <li><a href="#barotropic.Grid.to_spectral">to_spectral</a></li>
+    <li><a href="#barotropic.Grid.vorticity">vorticity</a></li>
+    <li><a href="#barotropic.Grid.vorticity_divergence">vorticity_divergence</a></li>
+    <li><a href="#barotropic.Grid.vorticity_divergence_spectral">vorticity_divergence_spectral</a></li>
+    <li><a href="#barotropic.Grid.vorticity_spectral">vorticity_spectral</a></li>
+    <li><a href="#barotropic.Grid.wind">wind</a></li>
+    <li><a href="#barotropic.Grid.zonalize_eqlat">zonalize_eqlat</a></li>
+  </ul>
+
+        </li>
+        <li>
+        <a href="#barotropic.State">State</a>
+        
+          
+  <ul>
+    <li><a href="#barotropic.State.__init__">__init__</a></li>
+    <li><a href="#barotropic.State.add_vorticity">add_vorticity</a></li>
+    <li><a href="#barotropic.State.add_wind">add_wind</a></li>
+    <li><a href="#barotropic.State.dominant_wavenumber">dominant_wavenumber</a></li>
+    <li><a href="#barotropic.State.eddy_enstrophy">eddy_enstrophy</a></li>
+    <li><a href="#barotropic.State.energy">energy</a></li>
+    <li><a href="#barotropic.State.enstrophy">enstrophy</a></li>
+    <li><a href="#barotropic.State.envelope_hilbert">envelope_hilbert</a></li>
+    <li><a href="#barotropic.State.extract_waveguides">extract_waveguides</a></li>
+    <li><a href="#barotropic.State.falwa">falwa</a></li>
+    <li><a href="#barotropic.State.falwa_filtered">falwa_filtered</a></li>
+    <li><a href="#barotropic.State.falwa_hn2016">falwa_hn2016</a></li>
+    <li><a href="#barotropic.State.fawa">fawa</a></li>
+    <li><a href="#barotropic.State.from_wind">from_wind</a></li>
+    <li><a href="#barotropic.State.grid">grid</a></li>
+    <li><a href="#barotropic.State.plot">plot</a></li>
+    <li><a href="#barotropic.State.pv">pv</a></li>
+    <li><a href="#barotropic.State.pv_flux_spectral">pv_flux_spectral</a></li>
+    <li><a href="#barotropic.State.pv_spectral">pv_spectral</a></li>
+    <li><a href="#barotropic.State.run">run</a></li>
+    <li><a href="#barotropic.State.stationary_wavenumber">stationary_wavenumber</a></li>
+    <li><a href="#barotropic.State.streamfunction">streamfunction</a></li>
+    <li><a href="#barotropic.State.time">time</a></li>
+    <li><a href="#barotropic.State.u">u</a></li>
+    <li><a href="#barotropic.State.v">v</a></li>
+    <li><a href="#barotropic.State.vorticity">vorticity</a></li>
+  </ul>
+
+        </li>
+      </ul>
+    </li>
+
+
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li><a href="#barotropic.DAY">DAY</a></li>
+    <li><a href="#barotropic.HOUR">HOUR</a></li>
+    <li><a href="#barotropic.MERIDIONAL">MERIDIONAL</a></li>
+    <li><a href="#barotropic.MIN">MIN</a></li>
+    <li><a href="#barotropic.WEEK">WEEK</a></li>
+    <li><a href="#barotropic.ZONAL">ZONAL</a></li>
+  </ul>
+
+    </li>
+
+    </ul>
+  </nav>
+
+<main id="content">
+
+  
+
+  
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">barotropic</span></h1>
+  <p>A barotropic model on the sphere.</p>
+<ul>
+<li>Obtain the latest source code from <a href="https://github.com/chpolste/barotropic">GitHub</a>.</li>
+<li>Licensed under the Apache License, Version 2.0.</li>
+</ul>
+<h2>Quick Start</h2>
+<p>Running the model generally involves these steps:</p>
+<ol>
+<li>Create a <a href="#barotropic.Grid"><code>Grid</code></a> instance.</li>
+<li>Set up initial conditions (<a href="init.m.html"><code>barotropic.init</code></a>).</li>
+<li>Set up forcing terms (<a href="rhs.m.html"><code>barotropic.rhs</code></a>).</li>
+<li>Configure and run the model (<a href="#barotropic.BarotropicModel"><code>BarotropicModel</code></a>).</li>
+<li>Inspect and visualize the output (<a href="#barotropic.State"><code>State</code></a>, <a href="diagnostic.m.html"><code>barotropic.diagnostic</code></a>, <a href="plot.m.html"><code>barotropic.plot</code></a>).</li>
+</ol>
+<p>A few example notebooks are provided in the code repository.</p>
+<h2>Convenience Constants</h2>
+<ul>
+<li><code>MERIDIONAL</code>, <code>ZONAL</code>: Dimension indices for gridded fields.</li>
+<li><code>MIN</code>, <code>HOUR</code>, <code>DAY</code>, <code>WEEK</code>: Time unit lengths in seconds.</li>
+</ul>
+<p>These values can be used to improve readability of code and clarify meaning of
+some operations, e.g. by using <code>axis=ZONAL</code> instead of <code>axis=-1</code> in numpy
+operations or <code>5*DAY</code> instead of <code>432000</code>.</p>
+<h2>References</h2>
+<p>These articles are referenced in the source code and documentation:</p>
+<ul>
+<li><a href="https://doi.org/10.1175/MWR-D-18-0068.1">Ghinassi et al. (2018)</a>.
+  Local finite-amplitude wave activity as a diagnostic for Rossby wave packets.
+  Monthly Weather Review, 146(12), 4099-4114.</li>
+<li><a href="https://doi.org/10.1175/1520-0469(1985)042&lt;2280:PATOOM&gt;2.0.CO;2">Held (1985)</a>.
+  Pseudomomentum and the orthogonality of modes in shear flows
+  Journal of the Atmospheric Sciences, 42(21), 2280-2288.</li>
+<li><a href="https://doi.org/10.1175/1520-0469(1987)044&lt;0200:LANBDO&gt;2.0.CO;2">Held &amp; Phillips (1987)</a>.
+  Linear and nonlinear barotropic decay on the sphere
+  Journal of the Atmospheric Sciences, 44(1), 200-207.</li>
+<li><a href="https://doi.org/10.1175/1520-0469(1981)038&lt;1179:TSLROA&gt;2.0.CO;2">Hoskins &amp; Karoly (1981)</a>.
+  The steady linear response of a spherical atmosphere to thermal and orographic forcing.
+  Journal of the Atmospheric Sciences, 38(6), 1179-1196.</li>
+<li><a href="https://doi.org/10.1175/JAS-D-15-0194.1">Huang &amp; Nakamura (2016)</a>.
+  Local finite-amplitude wave activity as a diagnostic of anomalous weather events.
+  Journal of the Atmospheric Sciences, 73(1), 211-229.</li>
+<li><a href="https://doi.org/10.1175/2010JAS3432.1">Nakamura &amp; Zhu (2010)</a>.
+  Finite-amplitude wave activity and diffusive flux of potential vorticity in eddy–mean flow interaction.
+  Journal of the Atmospheric Sciences, 67(9), 2701-2716.</li>
+<li><a href="https://doi.org/10.1073/pnas.1222000110">Petoukhov et al. (2013)</a>.
+  Quasiresonant amplification of planetary waves and recent Northern Hemisphere weather extremes.
+  Proceedings of the National Academy of Sciences, 110(14), 5336-5341.</li>
+<li><a href="https://doi.org/10.5194/wcd-1-111-2020">Wirth (2020)</a>.
+  Waveguidability of idealized midlatitude jets and the  limitations of ray tracing theory.
+  Weather Clim. Dynam., 1, 111–125.</li>
+<li><a href="https://doi.org/10.1175/1520-0493(2003)131&lt;1011:EEORWP&gt;2.0.CO;2">Zimin et al. (2003)</a>.
+  Extracting envelopes of Rossby wave packets.
+  Monthly weather review, 131(5), 1011-1017.</li>
+</ul>
+  </header>
+
+  <section id="section-items">
+
+    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+      <div class="item">
+      <p class="name"><a href="diagnostic.m.html">barotropic.diagnostic</a></p>
+      
+  
+    <div class="desc"><p>Diagnostic fields for the barotropic model.</p></div>
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="init.m.html">barotropic.init</a></p>
+      
+  
+    <div class="desc"><p>Preconfigured initial conditions and initial condition helpers.</p></div>
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="io.m.html">barotropic.io</a></p>
+      
+  
+    <div class="desc"><p>Input/output functions (<strong>work in progress</strong>).</p></div>
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="plot.m.html">barotropic.plot</a></p>
+      
+  
+    <div class="desc"><p>Plot presets and plotting helper functions.</p></div>
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="rhs.m.html">barotropic.rhs</a></p>
+      
+  
+    <div class="desc"><p>Predefined RHS forcing terms.</p></div>
+
+      </div>
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="barotropic.BarotropicModel" class="name class-name">class <span class="ident">BarotropicModel</span></p>
+      
+  
+    <div class="desc"><p>Integrate the barotropic PV equation on the sphere forward in time.</p>
+<pre><code>Dq/Dt = ∂q/∂t + ∇(u·q) = RHS,
+</code></pre>
+<p>where <code>q</code> is the barotropic potential vorticity (i.e. absolute vorticity)
+and <code>u</code> is the divergence-free horizontal wind (which can be obtained from
+the PV by inversion).</p>
+<p>A <code>BarotropicModel</code> instance does not contain state aside from the forcing
+and diffusion setup and can be reused for multiple integrations with
+different <a href="#barotropic.State"><code>State</code></a>s.</p></div>
+
+
+      <div class="class">
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.BarotropicModel.__init__">
+      BarotropicModel.<span class="ident">__init__</span>(self, rhs=None, diffusion_order=2, diffusion_coeff=1000000000000000.0)
+    </div>
+    
+  
+    <div class="desc"><p>BarotropicModel constructor.</p>
+<ul>
+<li><code>rhs</code> specifies the model forcing, which can be built from the components
+  provided in <a href="rhs.m.html"><code>barotropic.rhs</code></a> or a custom implementation with the same
+  interface.</li>
+<li>Numerical stability is enhanced by smoothing the PV field with
+  a laplacian diffusion term after every time step. The order and strength
+  of this diffusion can be tuned with parameters <code>diffusion_order</code> and
+  <code>diffusion_coeff</code>.</li>
+</ul></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.BarotropicModel.euler">
+      BarotropicModel.<span class="ident">euler</span>(self, state_now, dt)
+    </div>
+    
+  
+    <div class="desc"><p>Step forward in time with a first-order Euler-forward scheme</p>
+<p>Advances by <code>dt</code> starting from <code>state_now</code> and returns the new state.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.BarotropicModel.leapfrog">
+      BarotropicModel.<span class="ident">leapfrog</span>(self, state_old, state_now, filter_parameter=0.2)
+    </div>
+    
+  
+    <div class="desc"><p>Step forward in time using a filtered leapfrog scheme.</p>
+<ul>
+<li>The timestep size is determined automatically from the difference of
+  the given input fields <code>state_old</code> and <code>state_now</code>.</li>
+<li>The filter strength can be configured with the <code>filter_parameter</code>.</li>
+</ul>
+<p>Both the current and the new model state are returned in a tuple since
+the Robert-Asselin filter modifies the current state too.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.BarotropicModel.run">
+      BarotropicModel.<span class="ident">run</span>(self, state_init, dt, tend, save_every=0)
+    </div>
+    
+  
+    <div class="desc"><p>Run the model until a specified time is reached.</p>
+<p>Initializes with a first-order Euler forward step, then continues with
+second-order Leapfrog steps.</p>
+<ul>
+<li><code>state_init</code> is the initial state from which the integration starts.</li>
+<li><code>dt</code> is the step size used in the integration.</li>
+<li><code>tend</code> is the time after which the integration stops. The model will
+  not try to reach this time exactly, but stop as soon as <code>tend</code> is
+  exeeded.</li>
+<li>If <code>save_every</code> is larger than zero, an intermediate state is saved
+  and then returned every time this time interval is exceeded.</li>
+</ul>
+<p>Time and time intervals should be given as a number type representing
+seconds if <code>state_init</code> uses a number type to denote time, or
+<code>datetime.datetime</code> and <code>datetime.timedelta</code> if <code>state_init</code> uses
+<code>datetime.datetime</code> to denote time.</p>
+<p>Returns the final state and a list of all saved intermediate states.</p></div>
+
+  </div>
+  
+          <h3>Instance Attributes</h3>
+            <div class="item">
+            <p id="barotropic.BarotropicModel.diffusion_coeff" class="name"><span class="ident">BarotropicModel</span>.<span class="ident">diffusion_coeff</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.BarotropicModel.diffusion_order" class="name"><span class="ident">BarotropicModel</span>.<span class="ident">diffusion_order</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.BarotropicModel.rhs" class="name"><span class="ident">BarotropicModel</span>.<span class="ident">rhs</span></p>
+            
+
+            
+  
+
+            </div>
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="barotropic.Grid" class="name class-name">class <span class="ident">Grid</span></p>
+      
+  
+    <div class="desc"><p>Regular lat-lon grid and operations for a spherical planet.</p>
+<p>Latitudes start at the north pole, as is convention in <code>spharm</code>. This
+results in horizontally flipped images when plotting fields in matplotlib
+without explicitly specifying the latitude grid.</p>
+<p>Attributes set during initialization:</p>
+<ul>
+<li><code>nlon</code>, <code>nlat</code>: Number of longitudes/latitudes.</li>
+<li><code>dlon</code>, <code>dlat</code>: Longitude/latitude spacing in degrees.</li>
+<li><code>lons</code>, <code>lats</code>: Longitude/latitude coordinates in degrees (1D).</li>
+<li><code>lon</code>, <code>lat</code>: Longitude/latitude coordinates in degrees (2D).</li>
+<li><code>dlam</code>, <code>dphi</code>: Longitude/latitude spacing in radians.</li>
+<li><code>lams</code>, <code>phis</code>: Longitude/latitude coordinates in radians (1D).</li>
+<li><code>lam</code>, <code>phi</code>: Longitude/latitude coordinates in radians (2D).</li>
+<li><code>fcor</code>: Coriolis parameter in 1/s (2D).</li>
+<li><code>laplacian_eigenvalues</code>: Eigenvalues of the horizontal Laplace
+  Operator for each spherical harmonic.</li>
+</ul>
+<p>Consider using the <code>ZONAL</code> and <code>MERIDIONAL</code> constants as convenient and
+readable accessors for the grid dimensions.</p></div>
+
+
+      <div class="class">
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.__init__">
+      Grid.<span class="ident">__init__</span>(self, rsphere=6371200.0, omega=7.292e-05, resolution=2.5, ntrunc=None, legfunc=&#39;stored&#39;)
+    </div>
+    
+  
+    <div class="desc"><p>Grid constructor.</p>
+<ul>
+<li>The radius and angular velocity of the planet are given by <code>rsphere</code> in
+  m and <code>omega</code> in 1/s, respectively (the default values correspond to
+  those of the Earth).</li>
+<li>The grid resolution is uniform and specified with the <code>resolution</code>
+  parameter in degrees.</li>
+<li>Uses spherical harmonics for some operations utilizing the
+  <code>spharm</code>/<code>pyspharm</code> package. By default (<code>ntrunc=None</code>,
+  <code>legfunc="stored"</code>), the spherical harmonics are truncated after (number
+  of latitudes - 1) functions and precomputed. Consult the documentation of
+  <code>spharm.Spharmt</code> for more information on these parameters.</li>
+</ul></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.circumference">
+      Grid.<span class="ident">circumference</span>(self, lat)
+    </div>
+    
+  
+    <div class="desc"><p>Circumference (in m) of the sphere at constant latitude.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.coriolis">
+      Grid.<span class="ident">coriolis</span>(self, lat)
+    </div>
+    
+  
+    <div class="desc"><p>Coriolis parameter (in m) for a given latitude (in degrees).</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.ddphi">
+      Grid.<span class="ident">ddphi</span>(self, f, order=None)
+    </div>
+    
+  
+    <div class="desc"><p>Finite difference first derivative in meridional direction: <code>df/dφ</code>.</p>
+<p>Accepts both 2D <code>f(φ,λ) = f(lat,lon)</code> and 1D <code>f(φ) = f(lat)</code> fields.
+For 1D input, the derivatives at the poles are always set to zero, as
+the input is assumed to represent a zonally symmetric profile of some
+quantity (e.g. zonal-mean PV).</p>
+<p>The 2nd order approximation uses a 3-point stencil, the 4th order
+approximation a 5-point stencil (centered in inner domain, offset at
+the edges). Stencil coefficients were obtained from
+http://web.media.mit.edu/~crtaylor/calculator.html.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.divergence">
+      Grid.<span class="ident">divergence</span>(self, u, v)
+    </div>
+    
+  
+    <div class="desc"><p>Gridded divergence from vector components.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.divergence_spectral">
+      Grid.<span class="ident">divergence_spectral</span>(self, u, v)
+    </div>
+    
+  
+    <div class="desc"><p>Spectral divergence from vector components.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.equivalent_latitude">
+      Grid.<span class="ident">equivalent_latitude</span>(self, area)
+    </div>
+    
+  
+    <div class="desc"><p>Latitude such that surface up to North Pole is <code>area</code>-sized.</p>
+<ul>
+<li>Area north of latitude <code>lat</code>: <code>area = 2 * pi * (1 - sin(lat)) * r²</code>.</li>
+<li>Solve for latitude: <code>lat = arcsin(1 - area / 2 / pi / r²)</code>.</li>
+</ul></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.gradient">
+      Grid.<span class="ident">gradient</span>(self, f)
+    </div>
+    
+  
+    <div class="desc"><p>Gridded vector gradient of the 2D field f(φ,λ).</p>
+<p>Returns a tuple containing the two components <code>1/r df/dφ</code> and
+<code>1/(r sin(φ)) df/dλ</code>.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.quad_boxcount">
+      Grid.<span class="ident">quad_boxcount</span>(self, y, where=True)
+    </div>
+    
+  
+    <div class="desc"><p>Surface integral summing (<code>area * value</code> of <code>y</code>) at every gridpoint.</p>
+<p>The domain of integration can optionally be specified by a boolean
+array in the <code>where</code> parameter.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.quad_sptrapz">
+      Grid.<span class="ident">quad_sptrapz</span>(self, y, z=None)
+    </div>
+    
+  
+    <div class="desc"><p>Surface integral based on meridional linear interpolation.</p>
+<p>See <code>Grid.quad_sptrapz_meridional</code>.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.quad_sptrapz_meridional">
+      Grid.<span class="ident">quad_sptrapz_meridional</span>(self, y, z=None)
+    </div>
+    
+  
+    <div class="desc"><p>Line integral of <code>y</code> along meridians using linear interpolation.</p>
+<p>A custom domain of integration can be specified with parameter <code>z</code>. The
+domain is then determined by the condition <code>z &gt;= 0</code> using linear
+interpolation. If <code>z</code> is not given, the integration domain is the
+entire surface of the sphere.</p>
+<p>The quadrature rule is based on the trapezoidal rule adapted for
+sperical surface domains using the antiderivate of <code>r * (a*lat + b) * cos(lat)</code>
+to integrate over the piecewise-linear, interpolated segments between
+gridpoints in the meridional direction. This implementation is accurate
+but rather slow.</p>
+<p>No interpolation is carried out in the zonal direction (since lines of
+constant latitude are not great-circles, linear interpolation is
+non-trivial). The boundaries of the domain of integration are therefore
+not continuous in the zonal direction.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.to_grid">
+      Grid.<span class="ident">to_grid</span>(self, field_spectral)
+    </div>
+    
+  
+    <div class="desc"><p>Transform a spectral field into grid space.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.to_spectral">
+      Grid.<span class="ident">to_spectral</span>(self, field_grid)
+    </div>
+    
+  
+    <div class="desc"><p>Transform a gridded field into spectral space.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.vorticity">
+      Grid.<span class="ident">vorticity</span>(self, u, v)
+    </div>
+    
+  
+    <div class="desc"><p>Gridded vorticity from wind components.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.vorticity_divergence">
+      Grid.<span class="ident">vorticity_divergence</span>(self, u, v)
+    </div>
+    
+  
+    <div class="desc"><p>Gridded vorticity and divergence from vector components.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.vorticity_divergence_spectral">
+      Grid.<span class="ident">vorticity_divergence_spectral</span>(self, u, v)
+    </div>
+    
+  
+    <div class="desc"><p>Spectral vorticity and divergence from vector components.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.vorticity_spectral">
+      Grid.<span class="ident">vorticity_spectral</span>(self, u, v)
+    </div>
+    
+  
+    <div class="desc"><p>Spectral vorticity from wind components.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.wind">
+      Grid.<span class="ident">wind</span>(self, vorticity, divergence)
+    </div>
+    
+  
+    <div class="desc"><p>Gridded wind components from vorticity and divergence fields.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.Grid.zonalize_eqlat">
+      Grid.<span class="ident">zonalize_eqlat</span>(self, field, levels=None, interpolate=None, quad=&#39;sptrapz&#39;)
+    </div>
+    
+  
+    <div class="desc"><p>Zonalize the field with equivalent latitude coordinates.</p>
+<p>Implements the zonalization procedure of Nakamura and Zhu (2010).</p>
+<ul>
+<li>The number of contours generated from the field for the zonalization
+  is determined by the <code>levels</code> parameter. If <code>levels</code> is an integer,
+  contours are sampled between the highest and lowest occuring value in
+  the field. If <code>levels</code> is a list of contour-values, these are used
+  directly. By default (<code>levels=None</code>), the number of levels is set
+  equal to the number of latitudes resolved by the grid.</li>
+<li>An output latitude grid can be specified with the <code>interpolate</code>
+  argument. The zonalized contour values are then interpolated to this
+  grid using linear interpolation. By default (<code>interpolate=None</code>), no
+  interpolation is carried out.</li>
+<li>The quadrature rule used in the surface integrals of the zonalization
+  computation can be specified with the <code>quad</code> argument. Possible
+  values are <code>"sptrapz"</code> and <code>"boxcount"</code>, corresponding to methods
+  <code>Grid.quad_sptrapz</code> and <code>Grid.quad_boxcount</code>, respectively. It is highly
+  recommended to use the slower, but much more accurate <code>"sptrapz"</code>
+  quadrature to avoid the "jumpiness" of the boxcounting scheme.</li>
+</ul>
+<p>Returns a tuple containing the contour values and associated equivalent
+latitudes.</p></div>
+
+  </div>
+  
+          <h3>Instance Attributes</h3>
+            <div class="item">
+            <p id="barotropic.Grid.dlam" class="name"><span class="ident">Grid</span>.<span class="ident">dlam</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.dlat" class="name"><span class="ident">Grid</span>.<span class="ident">dlat</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.dlon" class="name"><span class="ident">Grid</span>.<span class="ident">dlon</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.dphi" class="name"><span class="ident">Grid</span>.<span class="ident">dphi</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.fcor" class="name"><span class="ident">Grid</span>.<span class="ident">fcor</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.gridpoint_area" class="name"><span class="ident">Grid</span>.<span class="ident">gridpoint_area</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Surface area associated with each gridpoint based on a dual grid.</p>
+<p>The associated area of a gridpoint (lon, lat) in a regular grid is
+given by: <code>r² * dlon * [ sin(lat + dlat) - sin(lat - dlat) ]</code></p>
+<p>Used for box-counting quadrature.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.lams" class="name"><span class="ident">Grid</span>.<span class="ident">lams</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.laplacian_eigenvalues" class="name"><span class="ident">Grid</span>.<span class="ident">laplacian_eigenvalues</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.lats" class="name"><span class="ident">Grid</span>.<span class="ident">lats</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.lons" class="name"><span class="ident">Grid</span>.<span class="ident">lons</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.nlat" class="name"><span class="ident">Grid</span>.<span class="ident">nlat</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.nlon" class="name"><span class="ident">Grid</span>.<span class="ident">nlon</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.omega" class="name"><span class="ident">Grid</span>.<span class="ident">omega</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.phis" class="name"><span class="ident">Grid</span>.<span class="ident">phis</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.rsphere" class="name"><span class="ident">Grid</span>.<span class="ident">rsphere</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.Grid.shape" class="name"><span class="ident">Grid</span>.<span class="ident">shape</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Tuple of grid dimensions (<code>nlat</code>, <code>nlon</code>).</p></div>
+
+            </div>
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="barotropic.State" class="name class-name">class <span class="ident">State</span></p>
+      
+  
+    <div class="desc"><p>Model field container for a barotropic atmosphere.</p>
+<p>Provides convenient access to fields, diagnostics and plots. Should
+generally be treated as an immutable object.</p></div>
+
+
+      <div class="class">
+          <h3>Static Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.State.from_wind">
+      State.<span class="ident">from_wind</span>(cls, grid, time, u, v)
+    </div>
+    
+  
+    <div class="desc"><p>Initialize a model state based on wind components.</p>
+<p>This is an alternative constructor. <code>grid</code> and <code>time</code> are given to the
+default constructor and the state is initialized with PV derived from
+the given fields of wind components.</p></div>
+
+  </div>
+  
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.State.__init__">
+      State.<span class="ident">__init__</span>(self, grid, time, pv=None, pv_spectral=None)
+    </div>
+    
+  
+    <div class="desc"><p><a href="#barotropic.State"><code>State</code></a> constructor.</p>
+<ul>
+<li><code>grid</code> is a <a href="#barotropic.Grid"><code>Grid</code></a> instance.</li>
+<li><code>time</code> is the valid time of the atmospheric state. To work properly
+  with the time integration routines, this should be either a number
+  representing seconds or a <code>datetime.datetime</code> instance.</li>
+<li>One of <code>pv</code> and <code>pv_spectral</code> must be given. Both can be specified
+  but be careful to ensure consistency as there are no checks carried
+  out.</li>
+</ul>
+<p>Also see the alternative static method constructors and
+<a href="init.m.html"><code>barotropic.init</code></a>.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.State.add_vorticity">
+      State.<span class="ident">add_vorticity</span>(self, other)
+    </div>
+    
+  
+    <div class="desc"><p>Relative vorticity-based addition of atmospheric states.</p>
+<p>Combine this <a href="#barotropic.State"><code>State</code></a> with <code>other</code> by adding their relative
+vorticity fields. <code>other</code> can either be another <a href="#barotropic.State"><code>State</code></a> or
+a vorticity field as an array. Returns a new <a href="#barotropic.State"><code>State</code></a>. The
+<code>time</code> parameter is taken from the object whose <code>add_vorticity</code> method
+is called.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.State.add_wind">
+      State.<span class="ident">add_wind</span>(self, other)
+    </div>
+    
+  
+    <div class="desc"><p>Wind-based addition of atmospheric states.</p>
+<p>Combine this <a href="#barotropic.State"><code>State</code></a> with <code>other</code> by adding their wind
+fields component-wise. <code>other</code> can either be another <a href="#barotropic.State"><code>State</code></a>
+or a tuple containing the <code>u</code> and <code>v</code> component fields as arrays.
+Returns a new <a href="#barotropic.State"><code>State</code></a>. The <code>time</code> parameter is taken from
+the object whose <code>add_wind</code> method is called.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.State.extract_waveguides">
+      State.<span class="ident">extract_waveguides</span>(self, *args, **kwargs)
+    </div>
+    
+  
+    <div class="desc"><p>Shortcut to <a href="diagnostic.m.html#barotropic.diagnostic.extract_waveguides"><code>barotropic.diagnostic.extract_waveguides</code></a>.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.State.run">
+      State.<span class="ident">run</span>(self, model, *args, **kwargs)
+    </div>
+    
+  
+    <div class="desc"><p>Shortcut to <a href="#barotropic.BarotropicModel.run"><code>BarotropicModel.run</code></a></p></div>
+
+  </div>
+  
+          <h3>Instance Attributes</h3>
+            <div class="item">
+            <p id="barotropic.State.dominant_wavenumber" class="name"><span class="ident">State</span>.<span class="ident">dominant_wavenumber</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Dominant zonal wavenumber at every gridpoint based on meridional wind.</p>
+<p>See <a href="diagnostic.m.html#barotropic.diagnostic.dominant_wavenumber"><code>barotropic.diagnostic.dominant_wavenumber</code></a>.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.eddy_enstrophy" class="name"><span class="ident">State</span>.<span class="ident">eddy_enstrophy</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Enstropy after removal of the zonal-mean PV.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.energy" class="name"><span class="ident">State</span>.<span class="ident">energy</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Kinetic energy of the flow.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.enstrophy" class="name"><span class="ident">State</span>.<span class="ident">enstrophy</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Enstropy = <code>0.5 * q²</code> where <code>q</code> is PV.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.envelope_hilbert" class="name"><span class="ident">State</span>.<span class="ident">envelope_hilbert</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Envelope of wave packets based on the Hilbert transform.</p>
+<p>See <a href="diagnostic.m.html#barotropic.diagnostic.envelope_hilbert"><code>barotropic.diagnostic.envelope_hilbert</code></a>.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.falwa" class="name"><span class="ident">State</span>.<span class="ident">falwa</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Finite-Amplitude Local Wave Activity on the regular grid.</p>
+<p>See <a href="diagnostic.m.html#barotropic.diagnostic.falwa"><code>barotropic.diagnostic.falwa</code></a>.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.falwa_filtered" class="name"><span class="ident">State</span>.<span class="ident">falwa_filtered</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Finite-Amplitude Local Wave Activity, filtered as by Ghinassi et al. (2018).</p>
+<p>See <a href="diagnostic.m.html#barotropic.diagnostic.falwa"><code>barotropic.diagnostic.falwa</code></a>,
+<a href="diagnostic.m.html#barotropic.diagnostic.dominant_wavenumber"><code>barotropic.diagnostic.dominant_wavenumber</code></a> and
+<a href="diagnostic.m.html#barotropic.diagnostic.filter_by_wavenumber"><code>barotropic.diagnostic.filter_by_wavenumber</code></a>.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.falwa_hn2016" class="name"><span class="ident">State</span>.<span class="ident">falwa_hn2016</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Finite-Amplitude Local Wave Activity on the regular grid.</p>
+<p>See <a href="diagnostic.m.html#barotropic.diagnostic.falwa_hn2016"><code>barotropic.diagnostic.falwa_hn2016</code></a>.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.fawa" class="name"><span class="ident">State</span>.<span class="ident">fawa</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Finite-Amplitude Wave Activity on the regular grid.</p>
+<p>See <a href="diagnostic.m.html#barotropic.diagnostic.fawa"><code>barotropic.diagnostic.fawa</code></a>.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.grid" class="name"><span class="ident">State</span>.<span class="ident">grid</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.plot" class="name"><span class="ident">State</span>.<span class="ident">plot</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Interface to plot presets from <a href="plot.m.html"><code>barotropic.plot</code></a> for interactive use.</p>
+<p>Provides shortcuts to:</p>
+<ul>
+<li><a href="plot.m.html#barotropic.plot.rwp_diagnostic"><code>barotropic.plot.rwp_diagnostic</code></a></li>
+<li><a href="plot.m.html#barotropic.plot.summary"><code>barotropic.plot.summary</code></a></li>
+<li><a href="plot.m.html#barotropic.plot.wave_activity"><code>barotropic.plot.wave_activity</code></a></li>
+<li><a href="plot.m.html#barotropic.plot.waveguides"><code>barotropic.plot.waveguides</code></a></li>
+</ul>
+<p>Call like <code>state.plot.preset(...)</code>, where <code>preset</code> is the plot preset
+you want to see. The plotters accessed through this interface do not
+return the created <code>Figure</code> instance, which avoids that the created
+image is displayed twice in the output of a jupyter notebook cell.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.pv" class="name"><span class="ident">State</span>.<span class="ident">pv</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Barotropic potential vorticity (i.e. absolute vorticity).</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.pv_flux_spectral" class="name"><span class="ident">State</span>.<span class="ident">pv_flux_spectral</span></p>
+            
+
+            
+  
+    <div class="desc"><p>PV flux in spectral space <code>[q*u, q*v]</code>.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.pv_spectral" class="name"><span class="ident">State</span>.<span class="ident">pv_spectral</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Barotropic potential vorticity in spectral space.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.stationary_wavenumber" class="name"><span class="ident">State</span>.<span class="ident">stationary_wavenumber</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Non-dimensionalised stationary (zonal) wavenumber (<code>Ks</code>, complex).</p>
+<p>See <a href="diagnostic.m.html#barotropic.diagnostic.stationary_wavenumber"><code>barotropic.diagnostic.stationary_wavenumber</code></a>.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.streamfunction" class="name"><span class="ident">State</span>.<span class="ident">streamfunction</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Streamfunction of the wind.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.time" class="name"><span class="ident">State</span>.<span class="ident">time</span></p>
+            
+
+            
+  
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.u" class="name"><span class="ident">State</span>.<span class="ident">u</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Zonal wind component.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.v" class="name"><span class="ident">State</span>.<span class="ident">v</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Meridional wind component.</p></div>
+
+            </div>
+            <div class="item">
+            <p id="barotropic.State.vorticity" class="name"><span class="ident">State</span>.<span class="ident">vorticity</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Relative vorticity.</p></div>
+
+            </div>
+      </div>
+      </div>
+
+
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="barotropic.DAY" class="name"><span class="ident">DAY</span></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p id="barotropic.HOUR" class="name"><span class="ident">HOUR</span></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p id="barotropic.MERIDIONAL" class="name"><span class="ident">MERIDIONAL</span></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p id="barotropic.MIN" class="name"><span class="ident">MIN</span></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p id="barotropic.WEEK" class="name"><span class="ident">WEEK</span></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p id="barotropic.ZONAL" class="name"><span class="ident">ZONAL</span></p>
+      
+  
+
+      </div>
+
+  </section>
+
+</main>
+</div>
+</body>
+</html>

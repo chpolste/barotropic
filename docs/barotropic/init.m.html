@@ -1,0 +1,277 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<title>barotropic.init | barotropic 2.0.1 documentation</title>
+<style type="text/css">
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+body {
+  background-color: #eee;
+  font-family: Helvetica, sans;
+  font-size: 11pt;
+  line-height: 1.5em;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap-reverse;
+  height: 100%;
+}
+main {
+  flex: 1 1;
+  max-width: 750px;
+  padding: 15px;
+  background-color: #fff;
+  border-left: 2px solid #ccc;
+}
+nav {
+  flex: 0 1;
+  min-width: 250px;
+  padding: 15px;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 300;
+}
+h1 {
+  font-size: 2.2em;
+  line-height: 1.1em;
+  margin: 0 0 0.8em 0;
+}
+h2 {
+  font-size: 1.6em;
+  margin: 1.8em 0 .8em 0;
+}
+h3 {
+  font-size: 1.4em;
+  margin: 20px 0 15px 0;
+}
+
+a {
+  color: #039;
+  text-decoration: none;
+}
+a:hover {
+  color: #09f;
+}
+
+pre, code, .mono, .name {
+  font-family: monospace;
+  font-size: 0.95em;
+}
+code {
+    display: inline-block;
+    line-height: 1.2em;
+}
+
+ul {
+  padding-left: 2em;
+  list-style-type: disc;
+}
+
+hr {
+  border: 1px solid #ccc;
+}
+
+.title .name {
+  font-weight: bold;
+}
+
+.section-title {
+  margin-top: 2em;
+}
+
+.ident {
+  font-weight: bold;
+}
+
+pre {
+  border-left: 2px solid #ccc;
+  padding: 5px 10px;
+}
+
+nav a {
+  color: #000;
+}
+nav a:hover {
+  color: #039;
+}
+nav h1 {
+  font-size: 1.8em;
+  color: #039;
+}
+#index {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+  line-height: 1.4em;
+}
+#index ul ul {
+  list-style-type: circle;
+}
+
+.item {
+  margin: 0 0 25px 0;
+}
+.item .class {
+  margin: 0 0 25px 30px;
+}
+.item .class ul.class_list {
+  margin: 0 0 20px 0;
+}
+.item .name {
+  background: #eee;
+  margin: 0 0 5px 0;
+  padding: 5px 10px 3px 10px;
+  display: inline-block;
+  min-width: 40%;
+  border-bottom: 2px solid #ccc;
+}
+.item .def {
+  padding-left: 40px;
+  text-indent: -30px;
+}
+.item .class-name {
+  display: block;
+}
+.item .inheritance {
+  margin: 3px 0 0 25px;
+}
+.item .inherited {
+  color: #666;
+}
+.item .desc {
+  padding: 0 8px;
+  margin: 3px 0;
+}
+.item .desc p, .item .desc ul, .item .desc pre {
+  margin: 0 0 8px 0;
+}
+
+.desc h1, .desc h2, .desc h3 {
+  font-size: 100% !important;
+}
+
+
+</style>
+</head>
+<body>
+<div id="container">
+
+  
+  <nav id="sidebar">
+    <h1>barotropic 2.0.1</h1>
+    <hr>
+    <p><a href="index.html">barotropic</a>.<a href="init.m.html">init</a></p>
+    <hr>
+    <ul id="index">
+
+
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li><a href="#barotropic.init.gaussian_jet">gaussian_jet</a></li>
+    <li><a href="#barotropic.init.held_1985">held_1985</a></li>
+    <li><a href="#barotropic.init.motionless">motionless</a></li>
+    <li><a href="#barotropic.init.solid_body_rotation">solid_body_rotation</a></li>
+    <li><a href="#barotropic.init.zonally_symmetric">zonally_symmetric</a></li>
+  </ul>
+
+    </li>
+
+
+    </ul>
+  </nav>
+
+<main id="content">
+
+  
+
+  
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">barotropic.init</span></h1>
+  <p>Preconfigured initial conditions and initial condition helpers.</p>
+<p>All functions take a <code>time</code> parameter which is given to the <code>State</code> constructor.</p>
+  </header>
+
+  <section id="section-items">
+
+
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
+
+      <div class="item">
+        <div class="name def" id="barotropic.init.gaussian_jet">
+        <span class="ident">gaussian_jet</span>(grid, time=0.0, amplitude=20.0, center_lat=45.0, stdev_lat=5.0)
+        </div>
+        
+  
+    <div class="desc"><p>A bell-shaped, zonally-symmetric zonal jet.</p>
+<ul>
+<li><code>amplitude</code> is the peak zonal wind at the center of the jet.</li>
+<li><code>center_lat</code> is the center of the jet in degrees latitude.</li>
+<li><code>stdev_lat</code> is the standard deviation of the jet in degrees latitude.</li>
+</ul>
+<p>A linear wind profile in latitude is added to zero wind speeds at both
+poles.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.init.held_1985">
+        <span class="ident">held_1985</span>(grid, time=0.0, A=25.0, B=30.0, C=300.0)
+        </div>
+        
+  
+    <div class="desc"><p>Zonal wind profile similar to that of the upper troposphere.</p>
+<p>Introduced by Held (1985), also used by Held and Phillips (1987) and
+Ghinassi et al. (2018).</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.init.motionless">
+        <span class="ident">motionless</span>(grid, time=0.0)
+        </div>
+        
+  
+    <div class="desc"><p>A motionless state.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.init.solid_body_rotation">
+        <span class="ident">solid_body_rotation</span>(grid, time=0.0, amplitude=15.0)
+        </div>
+        
+  
+    <div class="desc"><p>A cosine-shaped, zonally-symmetric zonal wind profile.</p>
+<p>The peak zonal wind speed at the equator is given by the <code>amplitude</code>
+parameter in m/s.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.init.zonally_symmetric">
+        <span class="ident">zonally_symmetric</span>(grid, time=0.0, u=None, pv=None)
+        </div>
+        
+  
+    <div class="desc"><p>Turn a given zonal profile of zonal wind or PV into a full 2D-state.</p>
+<p>Either <code>u</code> or <code>pv</code> must be specified.</p></div>
+
+      </div>
+
+
+  </section>
+
+</main>
+</div>
+</body>
+</html>

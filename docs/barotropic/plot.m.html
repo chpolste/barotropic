@@ -1,0 +1,350 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<title>barotropic.plot | barotropic 2.0.1 documentation</title>
+<style type="text/css">
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+body {
+  background-color: #eee;
+  font-family: Helvetica, sans;
+  font-size: 11pt;
+  line-height: 1.5em;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap-reverse;
+  height: 100%;
+}
+main {
+  flex: 1 1;
+  max-width: 750px;
+  padding: 15px;
+  background-color: #fff;
+  border-left: 2px solid #ccc;
+}
+nav {
+  flex: 0 1;
+  min-width: 250px;
+  padding: 15px;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 300;
+}
+h1 {
+  font-size: 2.2em;
+  line-height: 1.1em;
+  margin: 0 0 0.8em 0;
+}
+h2 {
+  font-size: 1.6em;
+  margin: 1.8em 0 .8em 0;
+}
+h3 {
+  font-size: 1.4em;
+  margin: 20px 0 15px 0;
+}
+
+a {
+  color: #039;
+  text-decoration: none;
+}
+a:hover {
+  color: #09f;
+}
+
+pre, code, .mono, .name {
+  font-family: monospace;
+  font-size: 0.95em;
+}
+code {
+    display: inline-block;
+    line-height: 1.2em;
+}
+
+ul {
+  padding-left: 2em;
+  list-style-type: disc;
+}
+
+hr {
+  border: 1px solid #ccc;
+}
+
+.title .name {
+  font-weight: bold;
+}
+
+.section-title {
+  margin-top: 2em;
+}
+
+.ident {
+  font-weight: bold;
+}
+
+pre {
+  border-left: 2px solid #ccc;
+  padding: 5px 10px;
+}
+
+nav a {
+  color: #000;
+}
+nav a:hover {
+  color: #039;
+}
+nav h1 {
+  font-size: 1.8em;
+  color: #039;
+}
+#index {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+  line-height: 1.4em;
+}
+#index ul ul {
+  list-style-type: circle;
+}
+
+.item {
+  margin: 0 0 25px 0;
+}
+.item .class {
+  margin: 0 0 25px 30px;
+}
+.item .class ul.class_list {
+  margin: 0 0 20px 0;
+}
+.item .name {
+  background: #eee;
+  margin: 0 0 5px 0;
+  padding: 5px 10px 3px 10px;
+  display: inline-block;
+  min-width: 40%;
+  border-bottom: 2px solid #ccc;
+}
+.item .def {
+  padding-left: 40px;
+  text-indent: -30px;
+}
+.item .class-name {
+  display: block;
+}
+.item .inheritance {
+  margin: 3px 0 0 25px;
+}
+.item .inherited {
+  color: #666;
+}
+.item .desc {
+  padding: 0 8px;
+  margin: 3px 0;
+}
+.item .desc p, .item .desc ul, .item .desc pre {
+  margin: 0 0 8px 0;
+}
+
+.desc h1, .desc h2, .desc h3 {
+  font-size: 100% !important;
+}
+
+
+</style>
+</head>
+<body>
+<div id="container">
+
+  
+  <nav id="sidebar">
+    <h1>barotropic 2.0.1</h1>
+    <hr>
+    <p><a href="index.html">barotropic</a>.<a href="plot.m.html">plot</a></p>
+    <hr>
+    <ul id="index">
+
+
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li><a href="#barotropic.plot.configure_lat_y">configure_lat_y</a></li>
+    <li><a href="#barotropic.plot.configure_lon_x">configure_lon_x</a></li>
+    <li><a href="#barotropic.plot.hovmoellerify">hovmoellerify</a></li>
+    <li><a href="#barotropic.plot.reduce_vectors">reduce_vectors</a></li>
+    <li><a href="#barotropic.plot.roll_lons">roll_lons</a></li>
+    <li><a href="#barotropic.plot.rwp_diagnostic">rwp_diagnostic</a></li>
+    <li><a href="#barotropic.plot.set_title_time">set_title_time</a></li>
+    <li><a href="#barotropic.plot.summary">summary</a></li>
+    <li><a href="#barotropic.plot.symmetric_levels">symmetric_levels</a></li>
+    <li><a href="#barotropic.plot.wave_activity">wave_activity</a></li>
+    <li><a href="#barotropic.plot.waveguides">waveguides</a></li>
+  </ul>
+
+    </li>
+
+
+    </ul>
+  </nav>
+
+<main id="content">
+
+  
+
+  
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">barotropic.plot</span></h1>
+  <p>Plot presets and plotting helper functions.</p>
+<p>Plotting requires <code>matplotlib</code>. If <code>matplotlib</code> is not available, a warning
+will be emitted on import but some of the helper functions will still work.</p>
+<p>All plot presets are also accessible for interactive use as methods of the
+<a href="index.html#barotropic.State.plot"><code>barotropic.State.plot</code></a> interface.</p>
+  </header>
+
+  <section id="section-items">
+
+
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
+
+      <div class="item">
+        <div class="name def" id="barotropic.plot.configure_lat_y">
+        <span class="ident">configure_lat_y</span>(ax, hemisphere)
+        </div>
+        
+  
+    <div class="desc"><p>Set up the y-axis ticks of <code>ax</code> to display latitude.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.configure_lon_x">
+        <span class="ident">configure_lon_x</span>(ax, offset=0)
+        </div>
+        
+  
+    <div class="desc"><p>Set up the x-axis ticks of <code>ax</code> to display longitude.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.hovmoellerify">
+        <span class="ident">hovmoellerify</span>(states, f)
+        </div>
+        
+  
+    <div class="desc"><p>Prepare <code>states</code> for plotting as a Hovmöller diagram.</p>
+<ul>
+<li><code>states</code> is a list of <code>State</code> objects, which should be ordered
+  chronologically</li>
+<li><code>f</code> is a function that is applied to each <code>State</code> in <code>states</code> and should
+  return either a latitudinal or longitudinal 1D cross-section.</li>
+</ul>
+<p>Returns a tuple containing x-coordinates, y-coordinates and the Hovmöller
+field. If <code>f</code> returns a latitudinal cross-section (determined by the length
+of the vector), time is on the x-axis and latitude on the y-axis. Otherwise
+time is on the y-axis and longitude on the x-axis.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.reduce_vectors">
+        <span class="ident">reduce_vectors</span>(x, y, u, v, ny)
+        </div>
+        
+  
+    <div class="desc"><p>Reduce the density of points in the inputs by slicing.</p>
+<p>Use to slice a vector field with components <code>u</code> and <code>v</code> components and the
+corresponding coordinates <code>x</code> and <code>y</code> consistently, e.g. to reduce the
+number of arrows shown in a quiver plot. <code>ny</code> controls how many points are
+(approximately) kept in the y-dimension. The x-dimension is sliced with the
+same stride.</p>
+<p>Returns the reduced <code>x</code>, <code>y</code>, <code>u</code> and <code>v</code> in a tuple.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.roll_lons">
+        <span class="ident">roll_lons</span>(lons, center=180)
+        </div>
+        
+  
+    <div class="desc"><p>Center 2D fields around the given meridian.</p>
+<p>Returns a roll function that should be applied to 2D fields before plotting
+and a <code>configure_lon_x</code> function set up to label the longitudes axis
+correctly when using the unmodified lons from the grid during plotting.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.rwp_diagnostic">
+        <span class="ident">rwp_diagnostic</span>(state, figsize=(8, 10.5), hemisphere=&#39;both&#39;, center_lon=180, v_max=None, rwp_max=None, rwp_cmap=&#39;YlOrRd&#39;)
+        </div>
+        
+  
+    <div class="desc"><p>3-panel plot with Rossby wave packet diagnostics.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.set_title_time">
+        <span class="ident">set_title_time</span>(ax, time, loc=&#39;right&#39;)
+        </div>
+        
+  
+    <div class="desc"><p>Put the formatted <code>time</code> into the title of <code>ax</code> at location <code>loc</code>.</p>
+<p>Shows <code>time</code> given as a number of seconds into hours and <code>time</code> given as
+a <code>datetime.datetime</code> in ISO format.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.summary">
+        <span class="ident">summary</span>(state, figsize=(11, 7), hemisphere=&#39;both&#39;, center_lon=180, pv_cmap=&#39;viridis&#39;, pv_max=None, v_max=None)
+        </div>
+        
+  
+    <div class="desc"><p>4-panel plot showing the model state in terms of vorticity and wind.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.symmetric_levels">
+        <span class="ident">symmetric_levels</span>(x, n=10, ext=None)
+        </div>
+        
+  
+    <div class="desc"><p>Generate <code>n</code> contour levels for field <code>x</code> that are symmetric around 0.</p>
+<p><code>ext</code> is an override for the absolute value of the outermost levels.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.wave_activity">
+        <span class="ident">wave_activity</span>(state, figsize=(11, 7), hemisphere=&#39;both&#39;, center_lon=180, falwa_cmap=&#39;YlOrRd&#39;)
+        </div>
+        
+  
+    <div class="desc"><p>4-panel plot with Finite-Amplitude Wave Activity and PV diagnostics.</p></div>
+
+      </div>
+      <div class="item">
+        <div class="name def" id="barotropic.plot.waveguides">
+        <span class="ident">waveguides</span>(state, k_waveguides=None, hemisphere=&#39;both&#39;, xlim_bounds=(-5, 15), legend_loc=None)
+        </div>
+        
+  
+    <div class="desc"><p>2-panel plot showing stationary wavenumber and WKB waveguide diagnostics.</p></div>
+
+      </div>
+
+
+  </section>
+
+</main>
+</div>
+</body>
+</html>

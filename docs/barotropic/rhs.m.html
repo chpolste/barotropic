@@ -1,0 +1,495 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<title>barotropic.rhs | barotropic 2.0.1 documentation</title>
+<style type="text/css">
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+body {
+  background-color: #eee;
+  font-family: Helvetica, sans;
+  font-size: 11pt;
+  line-height: 1.5em;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap-reverse;
+  height: 100%;
+}
+main {
+  flex: 1 1;
+  max-width: 750px;
+  padding: 15px;
+  background-color: #fff;
+  border-left: 2px solid #ccc;
+}
+nav {
+  flex: 0 1;
+  min-width: 250px;
+  padding: 15px;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 300;
+}
+h1 {
+  font-size: 2.2em;
+  line-height: 1.1em;
+  margin: 0 0 0.8em 0;
+}
+h2 {
+  font-size: 1.6em;
+  margin: 1.8em 0 .8em 0;
+}
+h3 {
+  font-size: 1.4em;
+  margin: 20px 0 15px 0;
+}
+
+a {
+  color: #039;
+  text-decoration: none;
+}
+a:hover {
+  color: #09f;
+}
+
+pre, code, .mono, .name {
+  font-family: monospace;
+  font-size: 0.95em;
+}
+code {
+    display: inline-block;
+    line-height: 1.2em;
+}
+
+ul {
+  padding-left: 2em;
+  list-style-type: disc;
+}
+
+hr {
+  border: 1px solid #ccc;
+}
+
+.title .name {
+  font-weight: bold;
+}
+
+.section-title {
+  margin-top: 2em;
+}
+
+.ident {
+  font-weight: bold;
+}
+
+pre {
+  border-left: 2px solid #ccc;
+  padding: 5px 10px;
+}
+
+nav a {
+  color: #000;
+}
+nav a:hover {
+  color: #039;
+}
+nav h1 {
+  font-size: 1.8em;
+  color: #039;
+}
+#index {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+  line-height: 1.4em;
+}
+#index ul ul {
+  list-style-type: circle;
+}
+
+.item {
+  margin: 0 0 25px 0;
+}
+.item .class {
+  margin: 0 0 25px 30px;
+}
+.item .class ul.class_list {
+  margin: 0 0 20px 0;
+}
+.item .name {
+  background: #eee;
+  margin: 0 0 5px 0;
+  padding: 5px 10px 3px 10px;
+  display: inline-block;
+  min-width: 40%;
+  border-bottom: 2px solid #ccc;
+}
+.item .def {
+  padding-left: 40px;
+  text-indent: -30px;
+}
+.item .class-name {
+  display: block;
+}
+.item .inheritance {
+  margin: 3px 0 0 25px;
+}
+.item .inherited {
+  color: #666;
+}
+.item .desc {
+  padding: 0 8px;
+  margin: 3px 0;
+}
+.item .desc p, .item .desc ul, .item .desc pre {
+  margin: 0 0 8px 0;
+}
+
+.desc h1, .desc h2, .desc h3 {
+  font-size: 100% !important;
+}
+
+
+</style>
+</head>
+<body>
+<div id="container">
+
+  
+  <nav id="sidebar">
+    <h1>barotropic 2.0.1</h1>
+    <hr>
+    <p><a href="index.html">barotropic</a>.<a href="rhs.m.html">rhs</a></p>
+    <hr>
+    <ul id="index">
+
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li>
+        <a href="#barotropic.rhs.GaussianMountain">GaussianMountain</a>
+        
+          
+  <ul>
+    <li><a href="#barotropic.rhs.GaussianMountain.__init__">__init__</a></li>
+    <li><a href="#barotropic.rhs.GaussianMountain.orography">orography</a></li>
+  </ul>
+
+        </li>
+        <li>
+        <a href="#barotropic.rhs.LinearRelaxation">LinearRelaxation</a>
+        
+          
+  <ul>
+    <li><a href="#barotropic.rhs.LinearRelaxation.__init__">__init__</a></li>
+  </ul>
+
+        </li>
+        <li>
+        <a href="#barotropic.rhs.Orography">Orography</a>
+        
+          
+  <ul>
+    <li><a href="#barotropic.rhs.Orography.__init__">__init__</a></li>
+    <li><a href="#barotropic.rhs.Orography.orography">orography</a></li>
+  </ul>
+
+        </li>
+        <li>
+        <a href="#barotropic.rhs.RHS">RHS</a>
+        
+        </li>
+        <li>
+        <a href="#barotropic.rhs.TimedOffSwitch">TimedOffSwitch</a>
+        
+          
+  <ul>
+    <li><a href="#barotropic.rhs.TimedOffSwitch.__init__">__init__</a></li>
+  </ul>
+
+        </li>
+        <li>
+        <a href="#barotropic.rhs.ZonalSineMountains">ZonalSineMountains</a>
+        
+          
+  <ul>
+    <li><a href="#barotropic.rhs.ZonalSineMountains.__init__">__init__</a></li>
+    <li><a href="#barotropic.rhs.ZonalSineMountains.orography">orography</a></li>
+  </ul>
+
+        </li>
+      </ul>
+    </li>
+
+
+
+    </ul>
+  </nav>
+
+<main id="content">
+
+  
+
+  
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">barotropic.rhs</span></h1>
+  <p>Predefined RHS forcing terms.</p>
+  </header>
+
+  <section id="section-items">
+
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="barotropic.rhs.GaussianMountain" class="name class-name">class <span class="ident">GaussianMountain</span></p>
+      
+  
+    <div class="desc"><p>Gaussian-shaped pseudo-orography.</p></div>
+
+
+      <div class="class">
+          <h3>Ancestors</h3>
+          <ul class="class_list">
+          <li><a href="#barotropic.rhs.Orography">Orography</a></li>
+          <li><a href="#barotropic.rhs.RHS">RHS</a></li>
+          </ul>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.rhs.GaussianMountain.__init__">
+      GaussianMountain.<span class="ident">__init__</span>(self, height=1500, center=(30.0, 45.0), stdev=(7.5, 20.0), **orog_kwargs)
+    </div>
+    
+  
+    <div class="desc"><p>Gaussian mountain for pseudo-orographic forcing.</p>
+<p>The mountain is centered at the (lon, lat)-tuple <code>center</code> (in degrees)
+and decays with zonal and meridional standard deviations given by the
+tuple or value <code>stdev</code> (in degrees). <code>height</code> is the maximum height of
+the mountain in m. Additional <code>orog_kwargs</code> are given to the
+<code>Orography</code> base class.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.rhs.GaussianMountain.orography">
+      GaussianMountain.<span class="ident">orography</span>(self, grid)
+    </div>
+    
+  
+    <div class="desc"><p>The orography in m, interpolated to the given grid.</p></div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="barotropic.rhs.LinearRelaxation" class="name class-name">class <span class="ident">LinearRelaxation</span></p>
+      
+  
+    <div class="desc"><p>Linear relaxation towards a reference PV state.</p></div>
+
+
+      <div class="class">
+          <h3>Ancestors</h3>
+          <ul class="class_list">
+          <li><a href="#barotropic.rhs.RHS">RHS</a></li>
+          </ul>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.rhs.LinearRelaxation.__init__">
+      LinearRelaxation.<span class="ident">__init__</span>(self, rate, reference_pv, mask=None)
+    </div>
+    
+  
+    <div class="desc"><p>Specify the reference PV field and speed of relaxation.</p>
+<p>The forcing is calculated as</p>
+<pre><code>rate * (reference_pv - pv),
+</code></pre>
+<p>where <code>pv</code> is the PV field of the current timestep.</p>
+<p>The <code>mask</code> parameter does nothing at the moment.</p></div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="barotropic.rhs.Orography" class="name class-name">class <span class="ident">Orography</span></p>
+      
+  
+    <div class="desc"><p>Pseudo-orographic forcing based on a given gridded orography.</p>
+<p>The forcing is calculated as</p>
+<pre><code>-f/H * u·∇h,
+</code></pre>
+<p>where <code>f</code> is the coriolis parameter in 1/s, <code>H</code> a scale height in m, <code>u</code>
+the horizontal wind and <code>h</code> is the height of the orography.</p>
+<p>This is class only supports time-invariant orography fields. The fields
+must be given on a lat-lon grid and will automatically be interpolated if
+required.</p>
+<p>Other orography forcing terms can inherit from this class and should only
+have to implement the <code>orography</code> method.</p></div>
+
+
+      <div class="class">
+          <h3>Ancestors</h3>
+          <ul class="class_list">
+          <li><a href="#barotropic.rhs.RHS">RHS</a></li>
+          </ul>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.rhs.Orography.__init__">
+      Orography.<span class="ident">__init__</span>(self, lons, lats, orography, scale_height=10000.0, wind=(&#39;act&#39;, 1.0), fcor_ref=None)
+    </div>
+    
+  
+    <div class="desc"><p>Set up an orographic forcing term for the specified orography.</p>
+<p><code>orography</code> (in m), on a lat-lon grid given by <code>lats</code> and <code>lons</code>. The
+orography is linearly interpolated to the required grid when the
+forcing is evaluated by the model. <code>lons</code> and <code>orography</code> should be
+prepared such that the 0° column exists at both 0° and 360° to ensure
+that the interpolation does not yield NaN-values at the periodic
+boundary.</p>
+<p><code>scale_height</code> should be given in m. The parameter <code>wind</code> controls
+which winds are used to evaluate the forcing, with these options:</p>
+<ul>
+<li><code>("act", factor)</code>: The actual 2D-wind is used, scaled by the given
+  <code>factor</code>.</li>
+<li><code>("zon", factor)</code>: The zonal-mean zonal wind is used, scaled by the
+  given <code>factor</code>. The meridional wind component is set to 0.</li>
+<li><code>("sbr", maxval)</code>: A constant solid body rotation wind profile is
+  used with the given maximum wind speed at the equator. This can be
+  useful to define a constant orography-based wavemaker for simple
+  experiments.</li>
+</ul>
+<p>If <code>fcor_ref</code> is <code>None</code> (default), the actual coriolis parameter values
+are used to calculate the forcing, otherwise the given value (in 1/s)
+is used in the calculation of the forcing.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.rhs.Orography.orography">
+      Orography.<span class="ident">orography</span>(self, grid)
+    </div>
+    
+  
+    <div class="desc"><p>The orography in m, interpolated to the given grid.</p></div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="barotropic.rhs.RHS" class="name class-name">class <span class="ident">RHS</span></p>
+      
+  
+    <div class="desc"><p>RHS forcing term base class that implements arithmetic operators.</p>
+<p>Forcing terms should inherit from this class so they can be added and
+multiplied easily.</p></div>
+
+
+      <div class="class">
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="barotropic.rhs.TimedOffSwitch" class="name class-name">class <span class="ident">TimedOffSwitch</span></p>
+      
+  
+    <div class="desc"><p>Turn off another forcing term after a specified amount of time.</p>
+<p>The forcing term returns 1 until the specified switch-off time is reached
+after which it returns 0 forever. Multiply with the term that is supposed
+to be switched off.</p></div>
+
+
+      <div class="class">
+          <h3>Ancestors</h3>
+          <ul class="class_list">
+          <li><a href="#barotropic.rhs.RHS">RHS</a></li>
+          </ul>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.rhs.TimedOffSwitch.__init__">
+      TimedOffSwitch.<span class="ident">__init__</span>(self, tend)
+    </div>
+    
+  
+    <div class="desc"><p>The switch-off time is <code>tend</code>.</p></div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="barotropic.rhs.ZonalSineMountains" class="name class-name">class <span class="ident">ZonalSineMountains</span></p>
+      
+  
+    <div class="desc"><p>Sinusoidal pseudo-orography in the zonal direction.</p></div>
+
+
+      <div class="class">
+          <h3>Ancestors</h3>
+          <ul class="class_list">
+          <li><a href="#barotropic.rhs.Orography">Orography</a></li>
+          <li><a href="#barotropic.rhs.RHS">RHS</a></li>
+          </ul>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="barotropic.rhs.ZonalSineMountains.__init__">
+      ZonalSineMountains.<span class="ident">__init__</span>(self, height=1500, center_lat=45.0, stdev_lat=10.0, wavenumber=4, **orog_kwargs)
+    </div>
+    
+  
+    <div class="desc"><p>Sinusoidal mountain-chain for pseudo-orographic forcing.</p>
+<p>The mountains are centered at latitude <code>center_lat</code> (in degrees) and
+decay in meridional direction with a standard deviation of <code>stdev_lat</code>
+(in degrees). <code>wavenumber</code> specifies the number of crest-valley pairs
+in the zonal direction. <code>height</code> is the maximum height of the mountains
+in m. Additional <code>orog_kwargs</code> are given to the <code>Orography</code> base class.</p></div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="barotropic.rhs.ZonalSineMountains.orography">
+      ZonalSineMountains.<span class="ident">orography</span>(self, grid)
+    </div>
+    
+  
+    <div class="desc"><p>The orography in m, interpolated to the given grid.</p></div>
+
+  </div>
+  
+      </div>
+      </div>
+
+
+
+  </section>
+
+</main>
+</div>
+</body>
+</html>
