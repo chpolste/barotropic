@@ -102,7 +102,7 @@ def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
 
     Returns FALWA on the regular latitude/longitude grid.
     """
-    from hn2016_falwa.oopinterface import BarotropicField
+    from hn2016_falwa.barotropic_field import BarotropicField
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # hn2016_falwa expects latitudes to start at south pole
     xlon = grid.lons

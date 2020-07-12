@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="barotropic",
     description="A barotropic model on the sphere",
-    version="2.0.0",
+    version="2.0.1",
     author="Christopher Polster",
     url="https://github.com/chpolste/barotropic",
     packages=find_packages(),
