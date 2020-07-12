@@ -30,6 +30,9 @@ last.plot.summary()
 
 ![example of the summary plot preset](examples/example-summary-plot.png)
 
+- Consult the [online documentation](https://chpolste.github.io/barotropic/docs/barotropic) to learn about the public interface.
+- A few [example notebooks](examples) are provided in which the module is used to reproduce results from research papers.
+
 
 ## Dependencies
 
@@ -56,25 +59,6 @@ From the root directory of the repository run
 Optional dependencies are specified as an [extra](https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies) and can be turned into required dependencies by installing with
 
     pip install .[with-optional]
-
-
-## Usage
-
-The docstrings should provide the information required to configure and run the model and investigate its output.
-A few [example notebooks](examples) are provided in which the model is used to reproduce results from research papers.
-
-Usage of the model involves three classes:
-
-- `Grid`: contains properties of the latitude-longitude grid, provides access to spectral transforms and differentiation and quadrature in space.
-- `BarotropicModel`: handles the forcing terms, parameters of the numerical diffusion and time integration.
-- `State`: general access to fields (PV, wind, streamfunction, etc.) and shortcuts to plotting and diagnostic functions.
-
-Convenient model setup and analysis functionality is provided by these submodules:
-
-- `init`: predefined and configurable initial states.
-- `rhs`: contains predefined forcing terms (e.g. pseudo-orography) with overloaded `+` and `*` operators for convenient combination.
-- `diagnostic`: implementation of various diagnostic functions, mainly for analysis of Rossby waves.
-- `plot`: plot presets and general plotting helpers, e.g. to combine multiple `State` objects into a Hovmöller diagram.
 
 
 ## License
