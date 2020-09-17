@@ -176,7 +176,8 @@ def filter_by_wavenumber(field, wavenumber):
     
     Apply Hann smoothing in zonal direction to the input `field` with the Hann
     window width governed at every gridpoint by the wavenumber at the same
-    location in the `wavenumber` field.
+    location in the `wavenumber` field. The wavelength corresponding to
+    wavenumber k determines the full width at half maximum of the Hann window.
 
     Used by Ghinassi et al. (2018) to filter the FALWA field, discounting phase
     information in order to diagnose wave packets as a whole.
@@ -185,28 +186,42 @@ def filter_by_wavenumber(field, wavenumber):
     """
     from scipy import signal
     nlon = field.shape[_ZONAL]
-    # Limit wavenumbers to 1 and above. The Hann window at this point goes once
-    # around the entire globe already.
-    wavenumber = np.clip(wavenumber, 1., None)
-    # Precompute the smoothed fields for all possible odd gridpoint-widths.
+    # If the wavenumber field is provided as a function of latitude only,
+    # extend it to a lat-lon-dependent 2D field
+    if wavenumber.ndim == 1:
+        assert wavenumber.shape[0] == field.shape[0], "1-dimensional input for wavenumber must be nlat-sized"
+        wavenumber = np.repeat(wavenumber, nlon).reshape(field.shape)
+    # Limit wavenumbers to values above 1. The Hann window at this point goes
+    # twice around the entire globe already. For wavenumbers larger than nlon/2
+    # the Hann window width is smaller than 4 gridpoints making it impossible
+    # to adequately represent the window on the grid.
+    wavenumber = np.clip(wavenumber, 1., nlon / 2)
+    # scipy.signal.window.hann takes the full width of the window in gridpoints
+    # as its argument. nlon / wavenumber is half the width of the window.  To
+    # speed up computation, only consider odd window widths which can be
+    # properly centered on a gridpoint.
+    hann_width = ((nlon // wavenumber) * 2 + 1).astype(int)
+    used_widths = set(np.unique(hann_width))
+    # Precompute the smoothed fields for all required odd gridpoint-widths.
     # While this produces a lot of unused data, it allows to use more
     # numpy-accelerated operations which should outperform any pure-Python and
     # loop-based implementation. Widths and indices are mapped by 2n+1 -> n.
     convs = []
-    for n in range(1, nlon + 2, 2):
-        hann = signal.hann(n)
-        # Normalize
+    for width in range(1, max(used_widths)+1, 2):
+        # Skip smoothing for all widths that aren't used
+        if width not in used_widths:
+            convs.append(np.zeros_like(field))
+            continue
+        # Obtain the normalized Hann window for the current width
+        hann = signal.hann(width)
         hann = hann / np.sum(hann)
         # Apply window along the zonal axis
         convs.append(signal.convolve2d(field, hann[None,:], mode="same", boundary="wrap"))
     # Stack into 3-dimensional array
     convs = np.stack(convs)
-    # The window width in gridpoints is given by the total number of gridpoints in
-    # zonal direction divided by the wavenumber. This width is transformed into
-    # an index for the precomputed smoothed fields
-    # TODO accept wavenumber as single number (find more general replacement
-    #      for astype(int) method)
-    idx = np.floor(nlon / wavenumber).astype(int) // 2
+    # Extract the filtered value from the smoothed fields according the the
+    # width-index mapping
+    idx = (hann_width - 1) // 2
     ii, jj = np.indices(field.shape)
     return convs[idx,ii,jj]
 

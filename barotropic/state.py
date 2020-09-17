@@ -188,13 +188,17 @@ class State:
     @property
     def falwa_filtered(self):
         """Finite-Amplitude Local Wave Activity, filtered as by Ghinassi et al. (2018).
+
+        The FALWA field is filtered based on the doubled dominant wavenumber of
+        the meridional wind (the wavenumber of a FALWA pattern is twice that of
+        the corresponding meridional wind pattern).
         
         See `barotropic.diagnostic.falwa`,
         `barotropic.diagnostic.dominant_wavenumber` and
         `barotropic.diagnostic.filter_by_wavenumber`.
         """
         if self._falwa_filtered is None:
-            self._falwa_filtered = diagnostic.filter_by_wavenumber(self.falwa, self.dominant_wavenumber)
+            self._falwa_filtered = diagnostic.filter_by_wavenumber(self.falwa, 2*self.dominant_wavenumber)
         return self._falwa_filtered
 
     @property
