@@ -292,10 +292,7 @@ class Grid:
                     + (aa * xs + bb) * np.sin(xs)
                     - (aa * xe + bb) * np.sin(xe))
         # Only intervals where z is positive somewhere are considered
-        trapz[~(nonneg[js] | nonneg[je])] = 0
-        return np.sum(trapz, axis=-2)
-        # TODO: the where argument of np.sum was added only in 1.17, which is still very new
-        #return np.sum(trapz, where=np.logical_or(nonneg[js], nonneg[je]), axis=-2)
+        return np.sum(trapz, where=np.logical_or(nonneg[js], nonneg[je]), axis=-2)
 
     # Equivalent-latitude zonalization
 
