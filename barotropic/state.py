@@ -38,6 +38,7 @@ class State:
         self._falwa = None
         self._falwa_filtered = None
         self._dominant_wavenumber = None
+        self._pv_zonalized = None
 
     @classmethod
     def from_wind(cls, grid, time, u, v):
@@ -164,6 +165,16 @@ class State:
         return 0.5 * (self.u * self.u + self.v * self.v)
 
     # Shortcuts to diagnostic fields
+
+    @property
+    def pv_zonalized(self):
+        """Zonalized PV profile on the regular grid.
+        
+        See `barotropic.Grid.zonalize_eqlat`.
+        """
+        if self._pv_zonalized is None:
+            self._pv_zonalized = self.grid.zonalize_eqlat(self.pv, interpolate=self.grid.lats)[0]
+        return self._pv_zonalized
 
     @property
     def fawa(self):
