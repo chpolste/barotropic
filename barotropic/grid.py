@@ -28,7 +28,7 @@ class Grid:
     """
 
 
-    def __init__(self, rsphere=EARTH_RADIUS, omega=EARTH_OMEGA, resolution=2.5,
+    def __init__(self, resolution=2.5, rsphere=EARTH_RADIUS, omega=EARTH_OMEGA,
             ntrunc=None, legfunc="stored"):
         """Grid constructor.
 
