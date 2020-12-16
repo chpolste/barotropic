@@ -175,9 +175,9 @@ class State:
     def pv_zonalized(self):
         """Zonalized PV profile on the regular grid.
         
-        See `barotropic.Grid.zonalize_eqlat`.
+        See `barotropic.Grid.zonalize`.
         """
-        return self.grid.zonalize_eqlat(self.pv, interpolate=self.grid.lats)[0]
+        return self.grid.zonalize(self.pv, interpolate=self.grid.lats)[0]
 
     @property
     def fawa(self):

@@ -193,8 +193,7 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", center_lon=180, fal
     # Panel: zonal mean PV and zonalized PV
     ax11.vlines([0], -90, 90, linestyle="--", linewidth=0.5, color="#666666")
     # Zonalized PV
-    eqlat_levels = 2 * grid.nlat
-    zlpv, _ = grid.zonalize_eqlat(pv, levels=eqlat_levels, interpolate=grid.lats)
+    zlpv = 10000 * state.pv_zonalized
     ax11.plot(zlpv, grid.lats, color="#999999", label="equiv. lat.")
     # Zonal mean PV
     zmpv = np.mean(pv, axis=_ZONAL)

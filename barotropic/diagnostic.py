@@ -45,7 +45,7 @@ def fawa(pv_or_state, grid=None, levels=None, interpolate=None):
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
-    qq, yy = grid.zonalize_eqlat(pv, levels=levels, interpolate=None, quad="sptrapz")
+    qq, yy = grid.zonalize(pv, levels=levels, interpolate=None, quad="sptrapz")
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
     q_int = np.vectorize(lambda q: grid.quad_sptrapz(pv, pv - q))
@@ -74,7 +74,7 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=None):
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
-    qq, yy = grid.zonalize_eqlat(pv, levels=levels, quad="sptrapz")
+    qq, yy = grid.zonalize(pv, levels=levels, quad="sptrapz")
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
     q_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, pv - q), 2, 1)

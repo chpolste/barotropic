@@ -313,7 +313,7 @@ class Grid:
         # Equivalent latitude in degrees
         return np.rad2deg(np.arcsin(sine))
 
-    def zonalize_eqlat(self, field, levels=None, interpolate=None, quad="sptrapz"):
+    def zonalize(self, field, levels=None, interpolate=None, quad="sptrapz"):
         """Zonalize the field with equivalent latitude coordinates.
 
         Implements the zonalization procedure of Nakamura and Zhu (2010).
