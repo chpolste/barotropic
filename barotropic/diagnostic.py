@@ -267,13 +267,13 @@ def stationary_wavenumber(u_or_state, grid=None, order=None, min_u=0.001, kind="
         u = np.mean(u, axis=_ZONAL)
     # If no PV field is given, calculate zonal-mean PV from zonal-mean u
     if pv is None:
-        rv = - grid.ddphi(u * np.cos(grid.phis), order=order) / grid.rsphere / np.cos(grid.phis)
+        rv = - grid.derivative_meridional(u * np.cos(grid.phis), order=order) / grid.rsphere / np.cos(grid.phis)
         pv = grid.coriolis(grid.lats) + rv
     # If PV is a 2D field, calculate zonal mean
     elif pv.ndim != 1:
         pv = np.mean(pv, axis=_ZONAL)
     # Mercator projection zonal-mean PV gradient (βM) times cosine of latitude
-    ks2 = np.cos(grid.phis)**2 * grid.rsphere * grid.ddphi(pv, order=order)
+    ks2 = np.cos(grid.phis)**2 * grid.rsphere * grid.derivative_meridional(pv, order=order)
     # Divide by u, avoid latitudes with small u
     small_u = np.isclose(u, 0., atol=min_u)
     ks2[~small_u] /= u[~small_u]

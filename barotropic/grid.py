@@ -146,7 +146,7 @@ class Grid:
         """
         return self._spharm.getgrad(self.to_spectral(f))
 
-    def ddphi(self, f, order=None):
+    def derivative_meridional(self, f, order=None):
         """Finite difference first derivative in meridional direction: `df/dφ`.
 
         Accepts both 2D `f(φ,λ) = f(lat,lon)` and 1D `f(φ) = f(lat)` fields.

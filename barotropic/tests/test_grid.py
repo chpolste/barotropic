@@ -29,11 +29,11 @@ class TestGrid(unittest.TestCase):
                     area_ref = 4 * np.pi * r * r
                     self.assertTrue(np.isclose(area_sum, area_ref))
 
-    def test_ddphi_1D_with_phi(self):
+    def test_derivative_meridional_1D_with_phi(self):
         """"""
         grid = Grid()
-        ddphi2 = grid.ddphi(grid.phis, order=2)
-        ddphi4 = grid.ddphi(grid.phis, order=4)
+        ddphi2 = grid.derivative_meridional(grid.phis, order=2)
+        ddphi4 = grid.derivative_meridional(grid.phis, order=4)
         # For 1D input, polar points should be set to 0
         self.assertTrue(np.isclose(ddphi2[ 0], 0.))
         self.assertTrue(np.isclose(ddphi2[-1], 0.))
@@ -43,10 +43,10 @@ class TestGrid(unittest.TestCase):
         self.assertTrue(all(np.isclose(ddphi2[1:-1], 1.)))
         self.assertTrue(all(np.isclose(ddphi4[1:-1], 1.)))
 
-    def test_ddphi_1D_with_lats(self):
+    def test_derivative_meridional_1D_with_lats(self):
         grid = Grid()
-        ddphi2 = grid.ddphi(grid.lats, order=2)
-        ddphi4 = grid.ddphi(grid.lats, order=4)
+        ddphi2 = grid.derivative_meridional(grid.lats, order=2)
+        ddphi4 = grid.derivative_meridional(grid.lats, order=4)
         self.assertTrue(np.isclose(ddphi2[ 0], 0.))
         self.assertTrue(np.isclose(ddphi2[-1], 0.))
         self.assertTrue(np.isclose(ddphi4[ 0], 0.))
