@@ -4,6 +4,16 @@ from .constants import ZONAL
 from .grid import Grid
 
 
+def _cached_property(f):
+    cache = "_" + f.__name__
+    def wrapper(self):
+        if not hasattr(self, cache) or getattr(self, cache) is None:
+            setattr(self, cache, f(self))
+        return getattr(self, cache)
+    wrapper.__doc__ = f.__doc__
+    return property(wrapper)
+
+
 class State:
     """Model field container for a barotropic atmosphere.
     
@@ -34,11 +44,6 @@ class State:
         self._u = None
         self._v = None
         self._streamfunction = None
-        # Memoized diagnostics
-        self._falwa = None
-        self._falwa_filtered = None
-        self._dominant_wavenumber = None
-        self._pv_zonalized = None
 
     @classmethod
     def from_wind(cls, grid, time, u, v):
@@ -166,15 +171,13 @@ class State:
 
     # Shortcuts to diagnostic fields
 
-    @property
+    @_cached_property
     def pv_zonalized(self):
         """Zonalized PV profile on the regular grid.
         
         See `barotropic.Grid.zonalize_eqlat`.
         """
-        if self._pv_zonalized is None:
-            self._pv_zonalized = self.grid.zonalize_eqlat(self.pv, interpolate=self.grid.lats)[0]
-        return self._pv_zonalized
+        return self.grid.zonalize_eqlat(self.pv, interpolate=self.grid.lats)[0]
 
     @property
     def fawa(self):
@@ -186,17 +189,15 @@ class State:
         # FAWA is the zonal average of FALWA (Huang and Nakamura 2016)
         return self.falwa.mean(axis=ZONAL)
 
-    @property
+    @_cached_property
     def falwa(self):
         """Finite-Amplitude Local Wave Activity on the regular grid.
         
         See `barotropic.diagnostic.falwa`.
         """
-        if self._falwa is None:
-            self._falwa, _ = diagnostic.falwa(self, interpolate=self.grid.lats)
-        return self._falwa
+        return diagnostic.falwa(self, interpolate=self.grid.lats)[0]
 
-    @property
+    @_cached_property
     def falwa_filtered(self):
         """Finite-Amplitude Local Wave Activity, filtered as by Ghinassi et al. (2018).
 
@@ -208,9 +209,7 @@ class State:
         `barotropic.diagnostic.dominant_wavenumber` and
         `barotropic.diagnostic.filter_by_wavenumber`.
         """
-        if self._falwa_filtered is None:
-            self._falwa_filtered = diagnostic.filter_by_wavenumber(self.falwa, 2*self.dominant_wavenumber)
-        return self._falwa_filtered
+        return diagnostic.filter_by_wavenumber(self.falwa, 2*self.dominant_wavenumber)
 
     @property
     def falwa_hn2016(self):
@@ -220,15 +219,13 @@ class State:
         """
         return diagnostic.falwa_hn2016(self, normalize_icos=True)
 
-    @property
+    @_cached_property
     def dominant_wavenumber(self):
         """Dominant zonal wavenumber at every gridpoint based on meridional wind.
         
         See `barotropic.diagnostic.dominant_wavenumber`.
         """
-        if self._dominant_wavenumber is None:
-            self._dominant_wavenumber = diagnostic.dominant_wavenumber(self.v, self.grid, smoothing=(21, 7))
-        return self._dominant_wavenumber
+        return diagnostic.dominant_wavenumber(self.v, self.grid, smoothing=(21, 7))
 
     @property
     def envelope_hilbert(self):
