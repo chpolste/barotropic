@@ -17,6 +17,9 @@ setup(
             "scipy",
             "PyWavelets>=1.1.0.dev",
             "hn2016_falwa",
+        ],
+        "tests": [
+            "pytest"
         ]
     }
 )
