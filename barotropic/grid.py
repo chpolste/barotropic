@@ -1,3 +1,4 @@
+from numbers import Number
 import numpy as np
 import spharm
 from .constants import EARTH_RADIUS, EARTH_OMEGA
@@ -92,6 +93,13 @@ class Grid:
     def coriolis(self, lat):
         """Coriolis parameter (in m) for a given latitude (in degrees)."""
         return 2. * self.omega * np.sin(np.deg2rad(lat))
+
+    # Region extraction
+
+    @property
+    def region(self):
+        """Create a region extractor with indexing syntax."""
+        return GridRegionIndexer(self)
 
     # Spectral-grid transforms
 
@@ -370,4 +378,151 @@ class Grid:
             q = np.interp(interpolate, y, q, left=q_min, right=q_max)
             y = interpolate
         return q, y
+
+
+
+class GridRegionIndexer:
+
+    def __init__(self, grid):
+        self._grid = grid
+
+    def __getitem__(self, selection):
+        # Non-tuple selections apply to latitude only
+        if not isinstance(selection, tuple):
+            selection = selection, slice(None, None)
+        # Selecting a 2-dimensional region
+        if len(selection) != 2:
+            raise IndexError("too many dimensions in region selection")
+        # Compute the indices that extract the selected region in each
+        # dimension (only rectangular, axis-aligned regions possible)
+        lat_indices = self._get_lat_indices(selection[0])
+        lon_indices = self._get_lon_indices(selection[1])
+        return GridRegion(self._grid, lat_indices, lon_indices)
+
+    def _get_lat_indices(self, slc):
+        # Allow special values N and S to select hemispheres
+        if slc == "N":
+            slc = slice(0, 90)
+        if slc == "S":
+            slc = slice(-90, 0)
+        # Selection must be a numeric slice without a step parameter
+        if not isinstance(slc, slice):
+            raise IndexError("latitude selection must be given as a slice")
+        if not (isinstance(slc.start, Number) or slc.start is None):
+            raise IndexError("start value of latitude selection must be numeric or None")
+        if not (isinstance(slc.stop, Number) or slc.stop is None):
+            raise IndexError("stop value of latitude selection must be numeric or None")
+        if slc.step is not None:
+            raise IndexError("step parameter not supported for latitude selection")
+        # Compute the indices that achive the the latitude range selection.
+        # Both ends of the selection are inclusive. Treat stop < start in the
+        # same way as stop < start.
+        indices = np.arange(self._grid.nlat)
+        lo, hi = slc.start, slc.stop
+        if lo is None and hi is None:
+            return indices
+        elif lo is None:
+            return indices[self._grid.lats <= hi]
+        elif hi is None:
+            return indices[lo <= self._grid.lats]
+        else:
+            return indices[(min(lo, hi) <= self._grid.lats) & (self._grid.lats <= max(lo, hi))]
+
+    def _get_lon_indices(self, slc):
+        # Selection must be a numeric slice without a step parameter
+        if not isinstance(slc, slice):
+            raise IndexError("longitude selection must given as a slice")
+        if not (isinstance(slc.start, Number) or slc.start is None):
+            raise IndexError("start value of longitude selection must be numeric or None")
+        if not (isinstance(slc.stop, Number) or slc.stop is None):
+            raise IndexError("stop value of longitude selection must be numeric or None")
+        if slc.step is not None:
+            raise IndexError("step parameter not supported for longitude selection")
+        # Compute the indices that achive the the longitude range selection.
+        # Both ends of the selection are inclusive. If stop < start, select
+        # across the 0°-meridian and assemble into a contiguous region.
+        indices = np.arange(self._grid.nlon)
+        lo, hi = slc.start, slc.stop
+        if lo is None and hi is None:
+            return indices
+        elif lo is None:
+            return indices[self._grid.lons <= hi]
+        elif hi is None:
+            return indices[lo <= self._grid.lons]
+        elif hi < lo:
+            lo_mask = lo <= self._grid.lons
+            return np.roll(indices[(self._grid.lons <= hi) | lo_mask], np.count_nonzero(lo_mask))
+        else:
+            return indices[(lo <= self._grid.lons) & (self._grid.lons <= hi)]
+
+
+
+class GridRegion:
+    
+    def __init__(self, grid, lat_indices, lon_indices):
+        self._grid = grid
+        self._lon_indices = np.require(lon_indices, dtype=int)
+        self._lat_indices = np.require(lat_indices, dtype=int)
+        assert self._lat_indices.ndim == 1 and self._lat_indices.size <= grid.shape[0]
+        assert self._lon_indices.ndim == 1 and self._lon_indices.size <= grid.shape[1]
+
+    def _extract_one(self, field):
+        # Meridional profile
+        if field.ndim == 1 and field.size == self._grid.nlat:
+            return field[self._lat_indices]
+        # Zonal profile
+        elif field.ndim == 1 and field.size == self._grid.nlon:
+            return field[self._lon_indices]
+        # 2-dimensional field
+        elif field.shape == self._grid.shape:
+            # https://stackoverflow.com/questions/42309460
+            return field[np.ix_(self._lat_indices, self._lon_indices)]
+        else:
+            raise ValueError("unable to extract from field '{}'".format(field))
+
+    def extract(self, *fields):
+        """Extract the region from the given fields."""
+        if len(fields) == 0:
+            raise ValueError("no field(s) given for extraction")
+        elif len(fields) == 1:
+            return self._extract_one(fields[0])
+        else:
+            return tuple(map(self._extract_one, fields))
+
+    @property
+    def mask(self):
+        """Boolean array that is true in the region."""
+        mask = np.full(self._grid.shape, False)
+        mask[np.ix_(self._lat_indices, self._lon_indices)] = True
+        return mask
+
+    @property
+    def shape(self):
+        """Shape of extracted 2D fields."""
+        return self._lat_indices.size, self._lon_indices.size
+
+    @property
+    def lats(self):
+        """Latitudes of the region."""
+        return self._grid.lats[self._lat_indices]
+
+    @property
+    def lons(self):
+        """Longitudes of the region.
+        
+        If the region crosses the 0° meridian, these will not be monotonic. If
+        you need a monotonic longitude coordinate, e.g. for plotting, use
+        `lons_mono`, where lontitudes left of the 0° are reduced by 360°.
+        """
+        return self._grid.lons[self._lon_indices]
+
+    @property
+    def lons_mono(self):
+        """Longitudes of the region, monotonic even for regions crossing 0°"""
+        lons = self.lons
+        jump = np.argwhere(np.diff(lons) < 0)
+        assert 0 <= jump.size <= 1
+        if jump.size == 1:
+            lons[:jump[0,0]+1] -= 360.
+        return lons
 
