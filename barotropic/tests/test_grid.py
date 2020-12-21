@@ -50,7 +50,37 @@ class TestGrid:
         assert np.allclose(ddphi4[1:-1], 180/np.pi)
 
 
-class TestRegion:
+
+class TestGridFiltering:
+
+    @pytest.mark.parametrize("window", ["boxcar", "hann", "triang"])
+    def test_get_filter_window_width(self, window):
+        grid = Grid(resolution=1.)
+        assert grid.get_filter_window(window, 7.).shape == (7,)
+        assert grid.get_filter_window(window, 9.).shape == (9,)
+        # If width isn't odd on the grid, next-larger is chosen
+        assert grid.get_filter_window(window, 8.).shape == (9,)
+        assert grid.get_filter_window(window, 14.4).shape == (15,)
+
+    def test_filter_meridional_call(self):
+        grid = Grid(resolution=2.0)
+        assert grid.filter_meridional(grid.lats, "boxcar", 10.).shape == (grid.nlat,)
+        assert grid.filter_meridional(grid.lat, "hann", 14.).shape == grid.shape
+        assert grid.filter_meridional(grid.lats, np.array([0.1, 0.2, 0.3, 0.1, 0.3])).shape == (grid.nlat,)
+        with pytest.raises(AssertionError):
+            grid.filter_meridional(grid.lons, "hann", 13.)
+
+    def test_filter_zonal_call(self):
+        grid = Grid(resolution=2.0)
+        assert grid.filter_zonal(grid.lons, "boxcar", 10.).shape == (grid.nlon,)
+        assert grid.filter_zonal(grid.lon, "hann", 14.).shape == grid.shape
+        assert grid.filter_zonal(grid.lons, np.array([0.1, 0.2, 0.3, 0.1, 0.3])).shape == (grid.nlon,)
+        with pytest.raises(AssertionError):
+            grid.filter_zonal(grid.lats, "hann", 13.)
+
+
+
+class TestGridRegion:
 
     def test_global(self):
         grid = Grid(resolution=10.)

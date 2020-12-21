@@ -1,6 +1,7 @@
 from numbers import Number
 import numpy as np
 import spharm
+from .constants import ZONAL as _ZONAL, MERIDIONAL as _MERIDIONAL
 from .constants import EARTH_RADIUS, EARTH_OMEGA
 
 
@@ -378,6 +379,71 @@ class Grid:
             q = np.interp(interpolate, y, q, left=q_min, right=q_max)
             y = interpolate
         return q, y
+
+    # Filtering
+
+    def get_filter_window(self, window, width):
+        """Wraps `scipy.signal.get_window` with the window width given in °.
+
+        Window widths are restricted to odd numbers of gridpoints so windows
+        can properly be centered on a gridpoint during convolution. The
+        returned window array is normalized such that it sums to 1.
+
+        Requires `scipy`.
+        """
+        from scipy.signal import get_window
+        # Convert width to gridpoints
+        width = round(width / self.dlon)
+        width = width if width % 2 == 1 else width + 1
+        window = get_window(window, width, fftbins=False)
+        return window / np.sum(window)
+
+    def filter_meridional(self, field, window, width=None):
+        """Filter the input in meridional direction with the given window.
+
+        - `field` is the input signal and can be 1- or 2-dimensional.
+        - If `width` is None, `window` must be gridded window (1D array) used
+          for the convolution operation. Otherwise `window` and `width` are
+          given to `Grid.get_filter_window` to obtain a window function.
+
+        Requires `scipy`.
+        """
+        from scipy.ndimage import convolve
+        if width is not None:
+            window = self.get_filter_window(window, width)
+        # Use symmetrical boundary condition
+        if field.ndim == 1:
+            assert field.size == self.nlat
+            return convolve(field, window, mode="reflect")
+        elif field.ndim == 2:
+            assert field.shape[_MERIDIONAL] == self.nlat
+            return convolve(field, window[:,None], mode="reflect")
+        else:
+            raise ValueError("input field must be 1- or 2-dimensional")
+            
+
+    def filter_zonal(self, field, window, width=None):
+        """Filter the input in zonal direction with the given window.
+
+        - `field` is the input signal and can be 1- or 2-dimensional.
+        - If `width` is None, `window` must be gridded window (1D array) used
+          for the convolution operation. Otherwise `window` and `width` are
+          given to `Grid.get_filter_window` to obtain a window function.
+
+        Requires `scipy`.
+        """
+        from scipy.ndimage import convolve
+        if width is not None:
+            window = self.get_filter_window(window, width)
+        # Use periodic boundary condition (only makes sense if 
+        if field.ndim == 1:
+            assert field.size == self.nlon
+            return convolve(field, window, mode="wrap")
+        elif field.ndim == 2:
+            assert field.shape[_ZONAL] == self.nlon
+            return convolve(field, window[None,:], mode="wrap")
+        else:
+            raise ValueError("input field must be 1- or 2-dimensional")
 
 
 
