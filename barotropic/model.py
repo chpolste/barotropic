@@ -103,7 +103,7 @@ class BarotropicModel:
         # from the old state with twice the time step
         pv_new_spectral = state_old.pv_spectral + 2 * dts * self._pv_tendency_spectral(state_now)
         # Apply numerical diffusion
-        pv_new_spectral = self._apply_diffusion(state_now.grid, dts, pv_new_spectral)
+        pv_new_spectral = self._apply_diffusion(state_now.grid, 2 * dts, pv_new_spectral)
         state_new = State(
             grid=state_now.grid,
             time=state_now.time + dt,
@@ -130,7 +130,7 @@ class BarotropicModel:
 
     def _apply_diffusion(self, grid, dt, pv_spectral):
         eigenvalues_exp = grid.laplacian_eigenvalues ** self.diffusion_order
-        return pv_spectral / ( 1. + 2. * dt * self.diffusion_coeff * eigenvalues_exp )
+        return pv_spectral / ( 1. + dt * self.diffusion_coeff * eigenvalues_exp )
 
 
 def _to_seconds(dt):
