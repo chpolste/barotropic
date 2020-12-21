@@ -241,14 +241,14 @@ def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, 
     v_levels = symmetric_levels(v, 10, ext=v_max)
     ctf = ax1.contourf(grid.lon, grid.lat, roll(v), levels=v_levels, cmap="RdBu_r", extend="both")
     fig.colorbar(ctf, ax=ax1)
-    dwn = state.dominant_wavenumber
+    dwn = diagnostic.dominant_wavenumber_wavelet(state.v, grid)
     dwn_levels = np.arange(1, 11)
     if np.min(dwn) != np.max(dwn):
         ct = ax1.contour(grid.lon, grid.lat, roll(dwn), levels=dwn_levels, colors="k", linestyles="-", linewidths=1)
         ax1.clabel(ct, ct.levels, inline=True, fmt="%d")
     # Common colorbar range for envelope and filtered FALWA
-    env = state.envelope_hilbert
-    ffalwa = state.falwa_filtered
+    env = state.v_envelope_hilbert
+    ffalwa = diagnostic.filter_by_wavenumber(state.falwa, 2*dwn)
     if rwp_max is None:
         rwp_max = max(np.max(env), np.max(ffalwa))
     rwp_levels = np.linspace(0, rwp_max, 6)

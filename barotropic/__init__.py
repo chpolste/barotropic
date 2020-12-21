@@ -37,11 +37,14 @@ These articles are referenced in the source code and documentation:
 - [Ghinassi et al. (2018)](https://doi.org/10.1175/MWR-D-18-0068.1).
   Local finite-amplitude wave activity as a diagnostic for Rossby wave packets.
   Monthly Weather Review, 146(12), 4099-4114.
+- [Ghinassi et al. (2020)](https://doi.org/10.1175/JAS-D-19-0149.1).
+  A Budget Equation for the Amplitude of Rossby Wave Packets Based on Finite-Amplitude Local Wave Activity.
+  Journal of the Atmospheric Sciences, 77(1), 277-296.
 - [Held (1985)](https://doi.org/10.1175/1520-0469(1985)042<2280:PATOOM>2.0.CO;2).
-  Pseudomomentum and the orthogonality of modes in shear flows
+  Pseudomomentum and the orthogonality of modes in shear flows.
   Journal of the Atmospheric Sciences, 42(21), 2280-2288.
 - [Held & Phillips (1987)](https://doi.org/10.1175/1520-0469(1987)044<0200:LANBDO>2.0.CO;2).
-  Linear and nonlinear barotropic decay on the sphere
+  Linear and nonlinear barotropic decay on the sphere.
   Journal of the Atmospheric Sciences, 44(1), 200-207.
 - [Hoskins & Karoly (1981)](https://doi.org/10.1175/1520-0469(1981)038<1179:TSLROA>2.0.CO;2).
   The steady linear response of a spherical atmosphere to thermal and orographic forcing.

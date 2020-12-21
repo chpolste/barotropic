@@ -197,19 +197,20 @@ class State:
         """
         return diagnostic.falwa(self, interpolate=self.grid.lats)[0]
 
-    @_cached_property
+    @property
     def falwa_filtered(self):
-        """Finite-Amplitude Local Wave Activity, filtered as by Ghinassi et al. (2018).
+        """Finite-Amplitude Local Wave Activity, phase-filtered based on v.
 
         The FALWA field is filtered based on the doubled dominant wavenumber of
-        the meridional wind (the wavenumber of a FALWA pattern is twice that of
-        the corresponding meridional wind pattern).
+        the meridional wind obtained from Fourier analysis at each latitude as
+        in Ghinassi et al. (2020).
         
         See `barotropic.diagnostic.falwa`,
-        `barotropic.diagnostic.dominant_wavenumber` and
+        `barotropic.diagnostic.dominant_wavenumber_fourier` and
         `barotropic.diagnostic.filter_by_wavenumber`.
         """
-        return diagnostic.filter_by_wavenumber(self.falwa, 2*self.dominant_wavenumber)
+        dominant_wavenumber = diagnostic.dominant_wavenumber_fourier(self.v, self.grid)
+        return diagnostic.filter_by_wavenumber(self.falwa, 2*dominant_wavenumber)
 
     @property
     def falwa_hn2016(self):
@@ -219,21 +220,13 @@ class State:
         """
         return diagnostic.falwa_hn2016(self, normalize_icos=True)
 
-    @_cached_property
-    def dominant_wavenumber(self):
-        """Dominant zonal wavenumber at every gridpoint based on meridional wind.
-        
-        See `barotropic.diagnostic.dominant_wavenumber`.
-        """
-        return diagnostic.dominant_wavenumber(self.v, self.grid, smoothing=(21, 7))
-
     @property
-    def envelope_hilbert(self):
+    def v_envelope_hilbert(self):
         """Envelope of wave packets based on the Hilbert transform.
 
         See `barotropic.diagnostic.envelope_hilbert`.
         """
-        return diagnostic.envelope_hilbert(self.v, 2, 10)
+        return diagnostic.envelope_hilbert(self.v, (2, 10))
 
     @property
     def stationary_wavenumber(self):

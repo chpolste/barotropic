@@ -119,23 +119,43 @@ def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
     return lwa
 
 
-def dominant_wavenumber(field, grid, n_scales=120, smoothing=(21, 7)):
-    """Dominant zonal wavenumber at every gridpoint of field.
+def dominant_wavenumber_fourier(field, grid, smooth=("boxcar", 10), wavenumber_range=(1, 20)):
+    """Dominant zonal wavenumber based on the Fourier power spectrum.
 
-    Implements the procedure of Ghinassi et al. (2018) based on a wavelet
-    analysis of the input field.
+    Returns the dominant zonal wavenumber as a function of latitude. If
+    `smooth` is not `None`, the wavenumber profile is filtered with
+    `barotropic.Grid.filter_meridional` (where `smooth` defines the `window`
+    and `width` arguments). Use `wavenumber_range` to restrict the interval in
+    which the dominant wavenumber is determined.
+    
+    Requires `scipy`.
+    """
+    assert len(wavenumber_range) == 2
+    k_min, k_max = wavenumber_range
+    # Compute Fourier power spectrum and determine wavenumber with maximum
+    # power in the specified wavenumber range
+    power = np.abs(np.fft.rfft(field, axis=_ZONAL)) ** 2
+    k_dom = np.argmax(power[:,k_min:k_max+1], axis=_ZONAL).astype(float)
+    # Apply smoothing if desired
+    return k_dom if smooth is None else grid.filter_meridional(k_dom, *smooth)
 
-    - `n_scales` determines the number of scales used in the continuous wavelet
-      transform.
-    - `smoothing` determines the full width at half maximum of the Hann filter
-      in zonal and meridional direction in degrees longitude/latitude.
+
+def dominant_wavenumber_wavelet(field, grid, smooth=("hann", 10, 40)):
+    """Dominant zonal wavenumber based on Wavelet Analysis.
+
+    Implements the procedure of Ghinassi et al. (2018) that determines
+    a local dominant wavenumber at every gridpoint of the input field..
+
+    `smooth` determines the smoothing applied to the dominant wavenumber field.
+    Set to `None` if no smoothing is desired. Otherwise provide a 3-tuple
+    `(window, width_lat, width_lon)` used as input to
+    `barotropic.Grid.filter_meridional` and `barotropic.Grid.filter_zonal`.
 
     Returns the gridded dominant zonal wavenumber.
 
     Requires `pywt` (version >= 1.1.0) and `scipy`.
     """
     import pywt
-    from scipy import signal
     # Truncate zonal fourier spectrum of meridional wind after wavenumber 20
     x = _restrict_fourier_zonal(field, 0, 20)
     # Triplicate field to avoid boundary issues (pywt.cwt does not support
@@ -143,8 +163,8 @@ def dominant_wavenumber(field, grid, n_scales=120, smoothing=(21, 7)):
     x = np.hstack([x, x, x])
     # Use the complex Morlet wavelet
     morlet = pywt.ContinuousWavelet("cmor1.0-1.0")
-    # ...
-    scales = 3 * 2**np.linspace(0, 6, n_scales)
+    # ... TODO: what's going on here?
+    scales = 3 * 2**np.linspace(0, 6, 120)
     # Apply the continuous wavelet transform
     coef, freqs = pywt.cwt(x, scales=scales, wavelet=morlet, axis=_ZONAL)
     # Extract the middle domain, throw away the periodic padding
@@ -155,20 +175,13 @@ def dominant_wavenumber(field, grid, n_scales=120, smoothing=(21, 7)):
     # Determine wavenumbers from scales
     wavenum = pywt.scale2frequency(morlet, scales) * grid.shape[_ZONAL]
     # Dominant wavenumber is that of maximum power in the spectrum
-    dom_wavenum = wavenum[np.argmax(power, axis=0)]
-    # Smooth dominant wavenumber with Hann windows. Window width is given as
-    # full width at half maximum, which is half of the full width. Choose the
-    # nearest odd number of gridpoints available to the desired value.
-    smooth_lon, smooth_lat = smoothing
-    hann_lon = signal.windows.hann(int(smooth_lon / 360 * grid.shape[_ZONAL]) * 2 + 1)
-    hann_lon = hann_lon / np.sum(hann_lon)
-    hann_lat = signal.windows.hann(int(smooth_lat / 180 * grid.shape[_MERIDIONAL]) * 2 + 1)
-    hann_lat = hann_lat / np.sum(hann_lat)
-    # Apply zonal filter first with periodic boundary
-    dom_wavenum = signal.convolve2d(dom_wavenum, hann_lon[None,:], mode="same", boundary="wrap")
-    # Then apply meridional filter with symmetrical boundary
-    dom_wavenum = signal.convolve2d(dom_wavenum, hann_lat[:,None], mode="same", boundary="symm")
-    return dom_wavenum
+    k_dom = wavenum[np.argmax(power, axis=0)]
+    # Apply smoothing if desired
+    if smooth is not None:
+        window, wlat, wlon = smooth
+        k_dom = grid.filter_meridional(k_dom, window, wlat)
+        k_dom = grid.filter_zonal(k_dom, window, wlon)
+    return k_dom
 
 
 def filter_by_wavenumber(field, wavenumber):
@@ -226,7 +239,7 @@ def filter_by_wavenumber(field, wavenumber):
     return convs[idx,ii,jj]
 
 
-def envelope_hilbert(field, wavenumber_min=2, wavenumber_max=10):
+def envelope_hilbert(field, wavenumber_range=(2, 10)):
     """Compute the envelope of wave packets with the Hilbert transform.
 
     Applied to the merdional wind for RWP detection by Zimin et al. (2003).
@@ -234,7 +247,9 @@ def envelope_hilbert(field, wavenumber_min=2, wavenumber_max=10):
     Requires `scipy`.
     """
     from scipy import signal
-    x = _restrict_fourier_zonal(field, wavenumber_min, wavenumber_max)
+    assert len(wavenumber_range) == 2
+    k_min, k_max = wavenumber_range
+    x = _restrict_fourier_zonal(field, k_min, k_max)
     return np.abs(signal.hilbert(x, axis=_ZONAL))
 
 
