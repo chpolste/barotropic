@@ -11,7 +11,7 @@ class TestGrid:
     def test_gridpoint_area(self, resolution, rsphere):
         grid = Grid(resolution, rsphere=rsphere)
         # Area of sphere must be reproduced exactly
-        area_sum = np.sum(grid.gridpoint_area)
+        area_sum = np.sum(grid.gridpoint_area) * grid.nlon
         area_ref = 4 * np.pi * rsphere * rsphere
         assert np.allclose(area_sum, area_ref)
 
@@ -49,6 +49,42 @@ class TestGrid:
         assert np.allclose(ddphi2[1:-1], 180/np.pi)
         assert np.allclose(ddphi4[1:-1], 180/np.pi)
 
+    @pytest.mark.parametrize("resolution", [2.5, 5, 10., 30., 90.])
+    def test_mean_ones(self, resolution):
+        grid = Grid(resolution=resolution)
+        field = np.ones(grid.shape)
+        assert np.isclose(grid.mean(field), 1.)
+        assert np.allclose(grid.mean(field, axis="zonal"), np.ones(grid.nlat))
+        assert np.allclose(grid.mean(field, axis="meridional"), np.ones(grid.nlon))
+        # Test region sizes
+        region = grid.region[-30:70,30:280]
+        assert grid.mean(field, region=region).size == 1
+        assert grid.mean(field, region=region, axis="zonal").shape == (region.shape[0],)
+        assert grid.mean(field, region=region, axis="meridional").shape == (region.shape[1],)
+
+    @pytest.mark.parametrize("resolution", [2.5, 5, 10., 30., 90.])
+    def test_mean_east_west_split(self, resolution):
+        grid = Grid(resolution=resolution)
+        halflon = grid.nlon // 2
+        field = np.ones(grid.shape)
+        field[:,halflon:] = 0.
+        assert np.isclose(grid.mean(field), 0.5)
+        assert np.allclose(grid.mean(field, axis="zonal"), 0.5)
+        assert np.allclose(grid.mean(field, axis="meridional"), ([1.] * halflon) + ([0.] * halflon))
+
+    @pytest.mark.parametrize("resolution", [2.5, 5, 10., 30., 90.])
+    def test_mean_north_south_split(self, resolution):
+        grid = Grid(resolution=resolution)
+        halflat = grid.nlat // 2
+        field = np.ones(grid.shape)
+        field[halflat,:] = 0.5
+        field[halflat+1:,:] = 0.
+        assert np.isclose(grid.mean(field), 0.5)
+        assert np.allclose(grid.mean(field, axis="zonal"), ([1.] * halflat) + [0.5] + ([0.] * halflat))
+        assert np.allclose(grid.mean(field, axis="meridional"), 0.5)
+        assert np.allclose(grid.mean(field, region=grid.region[20:,:]), 1.) # Northern region
+        assert np.allclose(grid.mean(field, region=grid.region[-1:1,:]), 0.5) # Equator region
+        assert np.allclose(grid.mean(field, region=grid.region[:-40,10:260]), 0.) # Southern region
 
 
 class TestGridFiltering:
@@ -135,7 +171,7 @@ class TestGridRegion:
         assert np.allclose(region.lons, [20, 30, 40, 50])
         assert np.allclose(region.extract(grid.lats), [-50, -60, -70, -80, -90])
         assert np.allclose(region.extract(grid.lons), [20, 30, 40, 50])
-        assert region.extract(grid.gridpoint_area).shape == (5, 4)
+        assert region.extract(grid.phi).shape == (5, 4)
 
     def test_single(self):
         grid = Grid(resolution=10.)

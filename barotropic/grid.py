@@ -1,7 +1,6 @@
 from numbers import Number
 import numpy as np
 import spharm
-from .constants import ZONAL as _ZONAL, MERIDIONAL as _MERIDIONAL
 from .constants import EARTH_RADIUS, EARTH_OMEGA
 
 
@@ -197,32 +196,57 @@ class Grid:
             return out / 12 / self.dphi
         raise NotImplementedError("Requested order of approximation not available (choose 2 or 4)")
 
-    # Numerical quadrature
+    # Area-weighted operators
 
     @property
     def gridpoint_area(self):
-        """Surface area associated with each gridpoint based on a dual grid.
+        """Surface area of each gridpoint as a function of latitude.
         
         The associated area of a gridpoint (lon, lat) in a regular grid is
         given by: `r² * dlon * [ sin(lat + dlat) - sin(lat - dlat) ]`
-
-        Used for box-counting quadrature.
         """
-        # Compute area associated with each gridpoint for box counting
-        # integration:
         # Calculate dual phi grid (latitude mid-points)
-        mid_phi = 0.5 * (self.phi[1:,:] + self.phi[:-1,:])
+        mid_phis = 0.5 * (self.phis[1:] + self.phis[:-1])
+        # Start with scaling factor
+        gridpoint_area = np.full(self.nlat, self.rsphere * self.rsphere * self.dlam, dtype=float)
         # Calculate latitude term of area formula
-        dlat_mid = np.sin(mid_phi[:-1,:]) - np.sin(mid_phi[1:,:])
+        gridpoint_area[1:-1] *= np.sin(mid_phis[:-1]) - np.sin(mid_phis[1:])
         # Exceptions for polar gridpoints, which are "triangular"
-        dlat_np = 1 - np.sin(mid_phi[ 0,:])
-        dlat_sp = 1 + np.sin(mid_phi[-1,:])
-        # Evaluate formula
-        gridpoint_area = np.full_like(self.lam, self.rsphere * self.rsphere * self.dlam)
-        gridpoint_area[   0,:] *= dlat_np
-        gridpoint_area[1:-1,:] *= dlat_mid
-        gridpoint_area[  -1,:] *= dlat_sp
+        gridpoint_area[ 0] *= 1 - np.sin(mid_phis[ 0])
+        gridpoint_area[-1] *= 1 + np.sin(mid_phis[-1])
         return gridpoint_area
+
+    def mean(self, field, axis=None, region=None):
+        """Area-weighted mean of `field`.
+
+        - The mean over the entire region is calculated by default. By
+          specifying the `axis` argument, a zonal or meridional mean can be
+          calculated.
+        - A region to which the mean should be restricted can be given with the
+          `region` parameter.
+        """
+        # 
+        # If a region is given, extract region if shape of field matches that
+        # of grid else check that region has already been extracted from field
+        if region is None:
+            assert field.shape == self.shape
+        elif field.shape == self.shape:
+            field = region.extract(field)
+        else:
+            assert field.shape == region.shape
+        # Determine area weights for mean calculation
+        area = self.gridpoint_area[:,None] if region is None else region.gridpoint_area[:,None]
+        # Pick normalization depending on axis over which mean is taken
+        if axis is None:
+            return (field * area).sum() / area.sum() / field.shape[1]
+        elif axis == 0 or axis == -2 or axis == "meridional":
+            return ((field * area).sum(axis=0) / area.sum(axis=0))
+        elif axis == 1 or axis == -1 or axis == "zonal":
+            return field.mean(axis=1)
+        else:
+            raise ValueError("invalid value for axis parameter: {}".format(axis))
+
+    # Numerical quadrature
 
     def quad_boxcount(self, y, where=True):
         """Surface integral summing (`area * value` of `y`) at every gridpoint.
@@ -416,7 +440,7 @@ class Grid:
             assert field.size == self.nlat
             return convolve(field, window, mode="reflect")
         elif field.ndim == 2:
-            assert field.shape[_MERIDIONAL] == self.nlat
+            assert field.shape[0] == self.nlat
             return convolve(field, window[:,None], mode="reflect")
         else:
             raise ValueError("input field must be 1- or 2-dimensional")
@@ -440,7 +464,7 @@ class Grid:
             assert field.size == self.nlon
             return convolve(field, window, mode="wrap")
         elif field.ndim == 2:
-            assert field.shape[_ZONAL] == self.nlon
+            assert field.shape[1] == self.nlon
             return convolve(field, window[None,:], mode="wrap")
         else:
             raise ValueError("input field must be 1- or 2-dimensional")
@@ -591,4 +615,11 @@ class GridRegion:
         if jump.size == 1:
             lons[:jump[0,0]+1] -= 360.
         return lons
+
+    @property
+    def gridpoint_area(self):
+        return self.extract(self._grid.gridpoint_area)
+
+    def mean(self, field):
+        return self._grid.mean(field, region=self)
 
