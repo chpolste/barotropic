@@ -1,6 +1,7 @@
 from numbers import Number
 import numpy as np
 import spharm
+from . import formatting
 from .constants import EARTH_RADIUS, EARTH_OMEGA
 
 
@@ -80,6 +81,9 @@ class Grid:
         self.laplacian_eigenvalues = (
                 self.specindxn * (1. + self.specindxn) / rsphere / rsphere
                 ).astype(np.complex64, casting="same_kind")
+
+    def __repr__(self):
+        return formatting.grid_repr(self)
 
     @property
     def shape(self):
@@ -555,6 +559,9 @@ class GridRegion:
         self._lat_indices = np.require(lat_indices, dtype=int)
         assert self._lat_indices.ndim == 1 and self._lat_indices.size <= grid.shape[0]
         assert self._lon_indices.ndim == 1 and self._lon_indices.size <= grid.shape[1]
+
+    def __repr__(self):
+        return formatting.grid_region_repr(self)
 
     def _extract_one(self, field):
         # Meridional profile

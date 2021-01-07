@@ -1,5 +1,5 @@
 import numpy as np
-from . import diagnostic
+from . import diagnostic, formatting
 from .constants import ZONAL
 from .grid import Grid
 
@@ -44,6 +44,9 @@ class State:
         self._u = None
         self._v = None
         self._streamfunction = None
+
+    def __repr__(self):
+        return formatting.state_repr(self)
 
     @classmethod
     def from_wind(cls, grid, time, u, v):

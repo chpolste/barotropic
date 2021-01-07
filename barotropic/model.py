@@ -1,5 +1,6 @@
 from numbers import Number
 import numpy as np
+from . import formatting
 from .state import State
 
 
@@ -31,6 +32,9 @@ class BarotropicModel:
         self.rhs = rhs
         self.diffusion_order = diffusion_order
         self.diffusion_coeff = diffusion_coeff
+
+    def __repr__(self):
+        return formatting.barotropic_model_repr(self)
 
     def run(self, state_init, dt, tend, save_every=0):
         """Run the model until a specified time is reached.
