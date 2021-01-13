@@ -28,19 +28,22 @@ class State:
         - `time` is the valid time of the atmospheric state. To work properly
           with the time integration routines, this should be either a number
           representing seconds or a `datetime.datetime` instance.
-        - One of `pv` and `pv_spectral` must be given. Both can be specified
-          but be careful to ensure consistency as there are no checks carried
-          out.
+        - Either `pv` xor `pv_spectral` must be given. If `pv` (gridded) is
+          specified, it is converted to spectral representation first to ensure
+          that the field can be represented by the spherical harmonics. An
+          error is raised when both are given.
 
         Also see the alternative static method constructors and
         `barotropic.init`.
         """
         self.grid = grid
         self.time = time
+        # Always send PV field through spectral representation to ensure
+        # consistency between spherical harmonics and gridded representation
+        assert pv is None or pv_spectral is None, "can only specify one of pv and pv_spectral args"
+        self._pv_spectral = pv_spectral if pv is None else grid.to_spectral(pv)
         # Lazily evaluated, memoized fields
-        assert not (pv is None and pv_spectral is None)
-        self._pv = pv
-        self._pv_spectral = pv_spectral
+        self._pv = None
         self._u = None
         self._v = None
         self._streamfunction = None
@@ -57,6 +60,16 @@ class State:
         the given fields of wind components.
         """
         pv = grid.fcor + grid.vorticity(u, v)
+        return cls(grid, time, pv=pv)
+
+    @classmethod
+    def from_vorticity(cls, grid, time, vorticity):
+        """Initialize a model state based on relative vorticity.
+
+        This is an alternative constructor. `grid` and `time` are given to the
+        default constructor.
+        """
+        pv = grid.fcor + vorticity
         return cls(grid, time, pv=pv)
 
     # Arithmetic operators
