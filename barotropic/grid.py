@@ -68,8 +68,6 @@ class Grid:
         # Grid spacing in radians
         self.dlam = np.deg2rad(self.dlon)
         self.dphi = np.deg2rad(self.dlat)
-        # Precompute Coriolis field
-        self.fcor = self.coriolis(self.lat)
         # Spherical harmonic transform object
         self._spharm = spharm.Spharmt(self.nlon, self.nlat, rsphere=rsphere, gridtype="regular", legfunc=legfunc)
         self._ntrunc = (self.nlat - 1) if ntrunc is None else ntrunc
@@ -81,6 +79,9 @@ class Grid:
         self.laplacian_eigenvalues = (
                 self.specindxn * (1. + self.specindxn) / rsphere / rsphere
                 ).astype(np.complex64, casting="same_kind")
+        # Precompute Coriolis field
+        self.fcor = self.coriolis(self.lat)
+        self.fcor_spectral = self.to_spectral(self.fcor)
 
     def __repr__(self):
         return formatting.grid_repr(self)
@@ -119,9 +120,11 @@ class Grid:
 
     def wind(self, vorticity, divergence):
         """Gridded wind components from vorticity and divergence fields."""
-        vorticity_spectral = self.to_spectral(vorticity)
-        divergence_spectral = self.to_spectral(divergence)
-        return self._spharm.getuv(vorticity_spectral, divergence_spectral)
+        if vorticity.shape == self.shape:
+            vorticity = self.to_spectral(vorticity)
+        if divergence.shape == self.shape:
+            divergence = self.to_spectral(divergence)
+        return self._spharm.getuv(vorticity, divergence)
 
     def vorticity(self, u, v):
         """Gridded vorticity from wind components."""

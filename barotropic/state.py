@@ -144,20 +144,21 @@ class State:
     def _invert_pv(self):
         """Perform PV inversion to obtain wind components."""
         # Compute wind from vorticity using div = 0
-        self._u, self._v = self.grid.wind(self.vorticity, np.zeros_like(self.vorticity))
+        vorticity = self.vorticity_spectral
+        self._u, self._v = self.grid.wind(vorticity, np.zeros_like(vorticity))
 
     @property
     def streamfunction(self):
         """Streamfunction of the wind."""
         if self._streamfunction is None:
             # Perform PV inversion to obtain wind
-            vorticity_spectral = self.grid.to_spectral(self.vorticity)
+            vorticity = self.vorticity_spectral
             # Eigenvalues of the horizontal Laplacian
             eigenvalues = self.grid.laplacian_eigenvalues
             # Compute streamfunction
-            psi_spectral = np.zeros_like(vorticity_spectral)
-            psi_spectral[1:] = - vorticity_spectral[1:] / eigenvalues[1:]
-            self._streamfunction = self.grid.to_grid(psi_spectral)
+            psi = np.zeros_like(vorticity)
+            psi[1:] = - vorticity[1:] / eigenvalues[1:]
+            self._streamfunction = self.grid.to_grid(psi)
         return self._streamfunction
 
     @property
@@ -169,6 +170,10 @@ class State:
     def vorticity(self):
         """Relative vorticity."""
         return self.pv - self.grid.fcor
+
+    @property
+    def vorticity_spectral(self):
+        return self.pv_spectral - self.grid.fcor_spectral
 
     @property
     def enstrophy(self):
