@@ -22,13 +22,10 @@ class Grid:
     - `lams`, `phis`: Longitude/latitude coordinates in radians (1D).
     - `lam`, `phi`: Longitude/latitude coordinates in radians (2D).
     - `fcor`: Coriolis parameter in 1/s (2D).
-    - `laplacian_eigenvalues`: Eigenvalues of the horizontal Laplace
-      Operator for each spherical harmonic.
 
     Consider using the `ZONAL` and `MERIDIONAL` constants as convenient and
     readable accessors for the grid dimensions.
     """
-
 
     def __init__(self, resolution=2.5, rsphere=EARTH_RADIUS, omega=EARTH_OMEGA,
             ntrunc=None, legfunc="stored"):
@@ -71,13 +68,13 @@ class Grid:
         # Spherical harmonic transform object
         self._spharm = spharm.Spharmt(self.nlon, self.nlat, rsphere=rsphere, gridtype="regular", legfunc=legfunc)
         self._ntrunc = (self.nlat - 1) if ntrunc is None else ntrunc
-        _, self.specindxn = spharm.getspecindx(self._ntrunc)
         # Eigenvalues of the horizontal Laplacian for each spherical harmonic.
         # Force use of complex64 datatype (= 2 * float32) because spharm will
         # cast to float32 components anyway but the multiplication with the
         # python scalars results in float64 values.
-        self.laplacian_eigenvalues = (
-                self.specindxn * (1. + self.specindxn) / rsphere / rsphere
+        _, specindxn = spharm.getspecindx(self._ntrunc)
+        self._laplacian_eigenvalues = (
+                specindxn * (1. + specindxn) / rsphere / rsphere
                 ).astype(np.complex64, casting="same_kind")
         # Precompute Coriolis field
         self.fcor = self.coriolis(self.lat)
@@ -151,7 +148,7 @@ class Grid:
         """Spectral vorticity and divergence from vector components."""
         return self._spharm.getvrtdivspec(u, v, self._ntrunc)
 
-    # General derivatives
+    # Derivatives and PDE solvers
 
     def gradient(self, f):
         """Gridded vector gradient of the 2D field f(φ,λ).
@@ -202,6 +199,54 @@ class Grid:
             # Common divisor of stencil is 12
             return out / 12 / self.dphi
         raise NotImplementedError("Requested order of approximation not available (choose 2 or 4)")
+
+    def laplace(self, f):
+        """TODO"""
+        return self.to_grid(self.laplace_spectral(self.to_spectral(f)))
+
+    def laplace_spectral(self, f):
+        """TODO"""
+        return -f * self._laplacian_eigenvalues
+
+    def solve_poisson(self, rhs_grid, op_add=0.):
+        """TODO"""
+        rhs_spec = self.to_spectral(rhs_grid)
+        solution = self.solve_poisson_spectral(rhs_spec, op_add)
+        return self.to_grid(solution)
+
+    def solve_poisson_spectral(self, rhs_spec, op_add=0.):
+        """Solve `(∆ - op_add) f = rhs`
+
+        TODO
+        """
+        solution = np.zeros_like(rhs_spec)
+        solution[1:] = -rhs_spec[1:] / (self._laplacian_eigenvalues[1:] + op_add)
+        return solution
+
+    def solve_diffusion(self, field_grid, coeff, dt, order=1):
+        """Advance diffusion equations of various order with an implicit step
+
+        Wraps Grid.solve_diffusion_spectral. If you intend to integrate
+        multiple steps in direct sequence, convert to spectral representation
+        once, take steps with solve_diffusion_spectral, then transform back
+        instead.
+        """
+        field_spec = self.to_spectral(field_grid)
+        solution = self.solve_diffusion_spectral(field_spec, coeff, dt, order)
+        return self.to_grid(solution)
+
+    def solve_diffusion_spectral(self, field_spectral, coeff, dt, order=1):
+        """Advance diffusion equations of various order with an implicit step
+
+        Takes an implicit Euler step.
+        order=1 → diffusion
+        order=2 → hyperdiffusion
+        ...
+
+        Solves ∂f/∂t = κ·∇²f etc.
+        """
+        eigenvalues_op = self._laplacian_eigenvalues ** order
+        return field_spectral / (1. + dt * coeff * eigenvalues_op)
 
     # Area-weighted operators
 

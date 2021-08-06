@@ -133,8 +133,12 @@ class BarotropicModel:
         return tendency 
 
     def _apply_diffusion(self, grid, dt, pv_spectral):
-        eigenvalues_exp = grid.laplacian_eigenvalues ** self.diffusion_order
-        return pv_spectral / ( 1. + dt * self.diffusion_coeff * eigenvalues_exp )
+        return grid.solve_diffusion_spectral(
+            pv_spectral,
+            dt=dt,
+            coeff=self.diffusion_coeff,
+            order=self.diffusion_order
+        )
 
 
 def _to_seconds(dt):

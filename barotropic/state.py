@@ -151,14 +151,8 @@ class State:
     def streamfunction(self):
         """Streamfunction of the wind."""
         if self._streamfunction is None:
-            # Perform PV inversion to obtain wind
-            vorticity = self.vorticity_spectral
-            # Eigenvalues of the horizontal Laplacian
-            eigenvalues = self.grid.laplacian_eigenvalues
-            # Compute streamfunction
-            psi = np.zeros_like(vorticity)
-            psi[1:] = - vorticity[1:] / eigenvalues[1:]
-            self._streamfunction = self.grid.to_grid(psi)
+            psi_spec = self.grid.solve_poisson_spectral(self.vorticity_spectral)
+            self._streamfunction = self.grid.to_grid(psi_spec)
         return self._streamfunction
 
     @property
