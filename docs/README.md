@@ -1,13 +1,13 @@
 # Documentation
 
-The HTML documentation is generated from the docstrings in the source code with [`pdoc`](https://github.com/mitmproxy/pdoc/releases/tag/0.3.2) and a modified template.
+The HTML documentation is generated from the docstrings in the source code with sphinx.
 
 
 ## Building
 
 If you have all required packages installed, run
 
-    ./build
+    make html
 
 in this folder to generate the html files.
 

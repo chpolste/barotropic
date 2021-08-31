@@ -1,0 +1,5 @@
+Diagnostics
+===========
+
+.. automodule:: barotropic.diagnostic
+

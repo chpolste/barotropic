@@ -1,0 +1,59 @@
+div.footer {
+    display: none;
+}
+div.related {
+    background-color: #3F505E;
+}
+div.related a {
+    color: #fff;
+}
+a.headerlink {
+    float: right;
+    margin-right: 4px;
+}
+div.sphinxsidebar a.current {
+    font-weight: bold;
+}
+div#searchbox {
+    margin-bottom: 10px;
+}
+dt.sig {
+    text-indent: -30px;
+    margin-left: 30px;
+}
+dd > :first-child {
+    margin-top: revert;
+}
+
+body,
+div.related,
+div.sphinxsidebar h3,
+div.sphinxsidebar h4,
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6,
+.viewcode-back {
+    font-family: sans-serif;
+    text-shadow: none;
+}
+
+.highlight .c { color: #666666 } /* Comment */
+.highlight .o { font-weight: normal } /* Operator */
+.highlight .p { font-weight: normal } /* Punctuation */
+.highlight .ch { color: #666666 } /* Comment.Hashbang */
+.highlight .cm { color: #666666 } /* Comment.Multiline */
+.highlight .cp { color: #666666 } /* Comment.Preproc */
+.highlight .cpf { color: #666666 } /* Comment.PreprocFile */
+.highlight .c1 { color: #666666 } /* Comment.Single */
+.highlight .cs { color: #666666 } /* Comment.Special */
+.highlight .m { color: #204a87 } /* Literal.Number */
+.highlight .mb { color: #204a87; font-weight: normal } /* Literal.Number.Bin */
+.highlight .mf { color: #204a87; font-weight: normal } /* Literal.Number.Float */
+.highlight .mh { color: #204a87; font-weight: normal } /* Literal.Number.Hex */
+.highlight .mi { color: #204a87; font-weight: normal } /* Literal.Number.Integer */
+.highlight .mo { color: #204a87; font-weight: normal } /* Literal.Number.Oct */
+.highlight .sd { color: #666666 } /* Literal.String.Doc */
+.highlight .il { color: #204a87 } /* Literal.Number.Integer.Long */
