@@ -8,40 +8,37 @@ from .constants import EARTH_RADIUS, EARTH_OMEGA
 class Grid:
     """Regular lat-lon grid and operations for a spherical planet.
 
-    Latitudes start at the north pole, as is convention in `spharm`. This
-    results in horizontally flipped images when plotting fields in matplotlib
-    without explicitly specifying the latitude grid.
+    Note:
+        Latitudes start at the North Pole, as is convention in
+        :py:mod:`spharm`. This results in horizontally flipped images when
+        plotting fields in matplotlib without explicitly specifying the
+        latitude grid.
 
-    Attributes set during initialization:
+    Parameters:
+        resolution (number): Grid resolution (uniform) in degrees.
+        rsphere (number): Radius of the planet in m.
+        omega (number): Angular velocity of the planet in 1/s.
+        ntrunc (int): Threshold for triangular truncation.
+        legfunc (str): Parameter given to :py:class:`spharm.Spharmt`.
 
-    - `nlon`, `nlat`: Number of longitudes/latitudes.
-    - `dlon`, `dlat`: Longitude/latitude spacing in degrees.
-    - `lons`, `lats`: Longitude/latitude coordinates in degrees (1D).
-    - `lon`, `lat`: Longitude/latitude coordinates in degrees (2D).
-    - `dlam`, `dphi`: Longitude/latitude spacing in radians.
-    - `lams`, `phis`: Longitude/latitude coordinates in radians (1D).
-    - `lam`, `phi`: Longitude/latitude coordinates in radians (2D).
-    - `fcor`: Coriolis parameter in 1/s (2D).
+    The default values of **rsphere** and **omega** correspond to those of
+    planet Earth. Consult the `spharm <https://github.com/jswhit/pyspharm>`_
+    documentation for further information on the **ntrunc** and **legfunc**
+    parameters.
 
-    Consider using the `ZONAL` and `MERIDIONAL` constants as convenient and
-    readable accessors for the grid dimensions.
+    Attributes:
+        nlon, nlat: Number of longitudes/latitudes.
+        dlon, dlat: Longitude/latitude spacing in degrees.
+        lons, lats: Longitude/latitude coordinates in degrees (1D).
+        lon, lat: Longitude/latitude coordinates in degrees (2D).
+        dlam, dphi: Longitude/latitude spacing in radians.
+        lams, phis: Longitude/latitude coordinates in radians (1D).
+        lam, phi: Longitude/latitude coordinates in radians (2D).
+        fcor: Coriolis parameter in 1/s (2D).
     """
 
     def __init__(self, resolution=2.5, rsphere=EARTH_RADIUS, omega=EARTH_OMEGA,
             ntrunc=None, legfunc="stored"):
-        """Grid constructor.
-
-        - The radius and angular velocity of the planet are given by `rsphere` in
-          m and `omega` in 1/s, respectively (the default values correspond to
-          those of the Earth).
-        - The grid resolution is uniform and specified with the `resolution`
-          parameter in degrees.
-        - Uses spherical harmonics for some operations utilizing the
-          `spharm`/`pyspharm` package. By default (`ntrunc=None`,
-          `legfunc="stored"`), the spherical harmonics are truncated after (number
-          of latitudes - 1) functions and precomputed. Consult the documentation of
-          `spharm.Spharmt` for more information on these parameters.
-        """
         # Planet parameters (radius, angular velocity)
         self.rsphere = rsphere
         self.omega = omega
@@ -85,38 +82,74 @@ class Grid:
 
     @property
     def shape(self):
-        """Tuple of grid dimensions (`nlat`, `nlon`)."""
+        """Tuple of grid dimensions (:py:attr:`nlat`, :py:attr:`nlon`)."""
         return self.phi.shape
 
     def circumference(self, lat):
-        """Circumference (in m) of the sphere at constant latitude."""
+        """Circumference (in m) of the sphere at (a) given latitude(s).
+
+        Parameters:
+            lat (number | array): Input latitude(s) in degrees.
+
+        Returns:
+            Circumference or array of circumferences.
+        """
         return 2 * np.pi * self.rsphere * np.cos(np.deg2rad(lat))
 
     def coriolis(self, lat):
-        """Coriolis parameter (in m) for a given latitude (in degrees)."""
+        """Coriolis parameter (in m) for a given latitude (in degrees).
+
+        Parameters:
+            lat (number | array): Input latitude(s) in degrees.
+
+        Returns:
+            Coriolis parameter or array of Coriolis parameters.
+        """
         return 2. * self.omega * np.sin(np.deg2rad(lat))
 
     # Region extraction
 
     @property
     def region(self):
-        """Create a region extractor with indexing syntax."""
+        """Region extractor with indexing syntax."""
         return GridRegionIndexer(self)
 
     # Spectral-grid transforms
 
     def to_spectral(self, field_grid):
-        """Transform a gridded field into spectral space."""
+        """Transform a gridded field into spectral space.
+
+        Parameters:
+            field_grid (array): Gridded representation of input field.
+
+        Returns:
+            Spectral representation of input field.
+        """
         return self._spharm.grdtospec(field_grid, self._ntrunc)
 
     def to_grid(self, field_spectral):
-        """Transform a spectral field into grid space."""
+        """Transform a spectral field into grid space.
+
+        Parameters:
+            field_spectral (array): Spectral representation of input field.
+
+        Returns:
+            Gridded representation of input field.
+        """
         return self._spharm.spectogrd(field_spectral)
 
     # Wind computations
 
     def wind(self, vorticity, divergence):
-        """Gridded wind components from vorticity and divergence fields."""
+        """Wind components from vorticity and divergence fields.
+
+        Parameters:
+            vorticity (array): Vorticity field (gridded).
+            divergence (array): Divergence field (gridded).
+
+        Return:
+            Tuple of (zonal, meridional) wind compontents (gridded).
+        """
         if vorticity.shape == self.shape:
             vorticity = self.to_spectral(vorticity)
         if divergence.shape == self.shape:
@@ -124,47 +157,86 @@ class Grid:
         return self._spharm.getuv(vorticity, divergence)
 
     def vorticity(self, u, v):
-        """Gridded vorticity from wind components."""
+        """Vorticity from vector components.
+
+        Parameters:
+            u (array): Zonal component of input field (gridded).
+            v (array): Meridional component of input field (gridded).
+
+        Returns:
+            Gridded vorticity field.
+        """
         return self.to_grid(self.vorticity_spectral(u, v))
 
     def vorticity_spectral(self, u, v):
-        """Spectral vorticity from wind components."""
+        """:py:meth:`vorticity` with spectral output field."""
         return self.vorticity_divergence_spectral(u, v)[0]
 
     def divergence(self, u, v):
-        """Gridded divergence from vector components."""
+        """Gridded divergence from vector components.
+
+        Parameters:
+            u (2D array): Zonal component of input vector field.
+            v (2D array): Meridional component of input vector field.
+
+        Returns:
+            2D divergence field.
+        """
         return self.to_grid(self.divergence_spectral(u, v))
 
     def divergence_spectral(self, u, v):
-        """Spectral divergence from vector components."""
+        """:py:meth:`divergence` with spectral output field."""
         return self.vorticity_divergence_spectral(u, v)[1]
 
     def vorticity_divergence(self, u, v):
-        """Gridded vorticity and divergence from vector components."""
+        """Vorticity and divergence from vector components.
+
+        Parameters:
+            u (array): Zonal component of input field (gridded).
+            v (array): Meridional component of input field (gridded).
+
+        Returns:
+            Tuple of gridded (vorticity, divergence) fields.
+        """
         vort, div = vorticity_divergence_spectral(u, v)
         return self.to_grid(vort), self.to_grid(div)
 
     def vorticity_divergence_spectral(self, u, v):
-        """Spectral vorticity and divergence from vector components."""
+        """:py:meth:`vorticity_divergence` with spectral output fields."""
         return self._spharm.getvrtdivspec(u, v, self._ntrunc)
 
     # Derivatives and PDE solvers
 
     def gradient(self, f):
-        """Gridded vector gradient of the 2D field f(φ,λ).
+        """Gridded vector gradient of a horizontal (2D) field.
 
-        Returns a tuple containing the two components `1/r df/dφ` and
-        `1/(r sin(φ)) df/dλ`.
+        Parameters:
+            f (array): 2D input field.
+
+        Returns:
+            A tuple with the two components of the horizontal gradient.
+
+        Horizontal gradient on the sphere::
+
+            ∇f(φ,λ) = (1/r ∂f/∂φ, 1/(r sin(φ)) ∂f/∂λ)
+
         """
         return self._spharm.getgrad(self.to_spectral(f))
 
-    def derivative_meridional(self, f, order=None):
-        """Finite difference first derivative in meridional direction: `df/dφ`.
+    def derivative_meridional(self, f, order=4):
+        """Finite difference first derivative in meridional direction (``∂f/∂φ``).
 
-        Accepts both 2D `f(φ,λ) = f(lat,lon)` and 1D `f(φ) = f(lat)` fields.
-        For 1D input, the derivatives at the poles are always set to zero, as
-        the input is assumed to represent a zonally symmetric profile of some
-        quantity (e.g. zonal-mean PV).
+        Parameters:
+            f (array): 1D or 2D input field.
+            order (2 | 4): Order of the finite-difference approximation.
+        
+        Returns:
+            Array containing the derivative.
+
+        Accepts both 2D ``f = f(φ,λ)`` and 1D ``f = f(φ)`` fields. For 1D input, the
+        derivatives at the poles are always set to zero, as the input is
+        assumed to represent a zonally symmetric profile of some quantity (e.g.
+        zonal-mean PV).
 
         The 2nd order approximation uses a 3-point stencil, the 4th order
         approximation a 5-point stencil (centered in inner domain, offset at
@@ -201,50 +273,70 @@ class Grid:
         raise NotImplementedError("Requested order of approximation not available (choose 2 or 4)")
 
     def laplace(self, f):
-        """TODO"""
+        """Laplacian of an input field.
+
+        Parameters:
+            f (array): 2D input field.
+
+        Returns:
+            Gridded Laplacian of **f**.
+        """
         return self.to_grid(self.laplace_spectral(self.to_spectral(f)))
 
     def laplace_spectral(self, f):
-        """TODO"""
+        """:py:meth:`laplace` with spectral in- and output fields."""
         return -f * self._laplacian_eigenvalues
 
     def solve_poisson(self, rhs_grid, op_add=0.):
-        """TODO"""
+        """Solve Poisson(-like) equations.
+
+        Parameters:
+            rhs_grid (array): Input field for right hand side of Poisson
+                equation.
+            op_add (number): Optional term with constant coefficient.
+
+        Returns:
+            Solution to the Poisson(-like) equation.
+
+        Discretized equation::
+
+            (∆ - op_add) f = rhs
+        """
         rhs_spec = self.to_spectral(rhs_grid)
         solution = self.solve_poisson_spectral(rhs_spec, op_add)
         return self.to_grid(solution)
 
     def solve_poisson_spectral(self, rhs_spec, op_add=0.):
-        """Solve `(∆ - op_add) f = rhs`
-
-        TODO
-        """
+        """:py:meth:`solve_poisson` with spectral in- and output fields."""
         solution = np.zeros_like(rhs_spec)
         solution[1:] = -rhs_spec[1:] / (self._laplacian_eigenvalues[1:] + op_add)
         return solution
 
     def solve_diffusion(self, field_grid, coeff, dt, order=1):
-        """Advance diffusion equations of various order with an implicit step
+        """Advance diffusion equations of various order with an implicit step.
 
-        Wraps Grid.solve_diffusion_spectral. If you intend to integrate
-        multiple steps in direct sequence, convert to spectral representation
-        once, take steps with solve_diffusion_spectral, then transform back
-        instead.
+        Parameters:
+            field_grid (array): 2D input field.
+            coeff (number): Diffusion coefficient.
+            dt (number): Time step in s.
+            order (int): Order of diffusion. ``1``: regular diffusion, ``2``:
+                hyperdiffusion, ...
+
+        Returns:
+            Solution after one ``dt``-sized step.
+
+        Solves::
+
+            ∂f/∂t = κ·∇²f
+
+        (here order = 1) with an implicit Euler step.
         """
         field_spec = self.to_spectral(field_grid)
         solution = self.solve_diffusion_spectral(field_spec, coeff, dt, order)
         return self.to_grid(solution)
 
     def solve_diffusion_spectral(self, field_spectral, coeff, dt, order=1):
-        """Advance diffusion equations of various order with an implicit step
-
-        Takes an implicit Euler step.
-        order=1 → diffusion
-        order=2 → hyperdiffusion
-        ...
-
-        Solves ∂f/∂t = κ·∇²f etc.
-        """
+        """:py:meth:`solve_diffusion` with spectral in- and output fields."""
         eigenvalues_op = self._laplacian_eigenvalues ** order
         return field_spectral / (1. + dt * coeff * eigenvalues_op)
 
@@ -254,8 +346,9 @@ class Grid:
     def gridpoint_area(self):
         """Surface area of each gridpoint as a function of latitude.
         
-        The associated area of a gridpoint (lon, lat) in a regular grid is
-        given by: `r² * dlon * [ sin(lat + dlat) - sin(lat - dlat) ]`
+        The area associated with a gridpoint (λ, φ) in a regular lat-lon grid::
+
+            r² * dλ * ( sin(φ + dφ) - sin(φ - dφ) )
         """
         # Calculate dual phi grid (latitude mid-points)
         mid_phis = 0.5 * (self.phis[1:] + self.phis[:-1])
@@ -269,13 +362,18 @@ class Grid:
         return gridpoint_area
 
     def mean(self, field, axis=None, region=None):
-        """Area-weighted mean of `field`.
+        """Area-weighted mean of the input field.
 
-        - The mean over the entire region is calculated by default. By
-          specifying the `axis` argument, a zonal or meridional mean can be
-          calculated.
-        - A region to which the mean should be restricted can be given with the
-          `region` parameter.
+        Parameters:
+            field (array): 2D input field.
+            axis (None | int | "meridional" | "zonal"): Axis over which to
+                compute the mean.
+            region (None | :py:class:`GridRegion`): Region to which the mean is
+                restricted. Construct regions with :py:attr:`region` or specify
+                any object that implements a compatible **extract** method.
+
+        Returns:
+            Area-weighted mean.
         """
         # 
         # If a region is given, extract region if shape of field matches that
@@ -301,33 +399,48 @@ class Grid:
     # Numerical quadrature
 
     def quad_boxcount(self, y, where=True):
-        """Surface integral summing (`area * value` of `y`) at every gridpoint.
-        
-        The domain of integration can optionally be specified by a boolean
-        array in the `where` parameter.
+        """Surface integral with a box-counting quadrature.
+
+        Parameters:
+            y (array): 2D input field.
+            where (array): Boolean array specifying a custom domain of
+                integration.
+
+        Returns:
+            Value of the integral.
         """
         return np.sum(self.gridpoint_area * y, where=where)
 
     def quad_sptrapz(self, y, z=None):
-        """Surface integral based on meridional linear interpolation.
-        
-        See `Grid.quad_sptrapz_meridional`.
+        """Surface integral with a trapezoidal quadrature.
+
+        Parameters:
+            y (array): 2D input field.
+            z (array): Custom domain of integration given by the region **z** >= 0.
+
+        Returns:
+            Value of the integral.
+
+        See :py:meth:`quad_sptrapz_meridional`.
         """
         return self.rsphere * self.dlam * np.sum(self.quad_sptrapz_meridional(y, z))
 
     def quad_sptrapz_meridional(self, y, z=None):
-        """Line integral of `y` along meridians using linear interpolation.
+        """Line integral along meridians using linear interpolation.
 
-        A custom domain of integration can be specified with parameter `z`. The
-        domain is then determined by the condition `z >= 0` using linear
-        interpolation. If `z` is not given, the integration domain is the
-        entire surface of the sphere.
+        Parameters:
+            y (array): 2D input field.
+            z (array): Custom domain of integration given by the region **z** >= 0.
+
+        Returns:
+            nlon-shaped array of integral values.
 
         The quadrature rule is based on the trapezoidal rule adapted for
-        sperical surface domains using the antiderivate of `r * (a*lat + b) * cos(lat)`
+        sperical surface domains using the antiderivate of ``r * (a*φ + b) * cos(φ)``
         to integrate over the piecewise-linear, interpolated segments between
-        gridpoints in the meridional direction. This implementation is accurate
-        but rather slow.
+        gridpoints in the meridional direction. If given, the field that
+        defines the custom domain of integration is also linearly interpolated.
+        This implementation is accurate but rather slow.
 
         No interpolation is carried out in the zonal direction (since lines of
         constant latitude are not great-circles, linear interpolation is
@@ -382,10 +495,18 @@ class Grid:
     # Equivalent-latitude zonalization
 
     def equivalent_latitude(self, area):
-        """Latitude such that surface up to North Pole is `area`-sized.
+        """Latitude such that surface up to North Pole is **area**-sized.
 
-        - Area north of latitude `lat`: `area = 2 * pi * (1 - sin(lat)) * r²`.
-        - Solve for latitude: `lat = arcsin(1 - area / 2 / pi / r²)`.
+        Parameters:
+            area (number | array): input area (in m²).
+
+        Returns:
+            Latitude(s) in degrees.
+
+        Solve formula for area ``A``, north of latitude ``φ``, for ``φ``::
+
+            A = 2 * pi * (1 - sin(φ)) * r²
+            φ = arcsin(1 - A / 2 / pi / r²)
         """
         # Calculate argument of arcsin
         sine = 1. - 0.5 * area / np.pi / self.rsphere**2
@@ -398,27 +519,28 @@ class Grid:
     def zonalize(self, field, levels=None, interpolate=None, quad="sptrapz"):
         """Zonalize the field with equivalent latitude coordinates.
 
-        Implements the zonalization procedure of Nakamura and Zhu (2010).
-        
-        - The number of contours generated from the field for the zonalization
-          is determined by the `levels` parameter. If `levels` is an integer,
-          contours are sampled between the highest and lowest occuring value in
-          the field. If `levels` is a list of contour-values, these are used
-          directly. By default (`levels=None`), the number of levels is set
-          equal to the number of latitudes resolved by the grid.
-        - An output latitude grid can be specified with the `interpolate`
-          argument. The zonalized contour values are then interpolated to this
-          grid using linear interpolation. By default (`interpolate=None`), no
-          interpolation is carried out.
-        - The quadrature rule used in the surface integrals of the zonalization
-          computation can be specified with the `quad` argument. Possible
-          values are `"sptrapz"` and `"boxcount"`, corresponding to methods
-          `Grid.quad_sptrapz` and `Grid.quad_boxcount`, respectively. It is highly
-          recommended to use the slower, but much more accurate `"sptrapz"`
-          quadrature to avoid the "jumpiness" of the boxcounting scheme.
+        Parameters:
+            field (array): 2D input field.
+            levels (None | array | int): Contours generated for the
+                zonalization. If an array of contour-values is given, these are
+                used directly. If value is an integer, this number of contours
+                is sampled between the maximum and minimum values in the input
+                field automatically. By default, the number of levels is set
+                equal to the number of latitudes resolved by the grid.
+            interpolate (None | array): Output latitude grid (in degrees). If
+                not ``None``, the zonalized contour values are interpolated to
+                these latitudes linearly. Otherwise contours are given on the
+                equivalent latitudes that arise in the computation.
+            quad ("sptrapz" | "boxcount"): Quadrature rule used in the surface
+                integrals of the computation. See :py:meth:`quad_sptrapz` and
+                :py:meth:`quad_boxcount`. It is highly recommended to use the
+                slower, but much more accurate trapezoidal quadrature to avoid
+                the "jumpiness" associated with the boxcounting scheme.
 
-        Returns a tuple containing the contour values and associated equivalent
-        latitudes.
+        Returns:
+            Tuple of contour values and associated equivalent latitudes.
+
+        Implements the zonalization procedure of Nakamura and Zhu (2010).
         """
         # Select contours for area computations
         q_min = np.min(field)
@@ -459,13 +581,20 @@ class Grid:
     # Filtering
 
     def get_filter_window(self, window, width):
-        """Wraps `scipy.signal.get_window` with the window width given in °.
+        """Wraps :py:func:`scipy.signal.get_window` for degree input.
+
+        Parameters:
+            window (str): The type of window to create.
+            width (number): Width of the window in degrees.
+
+        Returns:
+            Gridded window function.
 
         Window widths are restricted to odd numbers of gridpoints so windows
         can properly be centered on a gridpoint during convolution. The
         returned window array is normalized such that it sums to 1.
 
-        Requires `scipy`.
+        Requires :py:mod:`scipy`.
         """
         from scipy.signal import get_window
         # Convert width to gridpoints
@@ -477,12 +606,19 @@ class Grid:
     def filter_meridional(self, field, window, width=None):
         """Filter the input in meridional direction with the given window.
 
-        - `field` is the input signal and can be 1- or 2-dimensional.
-        - If `width` is None, `window` must be gridded window (1D array) used
-          for the convolution operation. Otherwise `window` and `width` are
-          given to `Grid.get_filter_window` to obtain a window function.
+        Parameters:
+            field (array): 1 or 2-dimensional input signal.
+            window (str | array): Window used in the convolution.
+            width (number): Width of the window.
 
-        Requires `scipy`.
+        Returns:
+            Filtered field.
+
+        If **width** is ``None``, **window** must be a gridded window given as
+        a 1D array.  Otherwise, **window** and **width** are given to
+        :py:meth:`get_filter_window` to obtain a window function.
+
+        Requires :py:mod:`scipy`.
         """
         from scipy.ndimage import convolve
         if width is not None:
@@ -501,12 +637,19 @@ class Grid:
     def filter_zonal(self, field, window, width=None):
         """Filter the input in zonal direction with the given window.
 
-        - `field` is the input signal and can be 1- or 2-dimensional.
-        - If `width` is None, `window` must be gridded window (1D array) used
-          for the convolution operation. Otherwise `window` and `width` are
-          given to `Grid.get_filter_window` to obtain a window function.
+        Parameters:
+            field (array): 1 or 2-dimensional input signal.
+            window (str | array): Window used in the convolution.
+            width (number): Width of the window.
 
-        Requires `scipy`.
+        Returns:
+            Filtered field.
+
+        If **width** is ``None``, **window** must be a gridded window given as
+        a 1D array.  Otherwise, **window** and **width** are given to
+        :py:meth:`get_filter_window` to obtain a window function.
+
+        Requires :py:mod:`scipy`.
         """
         from scipy.ndimage import convolve
         if width is not None:
