@@ -31,15 +31,17 @@ def _restrict_fourier_zonal(field, kmin, kmax):
 def fawa(pv_or_state, grid=None, levels=None, interpolate=None):
     """Finite-Amplitude Wave Activity according to Nakamura and Zhu (2010).
 
-    - If the first parameter is not a `barotropic.State`, `grid` must be
-      specified.
-    - `levels` specifies the number of contours generated for the equivalent
-      latitude zonalization.
-    - By default, FAWA is returned on the computed equivalent latitudes. To
-      obtain FAWA interpolated to a specific set of latitudes, specify these
-      with the `interpolate` parameter.
+    Parameters:
+        pv_or_state (:py:class:`.State` | array): Input state or 2D PV field.
+        grid (None | :py:class:`.Grid`): Grid information only required if
+            `pv_or_state` is not a :py:class:`.State`.
+        levels (None | array | int): Parameter of :py:meth:`.Grid.zonalize`.
+        interpolate (None | array): If `None`, FALWA is returned on the
+            equivalent latitudes obtained from the zonalization procedure. If
+            given, FALWA is interpolated to a specific set of latitudes.
 
-    Returns a tuple containing FAWA and its latitude coordinates.
+    Returns:
+        Tuple containing FAWA and its latitude coordinates.
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
@@ -60,15 +62,17 @@ def fawa(pv_or_state, grid=None, levels=None, interpolate=None):
 def falwa(pv_or_state, grid=None, levels=None, interpolate=None):
     """Finite-Amplitude Local Wave Activity according to Huang and Nakamura (2016).
 
-    - If the first parameter is not a `barotropic.State`, `grid` must be
-      specified.
-    - `levels` specifies the number of contours generated for the equivalent
-      latitude zonalization.
-    - By default, FALWA is returned on an equivalent latitude by longitude
-      grid. To obtain FALWA interpolated to a specific set of latitudes,
-      specify these with the `interpolate` parameter.
+    Parameters:
+        pv_or_state (:py:class:`.State` | array): Input state or 2D PV field.
+        grid (None | :py:class:`.Grid`): Grid information only required if
+            `pv_or_state` is not a :py:class:`.State`.
+        levels (None | array | int): Parameter of :py:meth:`.Grid.zonalize`.
+        interpolate (None | array): If `None`, FALWA is returned on the
+            equivalent latitudes obtained from the zonalization procedure. If
+            given, FALWA is interpolated to a specific set of latitudes.
 
-    Returns a tuple containing FALWA and its latitude coordinates.
+    Returns:
+        Tuple containing FALWA and its latitude coordinates.
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
@@ -91,14 +95,19 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=None):
 def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
     """Finite-Amplitude Local Wave Activity according to Huang and Nakamura (2016).
 
-    Uses the implementation of [`hn2016_falwa`](https://github.com/csyhuang/hn2016_falwa).
+    Parameters:
+        pv_or_state (:py:class:`.State` | array): Input state or 2D PV field.
+        grid (None | :py:class:`.Grid`): Grid information only required if
+            `pv_or_state` is not a :py:class:`.State`.
+        normalize_icos (bool): Multiply FALWA with the inverse of the cosine of
+            latitude to make an explicit connection to angular pseudomomentum.
+            This is always done in :py:func:`falwa`, but `hn2016_falwa` does
+            not do it by default for the barotropic framework.
 
-    - If the first parameter is not a `barotropic.State`, `grid` must be
-      specified.
-    - By default, FALWA is normalized with the inverse of the cosine of
-      latitude. To disable this normalization, set `normalize_icos=False`.
+    Returns:
+        FALWA on the regular latitude/longitude grid.
 
-    Returns FALWA on the regular latitude/longitude grid.
+    Uses the implementation of https://github.com/csyhuang/hn2016_falwa.
     """
     from hn2016_falwa.barotropic_field import BarotropicField
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
@@ -120,13 +129,19 @@ def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
 def dominant_wavenumber_fourier(field, grid, smooth=("boxcar", 10), wavenumber_range=(1, 20)):
     """Dominant zonal wavenumber based on the Fourier power spectrum.
 
-    Returns the dominant zonal wavenumber as a function of latitude. If
-    `smooth` is not `None`, the wavenumber profile is filtered with
-    `barotropic.Grid.filter_meridional` (where `smooth` defines the `window`
-    and `width` arguments). Use `wavenumber_range` to restrict the interval in
-    which the dominant wavenumber is determined.
+    Parameters:
+        field (array): 2D input field.
+        grid (:py:class:`.Grid`): Grid associated with input field.
+        smooth (None | tuple): If not `None`, the output wavenumber profile is
+            filtered with :py:meth:`.Grid.filter_meridional`, whose `window`
+            and `width` arguments are set by `smooth`.
+        wavenumber_range ((number, number)): Restrict the interval in which the
+            dominant wavenumber is determined.
+
+    Returns:
+        Returns the dominant zonal wavenumber as a function of latitude.
     
-    Requires `scipy`.
+    Requires :py:mod:`scipy`.
     """
     assert len(wavenumber_range) == 2
     k_min, k_max = wavenumber_range
@@ -141,17 +156,21 @@ def dominant_wavenumber_fourier(field, grid, smooth=("boxcar", 10), wavenumber_r
 def dominant_wavenumber_wavelet(field, grid, smooth=("hann", 10, 40)):
     """Dominant zonal wavenumber based on Wavelet Analysis.
 
+    Parameters:
+        field (array): 2D input field.
+        grid (:py:class:`.Grid`): Grid associated with input field.
+        smooth (None | tuple): The smoothing applied to the dominant wavenumber
+            field. Set to `None` if no smoothing is desired. Otherwise provide
+            a 3-tuple `(window, width_lat, width_lon)` used as input to
+            :py:meth:`.Grid.filter_meridional` and :py:meth:`.Grid.filter_zonal`.
+
+    Returns:
+        Gridded dominant zonal wavenumber.
+
     Implements the procedure of Ghinassi et al. (2018) that determines
-    a local dominant wavenumber at every gridpoint of the input field..
+    a local dominant wavenumber at every gridpoint of the input field.
 
-    `smooth` determines the smoothing applied to the dominant wavenumber field.
-    Set to `None` if no smoothing is desired. Otherwise provide a 3-tuple
-    `(window, width_lat, width_lon)` used as input to
-    `barotropic.Grid.filter_meridional` and `barotropic.Grid.filter_zonal`.
-
-    Returns the gridded dominant zonal wavenumber.
-
-    Requires `pywt` (version >= 1.1.0) and `scipy`.
+    Requires :py:mod:`pywt` (version >= 1.1.0) and :py:mod:`scipy`.
     """
     import pywt
     # Truncate zonal fourier spectrum of meridional wind after wavenumber 20
@@ -184,16 +203,24 @@ def dominant_wavenumber_wavelet(field, grid, smooth=("hann", 10, 40)):
 
 def filter_by_wavenumber(field, wavenumber):
     """Zonal Hann smoothing based on a space-dependent wavenumber field.
+
+    Parameters:
+        field (array): 2D input field.
+        wavenumber (array): `nlat`-sized 1D array or `field`-shaped 2D
+            array of wavenumbers.
+
+    Returns:
+        Filtered field.
     
-    Apply Hann smoothing in zonal direction to the input `field` with the Hann
-    window width governed at every gridpoint by the wavenumber at the same
-    location in the `wavenumber` field. The wavelength corresponding to
-    wavenumber k determines the full width at half maximum of the Hann window.
+    Apply Hann smoothing in zonal direction with the Hann window width governed
+    at every gridpoint by the wavenumber given for the same location. The
+    wavelength corresponding to each wavenumber determines the full width at
+    half maximum of the Hann window.
 
     Used by Ghinassi et al. (2018) to filter the FALWA field, discounting phase
     information in order to diagnose wave packets as a whole.
 
-    Requires `scipy`.
+    Requires :py:mod:`scipy`.
     """
     from scipy import signal
     nlon = field.shape[_ZONAL]
@@ -230,7 +257,7 @@ def filter_by_wavenumber(field, wavenumber):
         convs.append(signal.convolve2d(field, hann[None,:], mode="same", boundary="wrap"))
     # Stack into 3-dimensional array
     convs = np.stack(convs)
-    # Extract the filtered value from the smoothed fields according the the
+    # Extract the filtered value from thrmation only required if ks_or_state is not a :py:class`Se smoothed fields according the the
     # width-index mapping
     idx = (hann_width - 1) // 2
     ii, jj = np.indices(field.shape)
@@ -240,9 +267,17 @@ def filter_by_wavenumber(field, wavenumber):
 def envelope_hilbert(field, wavenumber_range=(2, 10)):
     """Compute the envelope of wave packets with the Hilbert transform.
 
+    Parameters:
+        field (array): 2D input field.
+        wavenumber_range ((number, number)): Restrict the interval in which the
+            dominant wavenumber is determined.
+
+    Returns:
+        Filtered output field.
+
     Applied to the merdional wind for RWP detection by Zimin et al. (2003).
 
-    Requires `scipy`.
+    Requires :py:mod:`scipy`.
     """
     from scipy import signal
     assert len(wavenumber_range) == 2
@@ -251,28 +286,38 @@ def envelope_hilbert(field, wavenumber_range=(2, 10)):
     return np.abs(signal.hilbert(x, axis=_ZONAL))
 
 
-def stationary_wavenumber(u_or_state, grid=None, order=None, min_u=0.001, kind="complex"):
-    """Non-dimensionalised stationary (zonal) wavenumber (`Ks`).
+def stationary_wavenumber(u_or_state, grid=None, order=4, min_u=0.001, kind="complex"):
+    """Non-dimensionalised stationary (zonal) wavenumber.
 
-        Ks² = a²·βM/uM,
+    Parameters:
+        u_or_state (:py:class:`.State` | array): Input state or 2D field of
+            zonal wind component.
+        grid (None | :py:class:`.Grid`): Grid information only required if
+            `u_or_state` is not a :py:class:`.State`.
+        order (2 | 4): Order of the derivative used in the calculation.
+            Parameter of :py:meth:`.Grid.derivative_meridional`.
+        min_u (number): Threshold for the absolute value of the zonal wind
+            below which it is considered to be zero.
+        kind ("complex" | "real" | "squared"): ``Ks²`` can be negative.
+            Determine how ``Ks`` is returned:
 
-    where `a` is the radius of the sphere, `βM` is the Mercator projection
-    gradient of zonal-mean PV and `uM` is the Mercator projection zonal-mean
+            - `"complex"`: return complex number `√(Ks²)`.
+            - `"real"`: return real number ``Re(Ks) - Im(Ks)`` where ``Ks`` is the
+              complex number ``√(Ks²)``. Since ``Ks²`` is real, ``Im(Ks)`` is
+              always zero when ``Re(Ks)`` is non-zero and vice versa, rendering
+              this expression of ``Ks`` unique.
+            - `"squared"`: return ``Ks²``.
+
+    Returns:
+        Meridional profile of stationary wavenumber.
+
+    Stationary zonal wavenumber::
+
+        Ks² = r²·βM/uM,
+
+    where ``r`` is the radius of the sphere, ``βM`` is the Mercator projection
+    gradient of zonal-mean PV and ``uM`` is the Mercator projection zonal-mean
     wind. See e.g. Hoskins and Karoly (1981), Wirth (2020).
-
-    `Ks²` can be negative. It is set to positive or negative infinity where `u`
-    is smaller than the threshold given by `min_u`. If `u` is given as a field
-    or zonal profile and not via a `barotropic.State` in the first parameter,
-    `βM` is calculated from the wind field using derivatives of order `order`.
-
-    The `kind` parameter determines how the wavenumber is returned:
-
-    - `kind="complex"` (default) returns the complex number `√(Ks²)`.
-    - `kind="real"` returns the real number `Re(Ks) - Im(Ks)` where `Ks` is the
-      complex number `√(Ks²)`. Since `Ks²` is real, the `Im(Ks)` is always zero
-      when `Re(Ks)` is non-zero and vice versa, rendering this expression of
-      `Ks` unique.
-    - `kind="squared"` returns `Ks²`.
     """
     grid, u, pv = _get_grid_vars(["u", "pv"], grid, u_or_state)
     # If u is a 2D field, calculate zonal mean
@@ -308,18 +353,22 @@ def stationary_wavenumber(u_or_state, grid=None, order=None, min_u=0.001, kind="
 def extract_waveguides(ks_or_state, k, grid=None):
     """Extract waveguide boundaries based on the stationary wavenumber.
 
+    Parameters:
+        ks_or_state (:py:class:`.State` | array): Input state or stationary
+            wavenumber profile (complex variant).
+        k (int): Wavenumber for which waveguides are extracted.
+        grid (None | :py:class:`.Grid`): Grid information only required
+            if `ks_or_state` is not a :py:class:`.State`.
+
+    Returns:
+        List of tuples that contain the boundary latitudes of the detected
+        waveguides (one tuple per waveguide) in degrees.
+
     WKB and ray-tracing theory say that Rossby waves are refracted towards
-    latitudes of higher stationary wavenumber. A local maximum in the zonal
-    profile of stationary wavenumber Ks can therefore trap waves and
-    constitutes a waveguide. See e.g. Petoukhov et al. (2013), Wirth (2020).
-
-    - `k` is the wavenumber for which the waveguides are extracted.
-    - If the first parameters is not a `barotropic.State` object, `ks` must be
-      the complex variant of the stationary wavenumber and `grid` must be given
-      (the grid is otherwise taken from the `barotropic.State` object.
-
-    Returns a list of tuples that contain the boundary latitudes of the
-    detected waveguides (one tuple per waveguide).
+    latitudes of higher stationary wavenumber. A local maximum in the
+    meridional profile of stationary zonal wavenumber Ks can therefore trap
+    waves and constitutes a waveguide. See e.g. Petoukhov et al. (2013), Wirth
+    (2020).
     """
     grid, ks = _get_grid_vars(["stationary_wavenumber"], grid, ks_or_state)
     # Convert stationary wavenumbers to "real" variant, so there is a proper
