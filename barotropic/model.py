@@ -6,29 +6,28 @@ from .state import State
 
 class BarotropicModel:
     """Integrate the barotropic PV equation on the sphere forward in time.
+
+    Parameters:
+        rhs (:py:class:`rhs.RHS`): Model forcing. Build from the components
+            provided in :py:mod:`rhs`.
+        diffusion_order (int): Order of diffusion term added for numerical
+            stability to the PV equation. Hyperdiffusion by default.
+        diffusion_coeff (number): Strength of diffusion.
+
+    Barotropic PV equation with forcing::
     
         Dq/Dt = ∂q/∂t + ∇(u·q) = RHS,
 
-    where `q` is the barotropic potential vorticity (i.e. absolute vorticity)
-    and `u` is the divergence-free horizontal wind (which can be obtained from
-    the PV by inversion).
+    where ``q`` is the barotropic potential vorticity (i.e. absolute vorticity)
+    and ``u`` is the divergence-free horizontal wind (which can be obtained
+    from the PV by inversion).
 
-    A `BarotropicModel` instance does not contain state aside from the forcing
-    and diffusion setup and can be reused for multiple integrations with
-    different `barotropic.State`s.
+    Does not carry state aside from the forcing and diffusion setup and can be
+    reused for multiple integrations with different :py:class`barotropic.State`
+    instances.
     """
 
     def __init__(self, rhs=None, diffusion_order=2, diffusion_coeff=1.e15):
-        """BarotropicModel constructor.
-
-        - `rhs` specifies the model forcing, which can be built from the components
-          provided in `barotropic.rhs` or a custom implementation with the same
-          interface.
-        - Numerical stability is enhanced by smoothing the PV field with
-          a laplacian diffusion term after every time step. The order and strength
-          of this diffusion can be tuned with parameters `diffusion_order` and
-          `diffusion_coeff`.
-        """
         self.rhs = rhs
         self.diffusion_order = diffusion_order
         self.diffusion_coeff = diffusion_coeff
@@ -39,23 +38,26 @@ class BarotropicModel:
     def run(self, state_init, dt, tend, save_every=0):
         """Run the model until a specified time is reached.
 
+        Parameters:
+            state_init (:py:class:`State`): State from which the integration
+                starts.
+            dt (number | timedelta): Time step size. Either a number in seconds
+                or a timedelta.
+            tend (number | datetime): Time after which the integration stops.
+                The model will not try to reach this time exactly, but stop as
+                soon as it is exeeded.
+            save_every (number): If larger than zero, an intermediate state is
+                saved and returned in the list of states every time this time
+                interval is exceeded. Does not work for datetime/timedelta
+                **dt**s currently.
+
+        Returns:
+            Tuple containing the final state and a list of all saved
+            intermediate states.
+
         Initializes with a first-order Euler forward step, then continues with
         second-order Leapfrog steps.
 
-        - `state_init` is the initial state from which the integration starts.
-        - `dt` is the step size used in the integration.
-        - `tend` is the time after which the integration stops. The model will
-          not try to reach this time exactly, but stop as soon as `tend` is
-          exeeded.
-        - If `save_every` is larger than zero, an intermediate state is saved
-          and then returned every time this time interval is exceeded.
-
-        Time and time intervals should be given as a number type representing
-        seconds if `state_init` uses a number type to denote time, or
-        `datetime.datetime` and `datetime.timedelta` if `state_init` uses
-        `datetime.datetime` to denote time.
-
-        Returns the final state and a list of all saved intermediate states.
         """
         if tend < state_init.time:
             return state_init, [state_init]
@@ -78,7 +80,12 @@ class BarotropicModel:
     def euler(self, state_now, dt):
         """Step forward in time with a first-order Euler-forward scheme
 
-        Advances by `dt` starting from `state_now` and returns the new state.
+        Parameters:
+            state_now (:py:class:`State`): Initial state.
+            dt (number | timedelta): Time step size.
+
+        Returns:
+            New :py:class:`State` instance.
         """
         dts = _to_seconds(dt)
         pv_new_spectral = state_now.pv_spectral + dts * self._pv_tendency_spectral(state_now)
@@ -93,12 +100,18 @@ class BarotropicModel:
     def leapfrog(self, state_old, state_now, filter_parameter=0.2):
         """Step forward in time using a filtered leapfrog scheme.
 
-        - The timestep size is determined automatically from the difference of
-          the given input fields `state_old` and `state_now`.
-        - The filter strength can be configured with the `filter_parameter`.
+        Parameters:
+            state_old (:py:class:`State`): Last State.
+            state_now (:py:class:`State`): Current state.
+            filter_parameter (number): Strength paramter of the Robert-Asselin
+                filter.
 
-        Both the current and the new model state are returned in a tuple since
-        the Robert-Asselin filter modifies the current state too.
+        Returns:
+            Tuple containing filtered current state and next step as new
+            :py:class:`State` instances.
+
+        The timestep size is determined automatically from the difference of
+        the given input fields **state_old** and **state_now**.
         """
         # Determine timestep from temporal difference of old and current state
         dt = state_now.time - state_old.time

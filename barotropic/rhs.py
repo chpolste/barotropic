@@ -58,13 +58,15 @@ class _RHSProduct(RHS):
 class TimedOffSwitch(RHS):
     """Turn off another forcing term after a specified amount of time.
 
-    The forcing term returns 1 until the specified switch-off time is reached
-    after which it returns 0 forever. Multiply with the term that is supposed
-    to be switched off.
+    Parameters:
+        tend (number | datetime): Return ``1`` until this switch-off time is
+            reached after which return ``0`` forever.
+
+    Returns:
+        Term for multiplication with other RHS terms.
     """
 
     def __init__(self, tend):
-        """The switch-off time is `tend`."""
         self._tend = tend
 
     def __call__(self, state):
@@ -72,14 +74,23 @@ class TimedOffSwitch(RHS):
 
 
 class LinearRelaxation(RHS):
-    """Linear relaxation towards a reference PV state."""
+    """Linear relaxation towards a reference PV state.
+
+    Parameters:
+        rate (number): Relaxation rate in 1/s.
+        reference_pv (array): PV field that is relaxed toward.
+        mask (array): Does nothing at the moment.
+
+    Returns:
+        Forcing term
+
+    Implements **rate** * (**reference_pv** - pv).
+    """
 
     def __init__(self, rate, reference_pv, mask=None):
         """Specify the reference PV field and speed of relaxation.
         
         The forcing is calculated as
-        
-            rate * (reference_pv - pv),
 
         where `pv` is the PV field of the current timestep.
 
@@ -96,47 +107,47 @@ class LinearRelaxation(RHS):
 class Orography(RHS):
     """Pseudo-orographic forcing based on a given gridded orography.
 
-    The forcing is calculated as
+    Parameters:
+        lons (array): Longitudes of orography grid.
+        lats (array): Latitudes of orography grid.
+        orography (array): Height of the orography in m on the lat-lon grid
+            defined by **lons** and **lats**.
+        scale_height (number): Scale height in m.
+        wind ((str, number)): Wind used to evaluate the
+            forcing. Options:
+
+            - `("act", factor)`: The actual 2D-wind is used, scaled by the
+              given factor.
+            - `("zon", factor)`: The zonal-mean zonal wind is used, scaled by
+              the given factor. The meridional wind component is set to 0.
+            - `("sbr", maxval)`: A constant solid body rotation wind profile
+              is used with the given maximum wind speed at the equator. This
+              can be useful to define a constant orography-based wavemaker for
+              simple experiments.
+
+        fcor_ref(None | number): If `None`, the actual coriolis parameter
+            values are used to calculate the forcing, otherwise the given value
+            (in 1/s) is used as a constant everywhere.
+
+    The forcing is calculated as::
 
         -f/H * u·∇h,
 
-    where `f` is the coriolis parameter in 1/s, `H` a scale height in m, `u`
-    the horizontal wind and `h` is the height of the orography.
+    where ``f`` is the coriolis parameter in 1/s, ``H`` the scale height, ``u``
+    the horizontal wind and ``h`` is the height of the orography.
 
-    This is class only supports time-invariant orography fields. The fields
-    must be given on a lat-lon grid and will automatically be interpolated if
-    required.
+    This is class only supports time-invariant fields of orography. The height
+    field must be given on a lat-lon grid. The orography is linearly
+    interpolated to the required grid when the forcing is evaluated by the
+    model. **lons** and **orography** should be prepared such that the 0°
+    column exists at both 0° and 360° to ensure that the interpolation does not
+    yield ``NaN``-values at the periodic boundary.
 
-    Other orography forcing terms can inherit from this class and should only
+    Other orographic forcing terms can inherit from this class and should only
     have to implement the `orography` method.
     """
 
     def __init__(self, lons, lats, orography, scale_height=10000., wind=("act", 1.), fcor_ref=None):
-        """Set up an orographic forcing term for the specified orography.
-
-        `orography` (in m), on a lat-lon grid given by `lats` and `lons`. The
-        orography is linearly interpolated to the required grid when the
-        forcing is evaluated by the model. `lons` and `orography` should be
-        prepared such that the 0° column exists at both 0° and 360° to ensure
-        that the interpolation does not yield NaN-values at the periodic
-        boundary.
-        
-        `scale_height` should be given in m. The parameter `wind` controls
-        which winds are used to evaluate the forcing, with these options:
-
-        - `("act", factor)`: The actual 2D-wind is used, scaled by the given
-          `factor`.
-        - `("zon", factor)`: The zonal-mean zonal wind is used, scaled by the
-          given `factor`. The meridional wind component is set to 0.
-        - `("sbr", maxval)`: A constant solid body rotation wind profile is
-          used with the given maximum wind speed at the equator. This can be
-          useful to define a constant orography-based wavemaker for simple
-          experiments.
-
-        If `fcor_ref` is `None` (default), the actual coriolis parameter values
-        are used to calculate the forcing, otherwise the given value (in 1/s)
-        is used in the calculation of the forcing.
-        """
         self._lons = lons
         self._lats = lats
         self._orography = orography
@@ -154,7 +165,14 @@ class Orography(RHS):
             raise ValueError("wind specification error")
 
     def orography(self, grid):
-        """The orography in m, interpolated to the given grid."""
+        """Interpolated orography.
+
+        Parameters:
+            grid (:py:class:`.Grid`): Interpolation target grid.
+
+        Returns:
+            Orography in m.
+        """
         # Interpolate given orography to grid. Because np.interp requires
         # increasing x-values, flip sign of lats which range from +90° to -90°.
         lat_interp = lambda x: np.interp(-grid.lats, -self._lats, x)
@@ -185,17 +203,22 @@ class Orography(RHS):
 
 
 class GaussianMountain(Orography):
-    """Gaussian-shaped pseudo-orography."""
+    """Gaussian-shaped pseudo-orography.
+
+    Parameters:
+        height (number): Height of the mountain in m.
+        center ((number, number)): Center (λ,φ) of the mountain in degrees.
+        stdev (number | (number, number)): Standard deviation in degrees,
+            either as single value for both directions, or a tuple of values
+            for different mountain widths in lon and lat.
+        orog_kwargs: Arguments given to the :py:class:`Orography` base class
+            constructor.
+
+    Returns:
+        Forcing term for Gaussian mountain.
+    """
 
     def __init__(self, height=1500, center=(30., 45.), stdev=(7.5, 20.), **orog_kwargs):
-        """Gaussian mountain for pseudo-orographic forcing.
-
-        The mountain is centered at the (lon, lat)-tuple `center` (in degrees)
-        and decays with zonal and meridional standard deviations given by the
-        tuple or value `stdev` (in degrees). `height` is the maximum height of
-        the mountain in m. Additional `orog_kwargs` are given to the
-        `Orography` base class.
-        """
         super().__init__(None, None, None, **orog_kwargs)
         # Mountain properties for orography method
         self._height = height
@@ -214,17 +237,22 @@ class GaussianMountain(Orography):
 
 
 class ZonalSineMountains(Orography):
-    """Sinusoidal pseudo-orography in the zonal direction."""
+    """Sinusoidal pseudo-orography in the zonal direction.
+
+    Parameters:
+        height (number): Peak height of the mountains in m.
+        center_lat (number): Central latitude of the mountain chain.
+        stdev_lat (number): Standard deviation governing the meridional extent
+            of the mountains in m.
+        wavenumber (int): Number of crest-valley-pairs in the zonal direction.
+        orog_kwargs: Arguments given to the :py:class:`Orography` base class
+            constructor.
+
+    Returns:
+        Forcing term for sinusoidal mountain-chain.
+    """
 
     def __init__(self, height=1500, center_lat=45., stdev_lat=10., wavenumber=4, **orog_kwargs):
-        """Sinusoidal mountain-chain for pseudo-orographic forcing.
-
-        The mountains are centered at latitude `center_lat` (in degrees) and
-        decay in meridional direction with a standard deviation of `stdev_lat`
-        (in degrees). `wavenumber` specifies the number of crest-valley pairs
-        in the zonal direction. `height` is the maximum height of the mountains
-        in m. Additional `orog_kwargs` are given to the `Orography` base class.
-        """
         super().__init__(None, None, None, **orog_kwargs)
         # Mountain chain properties for orography method
         self._height = height

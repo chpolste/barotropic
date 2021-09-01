@@ -1,21 +1,35 @@
-""" Preconfigured initial conditions and initial condition helpers.
-
-All functions take a `time` parameter which is given to the `State` constructor.
-"""
+"""Preconfigured initial conditions and initial condition helpers."""
 
 import numpy as np
 from .state import State
 
 
 def motionless(grid, time=0.):
-    """A motionless state."""
+    """A motionless state.
+
+    Parameters:
+        grid (:py:class:`.Grid`): Grid specification.
+        time (number | datetime): Valid time.
+
+    Returns:
+        New :py:class:`.State` instance.
+    """
     return State(grid, time, pv=grid.coriolis(grid.lat))
 
 
 def zonally_symmetric(grid, time=0., u=None, pv=None):
     """Turn a given zonal profile of zonal wind or PV into a full 2D-state.
+
+    Parameters:
+        grid (:py:class:`.Grid`): Grid specification.
+        time (number | datetime): Valid time.
+        u (array): Meridional profile of the zonal wind.
+        pv (array): Meridional profile of the potential vorticity.
+
+    Returns:
+        New :py:class:`.State` instance.
     
-    Either `u` or `pv` must be specified.
+    **u** xor **pv** must be specified.
     """
     # Zonal profile of zonal wind given
     if u is not None and pv is None:
@@ -36,8 +50,13 @@ def zonally_symmetric(grid, time=0., u=None, pv=None):
 def solid_body_rotation(grid, time=0., amplitude=15.):
     """A cosine-shaped, zonally-symmetric zonal wind profile.
     
-    The peak zonal wind speed at the equator is given by the `amplitude`
-    parameter in m/s.
+    Parameters:
+        grid (:py:class:`.Grid`): Grid specification.
+        time (number | datetime): Valid time.
+        amplitude (number): Peak zonal wind speed at the equator in m/s.
+    
+    Returns:
+        New :py:class:`.State` instance.
     """
     u = amplitude * np.cos(grid.phi)
     v = np.zeros_like(u)
@@ -47,9 +66,15 @@ def solid_body_rotation(grid, time=0., amplitude=15.):
 def gaussian_jet(grid, time=0., amplitude=20., center_lat=45., stdev_lat=5.):
     """A bell-shaped, zonally-symmetric zonal jet.
 
-    - `amplitude` is the peak zonal wind at the center of the jet.
-    - `center_lat` is the center of the jet in degrees latitude.
-    - `stdev_lat` is the standard deviation of the jet in degrees latitude.
+    Parameters:
+        grid (:py:class:`.Grid`): Grid specification.
+        time (number | datetime): Valid time.
+        amplitude (number): Peak zonal wind at the center of the jet in m/s.
+        center_lat (number): Center of the jet in degrees.
+        stdev_lat (number): Standard deviation of the jet in degrees.
+    
+    Returns:
+        New :py:class:`.State` instance.
 
     A linear wind profile in latitude is added to zero wind speeds at both
     poles.
@@ -66,6 +91,16 @@ def gaussian_jet(grid, time=0., amplitude=20., center_lat=45., stdev_lat=5.):
 
 def held_1985(grid, time=0., A=25., B=30., C=300.):
     """Zonal wind profile similar to that of the upper troposphere.
+
+    Parameters:
+        grid (:py:class:`.Grid`): Grid specification.
+        time (number | datetime): Valid time.
+        A (number): Coefficient for cos-term.
+        B (number): Coefficient for cos³-term.
+        C (number): Coefficient for cos⁶sin²-term.
+    
+    Returns:
+        New :py:class:`.State` instance.
 
     Introduced by Held (1985), also used by Held and Phillips (1987) and
     Ghinassi et al. (2018).
