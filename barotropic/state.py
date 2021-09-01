@@ -16,26 +16,26 @@ def _cached_property(f):
 
 class State:
     """Model field container for a barotropic atmosphere.
-    
+
+    Parameters:
+        grid (:py:class:`Grid`): Grid description for contained fields.
+        time (number | datetime): Valid time. Specify either a number in
+            seconds or a datetime-like object.
+        pv (None | array): Gridded field of potential vorticity (PV, absolute
+            vorticity in the barotropic framework).
+        pv_spectral (None | array): Spectral representation of potential
+            vorticity. Only specify if **pv** is ``None``.
+
+    Note:
+        There are alternative classmethod constructors of :py:class:`State` and
+        the :py:mod:`init` module also provides functions to create
+        :py:class:`State` objects for model initialization.
+
     Provides convenient access to fields, diagnostics and plots. Should
     generally be treated as an immutable object.
     """
 
     def __init__(self, grid, time, pv=None, pv_spectral=None):
-        """`barotropic.State` constructor.
-        
-        - `grid` is a `barotropic.Grid` instance.
-        - `time` is the valid time of the atmospheric state. To work properly
-          with the time integration routines, this should be either a number
-          representing seconds or a `datetime.datetime` instance.
-        - Either `pv` xor `pv_spectral` must be given. If `pv` (gridded) is
-          specified, it is converted to spectral representation first to ensure
-          that the field can be represented by the spherical harmonics. An
-          error is raised when both are given.
-
-        Also see the alternative static method constructors and
-        `barotropic.init`.
-        """
         self.grid = grid
         self.time = time
         # Always send PV field through spectral representation to ensure
@@ -55,9 +55,14 @@ class State:
     def from_wind(cls, grid, time, u, v):
         """Initialize a model state based on wind components.
         
-        This is an alternative constructor. `grid` and `time` are given to the
-        default constructor and the state is initialized with PV derived from
-        the given fields of wind components.
+        Parameters:
+            grid (:py:class:`Grid`): Given to the default constructor.
+            time (number | datetime): Given to the default constructor.
+            u (array): Zonal wind component for initialization.
+            v (array): Meridional wind component for initialization.
+
+        Returns:
+            New :py:class:`State` instance.
         """
         pv = grid.fcor + grid.vorticity(u, v)
         return cls(grid, time, pv=pv)
@@ -66,8 +71,13 @@ class State:
     def from_vorticity(cls, grid, time, vorticity):
         """Initialize a model state based on relative vorticity.
 
-        This is an alternative constructor. `grid` and `time` are given to the
-        default constructor.
+        Parameters:
+            grid (:py:class:`Grid`): Given to the default constructor.
+            time (number | datetime): Given to the default constructor.
+            vorticity (array): Relative vorticity field for initialization.
+
+        Returns:
+            New :py:class:`State` instance.
         """
         pv = grid.fcor + vorticity
         return cls(grid, time, pv=pv)
@@ -77,11 +87,13 @@ class State:
     def add_wind(self, other):
         """Wind-based addition of atmospheric states.
         
-        Combine this `barotropic.State` with `other` by adding their wind
-        fields component-wise. `other` can either be another `barotropic.State`
-        or a tuple containing the `u` and `v` component fields as arrays.
-        Returns a new `barotropic.State`. The `time` parameter is taken from
-        the object whose `add_wind` method is called.
+        Parameters:
+            other (tuple | :py:class:`State`): other wind field in the
+                addition. Specify directly as (u,v)-tuple or extracted from
+                a given :py:class:`State` object.
+
+        Returns:
+            New :py:class:`State` instance.
         """
         if isinstance(other, State):
             assert self.grid is other.grid
@@ -95,12 +107,14 @@ class State:
 
     def add_vorticity(self, other):
         """Relative vorticity-based addition of atmospheric states.
-        
-        Combine this `barotropic.State` with `other` by adding their relative
-        vorticity fields. `other` can either be another `barotropic.State` or
-        a vorticity field as an array. Returns a new `barotropic.State`. The
-        `time` parameter is taken from the object whose `add_vorticity` method
-        is called.
+
+        Parameters:
+            other (array | :py:class:`State`): other vorticity field in the
+                addition. Specify directly as array or extracted from
+                a given :py:class:`State` object.
+
+        Returns:
+            New :py:class:`State` instance.
         """
         if isinstance(other, State):
             assert self.grid is other.grid
@@ -157,7 +171,7 @@ class State:
 
     @property
     def pv_flux_spectral(self):
-        """PV flux in spectral space `[q*u, q*v]`."""
+        """PV flux in spectral space ``(q·u, q·v)``."""
         return self.grid.divergence_spectral(self.pv * self.u, self.pv * self.v)
 
     @property
@@ -171,7 +185,7 @@ class State:
 
     @property
     def enstrophy(self):
-        """Enstropy = `0.5 * q²` where `q` is PV."""
+        """Enstropy = ``0.5 * q²`` where ``q`` is PV."""
         return 0.5 * self.pv**2
 
     @property
@@ -188,9 +202,9 @@ class State:
 
     @_cached_property
     def pv_zonalized(self):
-        """Zonalized PV profile on the regular grid.
+        """Zonalized PV profile on the regular latitude grid.
         
-        See `barotropic.Grid.zonalize`.
+        See :py:meth:`Grid.zonalize`.
         """
         return self.grid.zonalize(self.pv, interpolate=self.grid.lats)[0]
 
@@ -198,7 +212,7 @@ class State:
     def fawa(self):
         """Finite-Amplitude Wave Activity on the regular grid.
         
-        See `barotropic.diagnostic.fawa`.
+        See :py:func:`diagnostic.fawa`.
         """
         # Instead of an extra computation with diagnostic.fawa, use that
         # FAWA is the zonal average of FALWA (Huang and Nakamura 2016)
@@ -208,7 +222,7 @@ class State:
     def falwa(self):
         """Finite-Amplitude Local Wave Activity on the regular grid.
         
-        See `barotropic.diagnostic.falwa`.
+        See :py:func:`diagnostic.falwa`.
         """
         return diagnostic.falwa(self, interpolate=self.grid.lats)[0]
 
@@ -220,9 +234,9 @@ class State:
         the meridional wind obtained from Fourier analysis at each latitude as
         in Ghinassi et al. (2020).
         
-        See `barotropic.diagnostic.falwa`,
-        `barotropic.diagnostic.dominant_wavenumber_fourier` and
-        `barotropic.diagnostic.filter_by_wavenumber`.
+        See :py:func:`diagnostic.falwa`,
+        :py:func:`diagnostic.dominant_wavenumber_fourier` and
+        :py:func:`diagnostic.filter_by_wavenumber`.
         """
         dominant_wavenumber = diagnostic.dominant_wavenumber_fourier(self.v, self.grid)
         return diagnostic.filter_by_wavenumber(self.falwa, 2*dominant_wavenumber)
@@ -231,34 +245,35 @@ class State:
     def falwa_hn2016(self):
         """Finite-Amplitude Local Wave Activity on the regular grid.
         
-        See `barotropic.diagnostic.falwa_hn2016`.
+        See :py:func:`diagnostic.falwa_hn2016`.
         """
+        # TODO remove, replace with constructor for hn2016 barotropic objects
         return diagnostic.falwa_hn2016(self, normalize_icos=True)
 
     @property
     def v_envelope_hilbert(self):
         """Envelope of wave packets based on the Hilbert transform.
 
-        See `barotropic.diagnostic.envelope_hilbert`.
+        See :py:func:`diagnostic.envelope_hilbert`.
         """
         return diagnostic.envelope_hilbert(self.v, (2, 10))
 
     @property
     def stationary_wavenumber(self):
-        """Non-dimensionalised stationary (zonal) wavenumber (`Ks`, complex).
+        """Non-dimensionalised stationary (zonal) wavenumber (``Ks``, complex).
 
-        See `barotropic.diagnostic.stationary_wavenumber`.
+        See :py:func:`diagnostic.stationary_wavenumber`.
         """
         return diagnostic.stationary_wavenumber(self)
 
     def extract_waveguides(self, *args, **kwargs):
-        """Shortcut to `barotropic.diagnostic.extract_waveguides`."""
+        """Shortcut to :py:func:`diagnostic.extract_waveguides`."""
         return diagnostic.extract_waveguides(self, *args, **kwargs)
 
     # Shortcut to model integration
 
     def run(self, model, *args, **kwargs):
-        """Shortcut to `barotropic.BarotropicModel.run`"""
+        """Shortcut to :py:meth:`BarotropicModel.run`"""
         return model.run(self, *args, **kwargs)
 
     # Shortcuts to plotting. Do not return figures here, so user does not have
@@ -266,19 +281,20 @@ class State:
 
     @property
     def plot(self):
-        """Interface to plot presets from `barotropic.plot` for interactive use.
+        """Interface to plot presets from :py:mod:`plot` for interactive use.
 
         Provides shortcuts to:
 
-        - `barotropic.plot.rwp_diagnostic`
-        - `barotropic.plot.summary`
-        - `barotropic.plot.wave_activity`
-        - `barotropic.plot.waveguides`
+        - :py:func:`plot.rwp_diagnostic`
+        - :py:func:`plot.summary`
+        - :py:func:`plot.wave_activity`
+        - :py:func:`plot.waveguides`
 
-        Call like `state.plot.preset(...)`, where `preset` is the plot preset
-        you want to see. The plotters accessed through this interface do not
-        return the created `Figure` instance, which avoids that the created
-        image is displayed twice in the output of a jupyter notebook cell.
+        Plotters accessed through this interface do not return the **Figure**
+        instance like their standalone versions from :py:mod:`plot`, which
+        means that the created image is not displayed twice in the output of
+        a jupyter notebook cell (once captured from within matplotlib and once
+        as the returned object of the cell).
         """
         return StatePlotter(self)
 
