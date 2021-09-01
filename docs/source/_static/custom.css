@@ -17,13 +17,6 @@ div.sphinxsidebar a.current {
 div#searchbox {
     margin-bottom: 10px;
 }
-dt.sig {
-    text-indent: -30px;
-    margin-left: 30px;
-}
-dd > :first-child {
-    margin-top: revert;
-}
 
 body,
 div.related,
