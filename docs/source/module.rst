@@ -13,10 +13,6 @@ Grid
 State
 -----
 
-.. note::
-    The :py:mod:`barotropic.init` module provides functions to create
-    :py:class:`State` objects for model inititalization.
-
 .. autoclass:: barotropic.State
 
 

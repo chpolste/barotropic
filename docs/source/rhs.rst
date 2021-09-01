@@ -1,13 +1,9 @@
 Forcing Terms
 =============
 
-TODO
-
 
 Base Class Operations
 ---------------------
-
-TODO
 
 .. autoclass:: barotropic.rhs.RHS
     :undoc-members:
@@ -17,15 +13,11 @@ TODO
 Relaxation
 ----------
 
-TODO
-
 .. autoclass:: barotropic.rhs.LinearRelaxation
 
 
 Orographic Forcing
 ------------------
-
-TODO
 
 .. autoclass:: barotropic.rhs.GaussianMountain
 .. autoclass:: barotropic.rhs.ZonalSineMountains
@@ -35,10 +27,9 @@ TODO
 .. autoclass:: barotropic.rhs.Orography
 
 
-Switches
---------
+Other
+-----
 
-TODO
-
-.. autoclass:: barotropic.rhs.TimedOffSwitch
+.. automodule:: barotropic.rhs
+    :exclude-members: RHS, LinearRelaxation, GaussianMountain, ZonalSineMountains, Orography
 

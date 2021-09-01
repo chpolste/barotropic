@@ -49,7 +49,7 @@ class BarotropicModel:
             save_every (number): If larger than zero, an intermediate state is
                 saved and returned in the list of states every time this time
                 interval is exceeded. Does not work for datetime/timedelta
-                **dt**s currently.
+                **dt** currently.
 
         Returns:
             Tuple containing the final state and a list of all saved

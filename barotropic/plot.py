@@ -1,12 +1,3 @@
-"""Plot presets and plotting helper functions.
-
-Plotting requires `matplotlib`. If `matplotlib` is not available, a warning
-will be emitted on import but some of the helper functions will still work.
-
-All plot presets are also accessible for interactive use as methods of the
-`barotropic.State.plot` interface.
-"""
-
 from functools import partial
 from numbers import Number
 import warnings
@@ -26,13 +17,16 @@ except ImportError:
 def reduce_vectors(x, y, u, v, ny):
     """Reduce the density of points in the inputs by slicing.
 
-    Use to slice a vector field with components `u` and `v` components and the
-    corresponding coordinates `x` and `y` consistently, e.g. to reduce the
-    number of arrows shown in a quiver plot. `ny` controls how many points are
-    (approximately) kept in the y-dimension. The x-dimension is sliced with the
-    same stride.
+    Parameters:
+        x (array): Coordinates of x-dimension.
+        y (array): Coordinates of y-dimension.
+        u (array): Input vector field x-component.
+        v (array): Input vector field y-component.
+        ny (number): How many points are (approximately) kept in y-dimension.
+            The x-dimension is sliced with the same stride.
 
-    Returns the reduced `x`, `y`, `u` and `v` in a tuple.
+    Returns:
+        Tuple consisting of reduced **x**, **y**, **u** and **v**.
     """
     spacing = max(y.shape[_MERIDIONAL] // ny, 1)
     slicer = slice(spacing // 2, None, spacing), slice(spacing // 2, None, spacing)
@@ -40,17 +34,19 @@ def reduce_vectors(x, y, u, v, ny):
 
 
 def hovmoellerify(states, f):
-    """Prepare `states` for plotting as a Hovmöller diagram.
+    """Prepare data for plotting as a Hovmöller diagram.
 
-    - `states` is a list of `State` objects, which should be ordered
-      chronologically
-    - `f` is a function that is applied to each `State` in `states` and should
-      return either a latitudinal or longitudinal 1D cross-section.
+    Parameters:
+        states (list of :py:class:`.State`): Input states, ordered
+            chronologically.
+        f (callable): Function applied to each :py:class`.State` in **states**,
+            should return either a zonal or meridional 1D profile.
 
-    Returns a tuple containing x-coordinates, y-coordinates and the Hovmöller
-    field. If `f` returns a latitudinal cross-section (determined by the length
-    of the vector), time is on the x-axis and latitude on the y-axis. Otherwise
-    time is on the y-axis and longitude on the x-axis.
+    Returns:
+        Tuple containing x-coordinates, y-coordinates and the Hovmöller field.
+        If **f** returns a meridional cross-section (determined by the length
+        of the vector), time is on the x-axis and latitude on the y-axis.
+        Otherwise time is on the y-axis and longitude on the x-axis.
     """
     if len(states) == 0:
         raise ValueError("no states given")
@@ -66,10 +62,16 @@ def hovmoellerify(states, f):
 
 def roll_lons(lons, center=180):
     """Center 2D fields around the given meridian.
-    
-    Returns a roll function that should be applied to 2D fields before plotting
-    and a `configure_lon_x` function set up to label the longitudes axis
-    correctly when using the unmodified lons from the grid during plotting.
+
+    Parameters:
+        lons (array): Longitude coordinates in degrees.
+        center (number): The new center longitude in degrees.
+
+    Returns:
+        Tuple containing a roll function that should be applied to 2D fields
+        before plotting and a :py:func:`configure_lon_x` function set up to
+        label the zonal axis correctly when using the unmodified lons from the
+        grid during plotting.
     """
     center = center % 360
     cur_mid = lons.size // 2
@@ -81,9 +83,15 @@ def roll_lons(lons, center=180):
 # Plot styling
 
 def symmetric_levels(x, n=10, ext=None):
-    """Generate `n` contour levels for field `x` that are symmetric around 0.
-    
-    `ext` is an override for the absolute value of the outermost levels.
+    """Generate contour levels symmetric around 0.
+
+    Parameters:
+        x (array): Input field for which contours are generated.
+        n (int): Number of contour levels.
+        ext (number): Override for the absolute value of the outermost levels.
+
+    Returns:
+        Array of linearly spaced contour values.
     """
     if ext is None:
         ext = max(abs(np.min(x)), abs(np.max(x)))
@@ -93,14 +101,25 @@ def symmetric_levels(x, n=10, ext=None):
 
 
 def configure_lon_x(ax, offset=0):
-    """Set up the x-axis ticks of `ax` to display longitude."""
+    """Set up the x-axis ticks to display longitude.
+
+    Parameters:
+        ax (Axes): Axes to configure.
+        offset (number): Offset applied to longitudes before label generation.
+    """
     #ax.xaxis.set_major_formatter(mpl_ticker.StrMethodFormatter("{x:.0f}°"))
     ax.set_xticks(np.arange(0, 360, 30))
     ax.set_xticklabels(["{:.0f}°".format((x - offset) % 360) for x in ax.get_xticks()])
 
 
 def configure_lat_y(ax, hemisphere):
-    """Set up the y-axis ticks of `ax` to display latitude."""
+    """Set up the y-axis ticks to display longitude.
+
+    Parameters:
+        ax (Axes): Axes to configure.
+        hemisphere (any | "N" | "S"): If `"N"` or `"S"`, show Northern or
+            Southern hemisphere only. Otherwise show full globe.
+    """
     ax.yaxis.set_major_formatter(mpl_ticker.StrMethodFormatter("{x:.0f}°"))
     ax.set_ylim(0 if hemisphere == "N" else -90, 0 if hemisphere == "S" else 90)
 
@@ -110,7 +129,25 @@ def configure_lat_y(ax, hemisphere):
 
 def summary(state, figsize=(11, 7), hemisphere="both", center_lon=180, pv_cmap="viridis",
         pv_max=None, v_max=None):
-    """4-panel plot showing the model state in terms of vorticity and wind."""
+    """4-panel plot showing the model state in terms of vorticity and wind.
+    
+    Parameters:
+        state (:py:class:`.State`): Visualized state.
+        figsize ((number, number)): Figure size.
+        hemisphere ("both" | "N" | "S"): Which hemisphere(s) to show.
+        center_lon (number): Longitude at center of maps.
+        pv_cmap (str): Name of colormap for PV.
+        pv_max (number): Override for maximum of PV colorbar.
+        v_max (number): Override for maximum of meridional wind colorbar.
+
+    Returns:
+        Figure instance.
+
+    Example plot with default configuration:
+
+    .. image::
+       examples/example-summary-plot.png
+    """
     grid = state.grid
     roll, configure_lon_x = roll_lons(grid.lons, center_lon)
     # Scale PV to 10e-4 1/s
@@ -169,7 +206,18 @@ def summary(state, figsize=(11, 7), hemisphere="both", center_lon=180, pv_cmap="
 
 
 def wave_activity(state, figsize=(11, 7), hemisphere="both", center_lon=180, falwa_cmap="YlOrRd"):
-    """4-panel plot with Finite-Amplitude Wave Activity and PV diagnostics."""
+    """4-panel plot with Finite-Amplitude Wave Activity and PV diagnostics.
+    
+    Parameters:
+        state (:py:class:`.State`): Visualized state.
+        figsize ((number, number)): Figure size.
+        hemisphere ("both" | "N" | "S"): Which hemisphere(s) to show.
+        center_lon (number): Longitude at center of maps.
+        falwa_cmap (str): Name of colormap for FALWA.
+
+    Returns:
+        Figure instance.
+    """
     grid = state.grid
     roll, configure_lon_x = roll_lons(grid.lons, center_lon)
     # Scale PV to 10e-4 1/s
@@ -218,7 +266,20 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", center_lon=180, fal
 
 def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, v_max=None,
         rwp_max=None, rwp_cmap="YlOrRd"):
-    """3-panel plot with Rossby wave packet diagnostics."""
+    """3-panel plot with Rossby wave packet diagnostics.
+    
+    Parameters:
+        state (:py:class:`.State`): Visualized state.
+        figsize ((number, number)): Figure size.
+        hemisphere ("both" | "N" | "S"): Which hemisphere(s) to show.
+        center_lon (number): Longitude at center of maps.
+        v_max (number): Override for maximum of meridional wind colorbar.
+        rwp_max (number): Override for maximum of RWP colorbar.
+        rwp_cmap (str): Name of colormap for RWP.
+
+    Returns:
+        Figure instance.
+    """
     grid = state.grid
     roll, configure_lon_x = roll_lons(grid.lons, center_lon)
     # Plot 3 panels in 1 column
@@ -264,9 +325,21 @@ def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, 
     return fig
 
 
-def waveguides(state, k_waveguides=None, hemisphere="both", xlim_bounds=(-5, 15),
+def waveguides(state, k_waveguides=None, hemisphere="both", klim_bounds=(-5, 15),
         legend_loc=None):
-    """2-panel plot showing stationary wavenumber and WKB waveguide diagnostics."""
+    """2-panel plot showing stationary wavenumber and WKB waveguide diagnostics.
+    
+    Parameters:
+        state (:py:class:`.State`): Visualized state.
+        k_waveguides (None | number | iterable): Wavenumber(s) for which
+            waveguides are highlighted.
+        hemisphere ("both" | "N" | "S"): Which hemisphere(s) to show.
+        klim_bounds ((number, number)): Bounds for wavenumber axis (x-axis).
+        legend_loc (str): Where the legend is positioned.
+
+    Returns:
+        Figure instance.
+    """
     grid = state.grid
     # 2-Panel plot
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
@@ -296,8 +369,8 @@ def waveguides(state, k_waveguides=None, hemisphere="both", xlim_bounds=(-5, 15)
     ax2.plot(np.real(ks) - np.imag(ks), grid.lats, color="#000000")
     # Keep wavenumber limits in given bounds
     xmin, xmax = ax2.get_xlim()
-    xmin = max(xlim_bounds[0], xmin)
-    xmax = min(xlim_bounds[1], xmax)
+    xmin = max(klim_bounds[0], xmin)
+    xmax = min(klim_bounds[1], xmax)
     ax2.set_xlim((xmin, xmax))
     # Make sure wavenumber ticks are integers
     xmin = np.ceil(xmin)

@@ -1,5 +1,3 @@
-"""Predefined RHS forcing terms."""
-
 import functools
 import numbers
 import numpy as np
@@ -80,9 +78,6 @@ class LinearRelaxation(RHS):
         rate (number): Relaxation rate in 1/s.
         reference_pv (array): PV field that is relaxed toward.
         mask (array): Does nothing at the moment.
-
-    Returns:
-        Forcing term
 
     Implements **rate** * (**reference_pv** - pv).
     """
@@ -213,9 +208,6 @@ class GaussianMountain(Orography):
             for different mountain widths in lon and lat.
         orog_kwargs: Arguments given to the :py:class:`Orography` base class
             constructor.
-
-    Returns:
-        Forcing term for Gaussian mountain.
     """
 
     def __init__(self, height=1500, center=(30., 45.), stdev=(7.5, 20.), **orog_kwargs):
@@ -247,9 +239,6 @@ class ZonalSineMountains(Orography):
         wavenumber (int): Number of crest-valley-pairs in the zonal direction.
         orog_kwargs: Arguments given to the :py:class:`Orography` base class
             constructor.
-
-    Returns:
-        Forcing term for sinusoidal mountain-chain.
     """
 
     def __init__(self, height=1500, center_lat=45., stdev_lat=10., wavenumber=4, **orog_kwargs):

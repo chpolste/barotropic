@@ -1,5 +1,3 @@
-"""Diagnostic fields for the barotropic model."""
-
 import numpy as np
 from .constants import ZONAL as _ZONAL, MERIDIONAL as _MERIDIONAL
 # To reduce non-optional dependencies, some required packages are imported in
