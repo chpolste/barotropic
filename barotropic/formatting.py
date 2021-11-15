@@ -36,6 +36,7 @@ def grid_repr(grid):
         "    resolution   = {}°".format(grid.dlon),
         "    rsphere      = {} m".format(grid.rsphere),
         "    omega        = {} s⁻¹".format(grid.omega),
+        "    ntrunc       = {}".format(grid._ntrunc),
         "    legfunc      = {}".format(grid._spharm.legfunc)
     ])
 

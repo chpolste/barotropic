@@ -80,6 +80,17 @@ class Grid:
     def __repr__(self):
         return formatting.grid_repr(self)
 
+    def __eq__(self, other):
+        return (
+            self.shape == other.shape
+            and np.isclose(self.rsphere, other.rsphere)
+            and np.isclose(self.omega, other.omega)
+            and self._ntrunc == other._ntrunc
+        )
+
+    def __hash__(self):
+        return hash((self.shape, self.rsphere, self.omega, self._ntrunc))
+
     @property
     def shape(self):
         """Tuple of grid dimensions (:py:attr:`nlat`, :py:attr:`nlon`)."""
