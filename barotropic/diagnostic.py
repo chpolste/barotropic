@@ -105,7 +105,7 @@ def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
             not do it by default for the barotropic framework.
 
     Returns:
-        FALWA on the regular latitude/longitude grid.
+        FALWA on the regular lon-lat grid.
 
     Uses the implementation of https://github.com/csyhuang/hn2016_falwa.
     """
@@ -153,7 +153,7 @@ def dominant_wavenumber_fourier(field, grid, smooth=("boxcar", 10), wavenumber_r
     return k_dom if smooth is None else grid.filter_meridional(k_dom, *smooth)
 
 
-def dominant_wavenumber_wavelet(field, grid, smooth=("hann", 10, 40)):
+def dominant_wavenumber_wavelet(field, grid, smooth=("hann", 40, 10)):
     """Dominant zonal wavenumber based on Wavelet Analysis.
 
     Parameters:
@@ -161,7 +161,7 @@ def dominant_wavenumber_wavelet(field, grid, smooth=("hann", 10, 40)):
         grid (:py:class:`.Grid`): Grid associated with input field.
         smooth (None | tuple): The smoothing applied to the dominant wavenumber
             field. Set to `None` if no smoothing is desired. Otherwise provide
-            a 3-tuple `(window, width_lat, width_lon)` used as input to
+            a 3-tuple `(window, width_lon, width_lat)` used as input to
             :py:meth:`.Grid.filter_meridional` and :py:meth:`.Grid.filter_zonal`.
 
     Returns:
@@ -195,7 +195,7 @@ def dominant_wavenumber_wavelet(field, grid, smooth=("hann", 10, 40)):
     k_dom = wavenum[np.argmax(power, axis=0)]
     # Apply smoothing if desired
     if smooth is not None:
-        window, wlat, wlon = smooth
+        window, wlon, wlat = smooth
         k_dom = grid.filter_meridional(k_dom, window, wlat)
         k_dom = grid.filter_zonal(k_dom, window, wlon)
     return k_dom
@@ -225,7 +225,7 @@ def filter_by_wavenumber(field, wavenumber):
     from scipy import signal
     nlon = field.shape[_ZONAL]
     # If the wavenumber field is provided as a function of latitude only,
-    # extend it to a lat-lon-dependent 2D field
+    # extend it to a lon-lat-dependent 2D field
     if wavenumber.ndim == 1:
         assert wavenumber.shape[0] == field.shape[0], "1-dimensional input for wavenumber must be nlat-sized"
         wavenumber = np.repeat(wavenumber, nlon).reshape(field.shape)

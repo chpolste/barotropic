@@ -6,7 +6,7 @@ from .constants import EARTH_RADIUS, EARTH_OMEGA
 
 
 class Grid:
-    """Regular lat-lon grid and operations for a spherical planet.
+    """Regular lon-lat grid and operations for a spherical planet.
 
     Note:
         Latitudes start at the North Pole, as is convention in
@@ -122,7 +122,11 @@ class Grid:
 
     @property
     def region(self):
-        """Region extractor with indexing syntax."""
+        """Region extractor with indexing syntax.
+
+        .. note::
+            Coordinate order is [lon,lat]. This is inverted compared to indexing into the arrays.
+        """
         return GridRegionIndexer(self)
 
     # Spectral-grid transforms
@@ -357,7 +361,7 @@ class Grid:
     def gridpoint_area(self):
         """Surface area of each gridpoint as a function of latitude.
         
-        The area associated with a gridpoint (λ, φ) in a regular lat-lon grid::
+        The area associated with a gridpoint (λ, φ) in a regular lon-lat grid::
 
             r² * dλ * ( sin(φ + dφ) - sin(φ - dφ) )
         """
@@ -683,7 +687,7 @@ class GridRegionIndexer:
         self._grid = grid
 
     def __getitem__(self, selection):
-        # Non-tuple selections apply to latitude only
+        # Non-tuple selections apply to longitude only
         if not isinstance(selection, tuple):
             selection = selection, slice(None, None)
         # Selecting a 2-dimensional region
@@ -691,8 +695,9 @@ class GridRegionIndexer:
             raise IndexError("too many dimensions in region selection")
         # Compute the indices that extract the selected region in each
         # dimension (only rectangular, axis-aligned regions possible)
-        lat_indices = self._get_lat_indices(selection[0])
-        lon_indices = self._get_lon_indices(selection[1])
+        lon_indices = self._get_lon_indices(selection[0])
+        lat_indices = self._get_lat_indices(selection[1])
+        # Now in index world, axes order is flipped there (lat first)
         return GridRegion(self._grid, lat_indices, lon_indices)
 
     def _get_lat_indices(self, slc):

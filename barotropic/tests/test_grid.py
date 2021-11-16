@@ -57,7 +57,7 @@ class TestGrid:
         assert np.allclose(grid.mean(field, axis="zonal"), np.ones(grid.nlat))
         assert np.allclose(grid.mean(field, axis="meridional"), np.ones(grid.nlon))
         # Test region sizes
-        region = grid.region[-30:70,30:280]
+        region = grid.region[30:280,-30:70]
         assert grid.mean(field, region=region).size == 1
         assert grid.mean(field, region=region, axis="zonal").shape == (region.shape[0],)
         assert grid.mean(field, region=region, axis="meridional").shape == (region.shape[1],)
@@ -82,9 +82,9 @@ class TestGrid:
         assert np.isclose(grid.mean(field), 0.5)
         assert np.allclose(grid.mean(field, axis="zonal"), ([1.] * halflat) + [0.5] + ([0.] * halflat))
         assert np.allclose(grid.mean(field, axis="meridional"), 0.5)
-        assert np.allclose(grid.mean(field, region=grid.region[20:,:]), 1.) # Northern region
-        assert np.allclose(grid.mean(field, region=grid.region[-1:1,:]), 0.5) # Equator region
-        assert np.allclose(grid.mean(field, region=grid.region[:-40,10:260]), 0.) # Southern region
+        assert np.allclose(grid.mean(field, region=grid.region[:,20:]), 1.) # Northern region
+        assert np.allclose(grid.mean(field, region=grid.region[:,-1:1]), 0.5) # Equator region
+        assert np.allclose(grid.mean(field, region=grid.region[10:260,:-40]), 0.) # Southern region
 
 
 class TestGridFiltering:
@@ -131,7 +131,7 @@ class TestGridRegion:
     @pytest.mark.parametrize("lo,hi", [(30, 60), (60, 30)])
     def test_latitude(self, lo, hi):
         grid = Grid(resolution=10.)
-        region = grid.region[lo:hi]
+        region = grid.region[:,lo:hi]
         assert region.shape == (4, 36)
         assert np.allclose(region.lats, [60., 50., 40., 30.])
         assert np.allclose(region.lons, grid.lons)
@@ -143,7 +143,7 @@ class TestGridRegion:
 
     def test_longitude1(self):
         grid = Grid(resolution=10.)
-        region = grid.region[:,265:]
+        region = grid.region[265:,:]
         assert region.shape == (19, 9)
         assert np.allclose(region.lats, grid.lats)
         assert np.allclose(region.lons, [270, 280, 290, 300, 310, 320, 330, 340, 350])
@@ -155,7 +155,7 @@ class TestGridRegion:
 
     def test_longitude2(self):
         grid = Grid(resolution=10.)
-        region = grid.region[:,310:40]
+        region = grid.region[310:40,:]
         assert region.shape == (19, 10)
         assert np.allclose(region.lats, grid.lats)
         assert np.allclose(region.lons, [310, 320, 330, 340, 350, 0, 10, 20, 30, 40])
@@ -165,7 +165,7 @@ class TestGridRegion:
 
     def test_combined(self):
         grid = Grid(resolution=10.)
-        region = grid.region[:-50,20:50]
+        region = grid.region[20:50,:-50]
         assert region.shape == (5, 4)
         assert np.allclose(region.lats, [-50, -60, -70, -80, -90])
         assert np.allclose(region.lons, [20, 30, 40, 50])
@@ -175,7 +175,7 @@ class TestGridRegion:
 
     def test_single(self):
         grid = Grid(resolution=10.)
-        region = grid.region[40:40,80:80]
+        region = grid.region[80:80,40:40]
         assert region.shape == (1, 1)
         assert np.allclose(region.lats, [40])
         assert np.allclose(region.lons, [80])
@@ -183,7 +183,7 @@ class TestGridRegion:
 
     def test_empty(self):
         grid = Grid(resolution=10.)
-        region = grid.region[-200:-300,500:-200]
+        region = grid.region[500:-200,-200:-300]
         assert region.shape == (0, 0)
         assert region.lats.size == 0
         assert region.lons.size == 0

@@ -105,7 +105,7 @@ class Orography(RHS):
     Parameters:
         lons (array): Longitudes of orography grid.
         lats (array): Latitudes of orography grid.
-        orography (array): Height of the orography in m on the lat-lon grid
+        orography (array): Height of the orography in m on the lon-lat grid
             defined by **lons** and **lats**.
         scale_height (number): Scale height in m.
         wind ((str, number)): Wind used to evaluate the
@@ -132,7 +132,7 @@ class Orography(RHS):
     the horizontal wind and ``h`` is the height of the orography.
 
     This is class only supports time-invariant fields of orography. The height
-    field must be given on a lat-lon grid. The orography is linearly
+    field must be given on a lon-lat grid. The orography is linearly
     interpolated to the required grid when the forcing is evaluated by the
     model. **lons** and **orography** should be prepared such that the 0°
     column exists at both 0° and 360° to ensure that the interpolation does not

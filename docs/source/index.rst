@@ -66,7 +66,7 @@ Jupyter notebooks utilizing :py:mod:`barotropic`:
 Tips
 ====
 
-.. note::
-    Consider using the module-level ``ZONAL`` and ``MERIDIONAL`` constants as
-    convenient and readable accessors for the grid dimensions.
+- Functions with arguments that represent longitude and latitude (coordinates, etc.) will require them in this order (lon, lat), following the order used e.g. in plotting contexts or vector components (e.g. [X°N, Y°E] or [u, v]).
+  Note that this is order is the reverse of the axis order in the underlying arrays, where latitude comes before longitude.
+- Consider using the module-level **ZONAL** and **MERIDIONAL** constants as convenient and readable accessors for the grid dimensions when operating on arrays.
 
