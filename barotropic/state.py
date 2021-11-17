@@ -206,7 +206,7 @@ class State:
         
         See :py:meth:`Grid.zonalize`.
         """
-        return self.grid.zonalize(self.pv, interpolate=self.grid.lats)[0]
+        return self.grid.zonalize(self.pv, interpolate=True)
 
     @property
     def fawa(self):
@@ -224,7 +224,7 @@ class State:
         
         See :py:func:`diagnostic.falwa`.
         """
-        return diagnostic.falwa(self, interpolate=self.grid.lats)[0]
+        return diagnostic.falwa(self, interpolate=True)
 
     @property
     def falwa_filtered(self):

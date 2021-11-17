@@ -29,7 +29,7 @@ def _restrict_fourier_zonal(field, kmin, kmax):
     return np.fft.irfft(xfft, axis=_ZONAL)
 
 
-def fawa(pv_or_state, grid=None, levels=None, interpolate=None):
+def fawa(pv_or_state, grid=None, levels=None, interpolate=True):
     """Finite-Amplitude Wave Activity according to Nakamura and Zhu (2010).
 
     Parameters:
@@ -37,30 +37,34 @@ def fawa(pv_or_state, grid=None, levels=None, interpolate=None):
         grid (None | :py:class:`.Grid`): Grid information only required if
             `pv_or_state` is not a :py:class:`.State`.
         levels (None | array | int): Parameter of :py:meth:`.Grid.zonalize`.
-        interpolate (None | array): If `None`, FALWA is returned on the
-            equivalent latitudes obtained from the zonalization procedure. If
-            given, FALWA is interpolated to a specific set of latitudes.
+        interpolate (bool): Interpolate output onto the regular latitudes of
+            the grid. If `False`, FAWA is returned on the equivalent latitudes
+            obtained from the zonalization procedure. These may be irregular
+            and unordered.
 
     Returns:
-        Tuple containing FAWA and its latitude coordinates.
+        If **interpolate** is `True`, return FAWA interpolated onto the
+        regular latitudes as an array. Otherwise, return a tuple of FAWA and
+        the associated equivalent latitudes (both arrays).
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
-    qq, yy = grid.zonalize(pv, levels=levels, interpolate=None, quad="sptrapz")
+    qq, yy = grid.zonalize(pv, levels=levels, interpolate=False, quad="sptrapz")
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
     q_int = np.vectorize(lambda q: grid.quad_sptrapz(pv, pv - q))
     y_int = np.vectorize(lambda y: grid.quad_sptrapz(pv, grid.lat - y))
     # Normalize by zonal circumference at each latitude
     fawa = (q_int(qq) - y_int(yy)) / grid.circumference(yy)
-    # Interpolate to a given set of latitudes if specified
-    if interpolate is not None:
-        fawa = np.interp(interpolate, yy, fawa, left=0, right=0)
-        yy = interpolate
-    return fawa, yy
+    # No interpolation: return contour values on equivalent latitudes from
+    # zonalization and return the latitudes as well for reference
+    if not interpolate:
+        return fawa, yy
+    # When interpolated, only return FAWA
+    return grid.interpolate_meridional(fawa, yy, pole_values=(0., 0.))
 
 
-def falwa(pv_or_state, grid=None, levels=None, interpolate=None):
+def falwa(pv_or_state, grid=None, levels=None, interpolate=True):
     """Finite-Amplitude Local Wave Activity according to Huang and Nakamura (2016).
 
     Parameters:
@@ -68,16 +72,19 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=None):
         grid (None | :py:class:`.Grid`): Grid information only required if
             `pv_or_state` is not a :py:class:`.State`.
         levels (None | array | int): Parameter of :py:meth:`.Grid.zonalize`.
-        interpolate (None | array): If `None`, FALWA is returned on the
-            equivalent latitudes obtained from the zonalization procedure. If
-            given, FALWA is interpolated to a specific set of latitudes.
+        interpolate (bool): Interpolate output onto the regular latitudes of
+            the grid. If `False`, FALWA is returned on the equivalent latitudes
+            obtained from the zonalization procedure. These may be irregular
+            and unordered.
 
     Returns:
-        Tuple containing FALWA and its latitude coordinates.
+        If **interpolate** is `True`, return FALWA interpolated onto the
+        regular latitudes as an array. Otherwise, return a tuple of FALWA and
+        the associated equivalent latitudes (both arrays).
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
-    qq, yy = grid.zonalize(pv, levels=levels, quad="sptrapz")
+    qq, yy = grid.zonalize(pv, levels=levels, interpolate=False, quad="sptrapz")
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
     q_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, pv - q), 2, 1)
@@ -85,12 +92,12 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=None):
     # Stack meridional integrals (normalized by cosine of latitude) along zonal
     # direction to obtain full field again
     falwa = np.stack((q_int(qq, yy) - y_int(qq, yy)) / np.cos(np.deg2rad(yy)))
-    # Interpolate to a given set of latitudes if specified
-    if interpolate is not None:
-        interp = lambda _: np.interp(interpolate, yy, _, right=0., left=0.)
-        falwa = np.apply_along_axis(interp, _MERIDIONAL, falwa)
-        yy = interpolate
-    return falwa, yy
+    # No interpolation: return contour values on equivalent latitudes from
+    # zonalization and return the latitudes as well for reference
+    if not interpolate:
+        return falwa, yy
+    # When interpolated, only return FALWA
+    return grid.interpolate_meridional(falwa, yy, pole_values=(0., 0.))
 
 
 def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):

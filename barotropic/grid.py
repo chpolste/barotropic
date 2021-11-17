@@ -1,10 +1,11 @@
 from numbers import Number
 import numpy as np
+import scipy.interpolate
 import scipy.signal
 import scipy.ndimage
 import spharm
 from . import formatting
-from .constants import EARTH_RADIUS, EARTH_OMEGA
+from .constants import EARTH_RADIUS, EARTH_OMEGA, MERIDIONAL
 
 
 class Grid:
@@ -534,7 +535,7 @@ class Grid:
         # Equivalent latitude in degrees
         return np.rad2deg(np.arcsin(sine))
 
-    def zonalize(self, field, levels=None, interpolate=None, quad="sptrapz"):
+    def zonalize(self, field, levels=None, interpolate=True, quad="sptrapz"):
         """Zonalize the field with equivalent latitude coordinates.
 
         Parameters:
@@ -545,10 +546,10 @@ class Grid:
                 is sampled between the maximum and minimum values in the input
                 field automatically. By default, the number of levels is set
                 equal to the number of latitudes resolved by the grid.
-            interpolate (None | array): Output latitude grid (in degrees). If
-                not ``None``, the zonalized contour values are interpolated to
-                these latitudes linearly. Otherwise contours are given on the
-                equivalent latitudes that arise in the computation.
+            interpolate (bool): Interpolate output onto regular latitudes of
+                grid. Without interpolation, values are returned on the
+                equivalent latitudes that arise in the computation. These may
+                be irregular and unordered.
             quad ("sptrapz" | "boxcount"): Quadrature rule used in the surface
                 integrals of the computation. See :py:meth:`quad_sptrapz` and
                 :py:meth:`quad_boxcount`. It is highly recommended to use the
@@ -556,7 +557,10 @@ class Grid:
                 the "jumpiness" associated with the boxcounting scheme.
 
         Returns:
-            Tuple of contour values and associated equivalent latitudes.
+            If **interpolate** is `True`, return the contour values
+            interpolated onto the regular latitudes as an array. Otherwise,
+            return a tuple of contour values and associated equivalent
+            latitudes (both arrays).
 
         Implements the zonalization procedure of Nakamura and Zhu (2010).
         """
@@ -591,11 +595,47 @@ class Grid:
         area = np.vectorize(area_int)(q)
         # Calculate equivalent latitude associated with contour areas
         y = self.equivalent_latitude(area)
-        # If desired, interpolate values onto the given latitudes
-        if interpolate is not None:
-            q = np.interp(interpolate, y, q, left=q_min, right=q_max)
-            y = interpolate
-        return q, y
+        # No interpolation: return contour values on internal equivalent
+        # latitudes and return the latitudes as well for reference
+        if not interpolate:
+            return q, y
+        # When interpolated, only return the contour values
+        return self.interpolate_meridional(q, y, pole_values=(q_max, q_min))
+
+    # Interpolation
+
+    def interp1d_meridional(self, field, lats, pole_values, kind="linear"):
+        """Meridional interpolation function.
+
+        Parameters:
+            field (array): 1D meridional profile or 2D field on the input
+                latitudes.
+            lats (array): Input latitudes in degrees.
+            pole_values ((number, number)): Values at the poles (North, South),
+                required to complete the interpolation.
+            kind (string): Given to :py:func:`scipy.interpolate.interp1d`.
+
+        Returns:
+            Configured :py:func:`scipy.interpolate.interp1d` interpolation
+            function.
+
+        See also: :py:meth:`Grid.interpolate_meridional`.
+        """
+        assert 1 <= field.ndim <= 2
+        assert len(pole_values) == 2
+        pad = (1, 1) if field.ndim == 1 else ((1, 1), (0, 0))
+        axis = -1    if field.ndim == 1 else MERIDIONAL
+        x = np.pad(lats, pad_width=(1, 1), mode="constant", constant_values=(90., -90.))
+        y = np.pad(field, pad_width=pad, mode="constant", constant_values=pole_values)
+        return scipy.interpolate.interp1d(x, y, axis=axis, kind=kind, copy=False)
+
+    def interpolate_meridional(self, *interp1d_args, **interp1d_kwargs):
+        """Interpolation onto the regular latitude grid.
+
+        Constructs and immediately evaluates the interpolation function from
+        :py:meth:`Grid.interp1d_meridional` for :py:attr:`Grid.lats`.
+        """
+        return self.interp1d_meridional(*interp1d_args, **interp1d_kwargs)(self.lats)
 
     # Filtering
 
