@@ -424,7 +424,8 @@ class Grid:
         Returns:
             Value of the integral.
         """
-        return np.sum(self.gridpoint_area * y, where=where)
+        assert y.shape == self.shape
+        return np.sum(self.gridpoint_area[:,None] * y, where=where)
 
     def quad_sptrapz(self, y, z=None):
         """Surface integral with a trapezoidal quadrature.
@@ -578,10 +579,11 @@ class Grid:
         else:
             q = levels
         # Determine area where each threshold is exceeded
+        ones = np.ones_like(field)
         if quad == "sptrapz":
-            area_int = lambda thresh: self.quad_sptrapz(np.ones_like(field), z=(field - thresh))
+            area_int = lambda thresh: self.quad_sptrapz(ones, z=(field - thresh))
         elif quad == "boxcount":
-            area_int = lambda thresh: self.quad_boxcount(1., field >= thresh)
+            area_int = lambda thresh: self.quad_boxcount(ones, where=(field >= thresh))
         else:
             raise ValueError("unknown quadrature method '{}'".format(quad))
         area = np.vectorize(area_int)(q)
