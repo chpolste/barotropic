@@ -1,5 +1,7 @@
 from numbers import Number
 import numpy as np
+import scipy.signal
+import scipy.ndimage
 import spharm
 from . import formatting
 from .constants import EARTH_RADIUS, EARTH_OMEGA
@@ -610,14 +612,11 @@ class Grid:
         Window widths are restricted to odd numbers of gridpoints so windows
         can properly be centered on a gridpoint during convolution. The
         returned window array is normalized such that it sums to 1.
-
-        Requires :py:mod:`scipy`.
         """
-        from scipy.signal import get_window
         # Convert width to gridpoints
         width = round(width / self.dlon)
         width = width if width % 2 == 1 else width + 1
-        window = get_window(window, width, fftbins=False)
+        window = scipy.signal.get_window(window, width, fftbins=False)
         return window / np.sum(window)
 
     def filter_meridional(self, field, window, width=None):
@@ -634,19 +633,16 @@ class Grid:
         If **width** is ``None``, **window** must be a gridded window given as
         a 1D array.  Otherwise, **window** and **width** are given to
         :py:meth:`get_filter_window` to obtain a window function.
-
-        Requires :py:mod:`scipy`.
         """
-        from scipy.ndimage import convolve
         if width is not None:
             window = self.get_filter_window(window, width)
         # Use symmetrical boundary condition
         if field.ndim == 1:
             assert field.size == self.nlat
-            return convolve(field, window, mode="reflect")
+            return scipy.ndimage.convolve(field, window, mode="reflect")
         elif field.ndim == 2:
             assert field.shape[0] == self.nlat
-            return convolve(field, window[:,None], mode="reflect")
+            return scipy.ndimage.convolve(field, window[:,None], mode="reflect")
         else:
             raise ValueError("input field must be 1- or 2-dimensional")
             
@@ -665,19 +661,16 @@ class Grid:
         If **width** is ``None``, **window** must be a gridded window given as
         a 1D array.  Otherwise, **window** and **width** are given to
         :py:meth:`get_filter_window` to obtain a window function.
-
-        Requires :py:mod:`scipy`.
         """
-        from scipy.ndimage import convolve
         if width is not None:
             window = self.get_filter_window(window, width)
         # Use periodic boundary condition (only makes sense if 
         if field.ndim == 1:
             assert field.size == self.nlon
-            return convolve(field, window, mode="wrap")
+            return scipy.ndimage.convolve(field, window, mode="wrap")
         elif field.ndim == 2:
             assert field.shape[1] == self.nlon
-            return convolve(field, window[None,:], mode="wrap")
+            return scipy.ndimage.convolve(field, window[None,:], mode="wrap")
         else:
             raise ValueError("input field must be 1- or 2-dimensional")
 

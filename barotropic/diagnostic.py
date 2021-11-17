@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.signal
 from .constants import ZONAL as _ZONAL, MERIDIONAL as _MERIDIONAL
 # To reduce non-optional dependencies, some required packages are imported in
 # some of these functions on demand.
@@ -140,8 +141,6 @@ def dominant_wavenumber_fourier(field, grid, smooth=("boxcar", 10), wavenumber_r
 
     Returns:
         Returns the dominant zonal wavenumber as a function of latitude.
-    
-    Requires :py:mod:`scipy`.
     """
     assert len(wavenumber_range) == 2
     k_min, k_max = wavenumber_range
@@ -170,7 +169,7 @@ def dominant_wavenumber_wavelet(field, grid, smooth=("hann", 40, 10)):
     Implements the procedure of Ghinassi et al. (2018) that determines
     a local dominant wavenumber at every gridpoint of the input field.
 
-    Requires :py:mod:`pywt` (version >= 1.1.0) and :py:mod:`scipy`.
+    Requires :py:mod:`pywt` (version >= 1.1.0).
     """
     import pywt
     # Truncate zonal fourier spectrum of meridional wind after wavenumber 20
@@ -219,10 +218,7 @@ def filter_by_wavenumber(field, wavenumber):
 
     Used by Ghinassi et al. (2018) to filter the FALWA field, discounting phase
     information in order to diagnose wave packets as a whole.
-
-    Requires :py:mod:`scipy`.
     """
-    from scipy import signal
     nlon = field.shape[_ZONAL]
     # If the wavenumber field is provided as a function of latitude only,
     # extend it to a lon-lat-dependent 2D field
@@ -251,10 +247,10 @@ def filter_by_wavenumber(field, wavenumber):
             convs.append(np.zeros_like(field))
             continue
         # Obtain the normalized Hann window for the current width
-        hann = signal.hann(width)
+        hann = scipy.signal.hann(width)
         hann = hann / np.sum(hann)
         # Apply window along the zonal axis
-        convs.append(signal.convolve2d(field, hann[None,:], mode="same", boundary="wrap"))
+        convs.append(scipy.signal.convolve2d(field, hann[None,:], mode="same", boundary="wrap"))
     # Stack into 3-dimensional array
     convs = np.stack(convs)
     # Extract the filtered value from thrmation only required if ks_or_state is not a :py:class`Se smoothed fields according the the
@@ -276,14 +272,11 @@ def envelope_hilbert(field, wavenumber_range=(2, 10)):
         Filtered output field.
 
     Applied to the merdional wind for RWP detection by Zimin et al. (2003).
-
-    Requires :py:mod:`scipy`.
     """
-    from scipy import signal
     assert len(wavenumber_range) == 2
     k_min, k_max = wavenumber_range
     x = _restrict_fourier_zonal(field, k_min, k_max)
-    return np.abs(signal.hilbert(x, axis=_ZONAL))
+    return np.abs(scipy.signal.hilbert(x, axis=_ZONAL))
 
 
 def stationary_wavenumber(u_or_state, grid=None, order=4, min_u=0.001, kind="complex"):

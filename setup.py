@@ -9,12 +9,12 @@ setup(
     packages=find_packages(),
     install_requires=[
         "numpy",
+        "scipy",
         "pyspharm"
     ],
     extras_require={
         "with-optional": [
             "matplotlib",
-            "scipy",
             "PyWavelets>=1.1.0.dev",
             "hn2016_falwa",
         ],

@@ -37,12 +37,12 @@ last.plot.summary()
 ## Dependencies
 
 - [numpy](https://github.com/numpy/numpy)
+- [scipy](https://github.com/scipy/scipy)
 - [pyspharm](https://github.com/jswhit/pyspharm)
 
 Additional dependencies for plotting, diagnostics, etc.:
 
 - [matplotlib](https://github.com/matplotlib/matplotlib)
-- [scipy](https://github.com/scipy/scipy)
 - [PyWavelets](https://github.com/PyWavelets/pywt) (>= 1.1)
 - [hn2016_falwa](https://github.com/csyhuang/hn2016_falwa)
 
