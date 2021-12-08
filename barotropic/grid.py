@@ -427,7 +427,8 @@ class Grid:
         Returns:
             Value of the integral.
         """
-        assert y.shape == self.shape
+        assert y.ndim == 2
+        assert y.shape[0] == self.nlat
         return np.sum(self.gridpoint_area[:,None] * y, where=where)
 
     def quad_sptrapz(self, y, z=None):
@@ -466,7 +467,11 @@ class Grid:
         non-trivial). The boundaries of the domain of integration are therefore
         not continuous in the zonal direction.
         """
-        x = self.phi
+        assert y.ndim == 2
+        assert y.shape[0] == self.nlat
+        # Take only as much of phi as needed for the given data (input might
+        # only be a sector of the full globe)
+        x = self.phi[:,:y.shape[1]]
         # If no z-values are given, integrate everywhere
         if z is None:
             z = np.ones_like(y)
@@ -585,7 +590,7 @@ class Grid:
         else:
             q = levels
         # Determine area where each threshold is exceeded
-        ones = np.ones_like(field)
+        ones = np.ones_like(field) # integrating field of ones yields area
         if quad == "sptrapz":
             area_int = lambda thresh: self.quad_sptrapz(ones, z=(field - thresh))
         elif quad == "boxcount":
@@ -593,8 +598,13 @@ class Grid:
         else:
             raise ValueError("unknown quadrature method '{}'".format(quad))
         area = np.vectorize(area_int)(q)
+        # If the input field is only a sector of the full globe (determined by
+        # the width relative to the full globe at the given resolution), adjust
+        # the integrated contour areas such that they correspond to the full
+        # globe and compute equivalent latitude for the globe
+        area_factor = self.nlon / field.shape[1]
         # Calculate equivalent latitude associated with contour areas
-        y = self.equivalent_latitude(area)
+        y = self.equivalent_latitude(area * area_factor)
         # No interpolation: return contour values on internal equivalent
         # latitudes and return the latitudes as well for reference
         if not interpolate:
