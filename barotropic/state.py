@@ -64,7 +64,7 @@ class State:
         Returns:
             New :py:class:`State` instance.
         """
-        pv = grid.fcor + grid.vorticity(u, v)
+        pv = grid.fcor2 + grid.vorticity(u, v)
         return cls(grid, time, pv=pv)
 
     @classmethod
@@ -79,7 +79,7 @@ class State:
         Returns:
             New :py:class:`State` instance.
         """
-        pv = grid.fcor + vorticity
+        pv = grid.fcor2 + vorticity
         return cls(grid, time, pv=pv)
 
     # Arithmetic operators
@@ -177,11 +177,11 @@ class State:
     @property
     def vorticity(self):
         """Relative vorticity."""
-        return self.pv - self.grid.fcor
+        return self.pv - self.grid.fcor2
 
     @property
     def vorticity_spectral(self):
-        return self.pv_spectral - self.grid.fcor_spectral
+        return self.pv_spectral - self.grid.fcor2_spectral
 
     @property
     def enstrophy(self):
@@ -320,8 +320,8 @@ class State:
         from hn2016_falwa.barotropic_field import BarotropicField
         pv = self.pv
         # hn2016_falwa expects latitudes to start at the South Pole
-        xlon = self.grid.lons
-        ylat = np.flip(self.grid.lats)
+        xlon = self.grid.lon
+        ylat = np.flip(self.grid.lat)
         pvud = np.flipud(self.pv)
         return BarotropicField(xlon, ylat, pv_field=pvud, **barofield_kwargs)
 

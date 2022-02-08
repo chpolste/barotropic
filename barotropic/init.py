@@ -14,7 +14,7 @@ def motionless(grid, time=0.):
     Returns:
         New :py:class:`.State` instance.
     """
-    return State(grid, time, pv=grid.coriolis(grid.lat))
+    return State(grid, time, pv=grid.fcor2)
 
 
 def zonally_symmetric(grid, time=0., u=None, pv=None):
@@ -58,7 +58,7 @@ def solid_body_rotation(grid, time=0., amplitude=15.):
     Returns:
         New :py:class:`.State` instance.
     """
-    u = amplitude * np.cos(grid.phi)
+    u = amplitude * np.cos(grid.phi2)
     v = np.zeros_like(u)
     return State.from_wind(grid, time, u, v)
 
@@ -79,11 +79,11 @@ def gaussian_jet(grid, time=0., amplitude=20., center_lat=45., stdev_lat=5.):
     A linear wind profile in latitude is added to zero wind speeds at both
     poles.
     """
-    u = amplitude * np.exp( -0.5 * (grid.lat - center_lat)**2 / stdev_lat**2 )
+    u = amplitude * np.exp( -0.5 * (grid.lat2 - center_lat)**2 / stdev_lat**2 )
     # Subtract a linear function to set u=0 at the poles
     u_south = u[-1,0]
     u_north = u[ 0,0]
-    u = u - 0.5 * (u_south + u_north) + (u_south - u_north) * grid.lat / 180.
+    u = u - 0.5 * (u_south + u_north) + (u_south - u_north) * grid.lat2 / 180.
     # No meridional wind
     v = np.zeros_like(u)
     return State.from_wind(grid, time, u, v)
@@ -105,8 +105,8 @@ def held_1985(grid, time=0., A=25., B=30., C=300.):
     Introduced by Held (1985), also used by Held and Phillips (1987) and
     Ghinassi et al. (2018).
     """
-    cosphi = np.cos(grid.phi)
-    sinphi = np.sin(grid.phi)
+    cosphi = np.cos(grid.phi2)
+    sinphi = np.sin(grid.phi2)
     u = A * cosphi - B * cosphi**3 + C * cosphi**6 * sinphi**2
     v = np.zeros_like(u)
     return State.from_wind(grid, time, u, v)

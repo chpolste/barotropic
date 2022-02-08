@@ -32,12 +32,13 @@ class Grid:
     Attributes:
         nlon, nlat: Number of longitudes/latitudes.
         dlon, dlat: Longitude/latitude spacing in degrees.
-        lons, lats: Longitude/latitude coordinates in degrees (1D).
-        lon, lat: Longitude/latitude coordinates in degrees (2D).
+        lon, lat: Longitude/latitude coordinates in degrees (1D).
+        lon2, lat2: Longitude/latitude coordinates in degrees (2D).
         dlam, dphi: Longitude/latitude spacing in radians.
-        lams, phis: Longitude/latitude coordinates in radians (1D).
-        lam, phi: Longitude/latitude coordinates in radians (2D).
-        fcor: Coriolis parameter in 1/s (2D).
+        lam, phi: Longitude/latitude coordinates in radians (1D).
+        lam2, phi2: Longitude/latitude coordinates in radians (2D).
+        fcor: Coriolis parameter in 1/s (1D).
+        fcor2: Coriolis parameter in 1/s (2D).
     """
 
     def __init__(self, resolution=2.5, rsphere=EARTH_RADIUS, omega=EARTH_OMEGA,
@@ -52,16 +53,16 @@ class Grid:
         self.nlat = int(180. / resolution) + 1
         if self.nlat % 2 == 0:
             raise ValueError("Number of latitudes must be odd but is {}".format(self.nlat))
-        self.lons = np.linspace( 0., 360., self.nlon, endpoint=False)
-        self.lats = np.linspace(90., -90., self.nlat, endpoint=True)
-        self.lon, self.lat = np.meshgrid(self.lons, self.lats)
+        self.lon = np.linspace( 0., 360., self.nlon, endpoint=False)
+        self.lat = np.linspace(90., -90., self.nlat, endpoint=True)
+        self.lon2, self.lat2 = np.meshgrid(self.lon, self.lat)
         # Grid spacing in degrees
         self.dlon = resolution
         self.dlat = -resolution
         # Spherical coordinate grid (for use with trigonometric functions)
-        self.lams = np.deg2rad(self.lons)
-        self.phis = np.deg2rad(self.lats)
-        self.lam, self.phi = np.meshgrid(self.lams, self.phis)
+        self.lam = np.deg2rad(self.lon)
+        self.phi = np.deg2rad(self.lat)
+        self.lam2, self.phi2 = np.meshgrid(self.lam, self.phi)
         # Grid spacing in radians
         self.dlam = np.deg2rad(self.dlon)
         self.dphi = np.deg2rad(self.dlat)
@@ -78,7 +79,8 @@ class Grid:
                 ).astype(np.complex64, casting="same_kind")
         # Precompute Coriolis field
         self.fcor = self.coriolis(self.lat)
-        self.fcor_spectral = self.to_spectral(self.fcor)
+        self.fcor2 = self.coriolis(self.lat2)
+        self.fcor2_spectral = self.to_spectral(self.fcor2)
 
     def __repr__(self):
         return formatting.grid_repr(self)
@@ -97,7 +99,7 @@ class Grid:
     @property
     def shape(self):
         """Tuple of grid dimensions (:py:attr:`nlat`, :py:attr:`nlon`)."""
-        return self.phi.shape
+        return self.nlat, self.nlon
 
     def circumference(self, lat):
         """Circumference (in m) of the sphere at (a) given latitude(s).
@@ -369,14 +371,14 @@ class Grid:
             r² * dλ * ( sin(φ + dφ) - sin(φ - dφ) )
         """
         # Calculate dual phi grid (latitude mid-points)
-        mid_phis = 0.5 * (self.phis[1:] + self.phis[:-1])
+        mid_phi = 0.5 * (self.phi[1:] + self.phi[:-1])
         # Start with scaling factor
         gridpoint_area = np.full(self.nlat, self.rsphere * self.rsphere * self.dlam, dtype=float)
         # Calculate latitude term of area formula
-        gridpoint_area[1:-1] *= np.sin(mid_phis[:-1]) - np.sin(mid_phis[1:])
+        gridpoint_area[1:-1] *= np.sin(mid_phi[:-1]) - np.sin(mid_phi[1:])
         # Exceptions for polar gridpoints, which are "triangular"
-        gridpoint_area[ 0] *= 1 - np.sin(mid_phis[ 0])
-        gridpoint_area[-1] *= 1 + np.sin(mid_phis[-1])
+        gridpoint_area[ 0] *= 1 - np.sin(mid_phi[ 0])
+        gridpoint_area[-1] *= 1 + np.sin(mid_phi[-1])
         return gridpoint_area
 
     def mean(self, field, axis=None, region=None):
@@ -471,7 +473,7 @@ class Grid:
         assert y.shape[0] == self.nlat
         # Take only as much of phi as needed for the given data (input might
         # only be a sector of the full globe)
-        x = self.phi[:,:y.shape[1]]
+        x = self.phi2[:,:y.shape[1]]
         # If no z-values are given, integrate everywhere
         if z is None:
             z = np.ones_like(y)
@@ -614,13 +616,13 @@ class Grid:
 
     # Interpolation
 
-    def interp1d_meridional(self, field, lats, pole_values, kind="linear"):
+    def interp1d_meridional(self, field, lat, pole_values, kind="linear"):
         """Meridional interpolation function.
 
         Parameters:
             field (array): 1D meridional profile or 2D field on the input
                 latitudes.
-            lats (array): Input latitudes in degrees.
+            lat (array): Input latitudes in degrees.
             pole_values ((number, number)): Values at the poles (North, South),
                 required to complete the interpolation.
             kind (string): Given to :py:func:`scipy.interpolate.interp1d`.
@@ -635,7 +637,7 @@ class Grid:
         assert len(pole_values) == 2
         pad = (1, 1) if field.ndim == 1 else ((1, 1), (0, 0))
         axis = -1    if field.ndim == 1 else MERIDIONAL
-        x = np.pad(lats, pad_width=(1, 1), mode="constant", constant_values=(90., -90.))
+        x = np.pad(lat, pad_width=(1, 1), mode="constant", constant_values=(90., -90.))
         y = np.pad(field, pad_width=pad, mode="constant", constant_values=pole_values)
         return scipy.interpolate.interp1d(x, y, axis=axis, kind=kind, copy=False)
 
@@ -643,9 +645,9 @@ class Grid:
         """Interpolation onto the regular latitude grid.
 
         Constructs and immediately evaluates the interpolation function from
-        :py:meth:`Grid.interp1d_meridional` for :py:attr:`Grid.lats`.
+        :py:meth:`Grid.interp1d_meridional` for :py:attr:`Grid.lat`.
         """
-        return self.interp1d_meridional(*interp1d_args, **interp1d_kwargs)(self.lats)
+        return self.interp1d_meridional(*interp1d_args, **interp1d_kwargs)(self.lat)
 
     # Filtering
 
@@ -768,11 +770,11 @@ class GridRegionIndexer:
         if lo is None and hi is None:
             return indices
         elif lo is None:
-            return indices[self._grid.lats <= hi]
+            return indices[self._grid.lat <= hi]
         elif hi is None:
-            return indices[lo <= self._grid.lats]
+            return indices[lo <= self._grid.lat]
         else:
-            return indices[(min(lo, hi) <= self._grid.lats) & (self._grid.lats <= max(lo, hi))]
+            return indices[(min(lo, hi) <= self._grid.lat) & (self._grid.lat <= max(lo, hi))]
 
     def _get_lon_indices(self, slc):
         # Selection must be a numeric slice without a step parameter
@@ -792,14 +794,14 @@ class GridRegionIndexer:
         if lo is None and hi is None:
             return indices
         elif lo is None:
-            return indices[self._grid.lons <= hi]
+            return indices[self._grid.lon <= hi]
         elif hi is None:
-            return indices[lo <= self._grid.lons]
+            return indices[lo <= self._grid.lon]
         elif hi < lo:
-            lo_mask = lo <= self._grid.lons
-            return np.roll(indices[(self._grid.lons <= hi) | lo_mask], np.count_nonzero(lo_mask))
+            lo_mask = lo <= self._grid.lon
+            return np.roll(indices[(self._grid.lon <= hi) | lo_mask], np.count_nonzero(lo_mask))
         else:
-            return indices[(lo <= self._grid.lons) & (self._grid.lons <= hi)]
+            return indices[(lo <= self._grid.lon) & (self._grid.lon <= hi)]
 
 
 
@@ -809,8 +811,8 @@ class GridRegion:
         self._grid = grid
         self._lon_indices = np.require(lon_indices, dtype=int)
         self._lat_indices = np.require(lat_indices, dtype=int)
-        assert self._lat_indices.ndim == 1 and self._lat_indices.size <= grid.shape[0]
-        assert self._lon_indices.ndim == 1 and self._lon_indices.size <= grid.shape[1]
+        assert self._lat_indices.ndim == 1 and self._lat_indices.size <= grid.nlat
+        assert self._lon_indices.ndim == 1 and self._lon_indices.size <= grid.nlon
 
     def __repr__(self):
         return formatting.grid_region_repr(self)
@@ -851,29 +853,29 @@ class GridRegion:
         return self._lat_indices.size, self._lon_indices.size
 
     @property
-    def lats(self):
+    def lat(self):
         """Latitudes of the region."""
-        return self._grid.lats[self._lat_indices]
+        return self._grid.lat[self._lat_indices]
 
     @property
-    def lons(self):
+    def lon(self):
         """Longitudes of the region.
 
         If the region crosses the 0° meridian, these will not be monotonic. If
         you need a monotonic longitude coordinate, e.g. for plotting, use
-        `lons_mono`, where lontitudes left of the 0° are reduced by 360°.
+        `lon_mono`, where longitudes left of 0° are reduced by 360°.
         """
-        return self._grid.lons[self._lon_indices]
+        return self._grid.lon[self._lon_indices]
 
     @property
-    def lons_mono(self):
+    def lon_mono(self):
         """Longitudes of the region, monotonic even for regions crossing 0°"""
-        lons = self.lons
-        jump = np.argwhere(np.diff(lons) < 0)
+        lon = self.lon
+        jump = np.argwhere(np.diff(lon) < 0)
         assert 0 <= jump.size <= 1
         if jump.size == 1:
-            lons[:jump[0,0]+1] -= 360.
-        return lons
+            lon[:jump[0,0]+1] -= 360.
+        return lon
 
     @property
     def gridpoint_area(self):

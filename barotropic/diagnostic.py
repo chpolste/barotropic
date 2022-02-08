@@ -53,7 +53,7 @@ def fawa(pv_or_state, grid=None, levels=None, interpolate=True):
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
     q_int = np.vectorize(lambda q: grid.quad_sptrapz(pv, pv - q))
-    y_int = np.vectorize(lambda y: grid.quad_sptrapz(pv, grid.lat - y))
+    y_int = np.vectorize(lambda y: grid.quad_sptrapz(pv, grid.lat2 - y))
     # Normalize by zonal circumference at each latitude
     fawa = (q_int(qq) - y_int(yy)) / grid.circumference(yy)
     # No interpolation: return contour values on equivalent latitudes from
@@ -88,7 +88,7 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=True):
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
     q_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, pv - q), 2, 1)
-    y_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, grid.lat - y), 2, 1)
+    y_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, grid.lat2 - y), 2, 1)
     # Stack meridional integrals (normalized by cosine of latitude) along zonal
     # direction to obtain full field again
     falwa = np.stack((q_int(qq, yy) - y_int(qq, yy)) / np.cos(np.deg2rad(yy)))
@@ -120,14 +120,14 @@ def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
     from hn2016_falwa.barotropic_field import BarotropicField
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # hn2016_falwa expects latitudes to start at south pole
-    xlon = grid.lons
-    ylat = np.flip(grid.lats)
+    xlon = grid.lon
+    ylat = np.flip(grid.lat)
     bf = BarotropicField(xlon, ylat, pv_field=np.flipud(pv))
     # Extract local wave activity field and flip back
     lwa = np.flipud(bf.lwa)
     # hn2016_falwa does not normalize with cosine of latitude by default
     if normalize_icos:
-        icoslat = 1. / np.cos(grid.phi)
+        icoslat = 1. / np.cos(grid.phi2)
         icoslat[ 0,:] = 0. # handle div/0 problem at 1 / cos( 90°)
         icoslat[-1,:] = 0. # handle div/0 problem at 1 / cos(-90°)
         lwa = icoslat * lwa
@@ -325,13 +325,13 @@ def stationary_wavenumber(u_or_state, grid=None, order=4, min_u=0.001, kind="com
         u = np.mean(u, axis=_ZONAL)
     # If no PV field is given, calculate zonal-mean PV from zonal-mean u
     if pv is None:
-        rv = - grid.derivative_meridional(u * np.cos(grid.phis), order=order) / grid.rsphere / np.cos(grid.phis)
-        pv = grid.coriolis(grid.lats) + rv
+        rv = - grid.derivative_meridional(u * np.cos(grid.phi), order=order) / grid.rsphere / np.cos(grid.phi)
+        pv = grid.fcor + rv
     # If PV is a 2D field, calculate zonal mean
     elif pv.ndim != 1:
         pv = np.mean(pv, axis=_ZONAL)
     # Mercator projection zonal-mean PV gradient (βM) times cosine of latitude
-    ks2 = np.cos(grid.phis)**2 * grid.rsphere * grid.derivative_meridional(pv, order=order)
+    ks2 = np.cos(grid.phi)**2 * grid.rsphere * grid.derivative_meridional(pv, order=order)
     # Divide by u, avoid latitudes with small u
     small_u = np.isclose(u, 0., atol=min_u)
     ks2[~small_u] /= u[~small_u]
@@ -380,9 +380,9 @@ def extract_waveguides(ks_or_state, k, grid=None):
     waveguides = []
     # Scan from the North pole
     active = ks[0] >= k
-    start = grid.lats[0]
+    start = grid.lat[0]
     # Scan towards the South pole
-    for lat_n, ks_n, ks_s in zip(grid.lats[:-1], ks[:-1], ks[1:]):
+    for lat_n, ks_n, ks_s in zip(grid.lat[:-1], ks[:-1], ks[1:]):
         # Waveguide ends if ks goes below k
         if active and ks_s < k:
             end = lat_n + grid.dlat if np.isinf(ks_n) else lat_n - grid.dlat * (ks_n - k) / (ks_s - ks_n)
@@ -394,6 +394,6 @@ def extract_waveguides(ks_or_state, k, grid=None):
             active = True
     # Last waveguide must end at south pole
     if active:
-        waveguides.append((start, grid.lats[-1]))
+        waveguides.append((start, grid.lat[-1]))
     return waveguides
 

@@ -21,9 +21,9 @@ class TestConversions:
         zeros = np.zeros(grid.shape, dtype=float)
         from_wind = State.from_wind(grid, 0., zeros, zeros)
         from_vort = State.from_vorticity(grid, 0., zeros)
-        from_pv   = State(grid, 0., pv=grid.fcor)
+        from_pv   = State(grid, 0., pv=grid.fcor2)
         for state in [from_wind, from_vort, from_pv]:
-            assert np.allclose(state.pv, grid.fcor, atol=ATOL_PV)
+            assert np.allclose(state.pv, grid.fcor2, atol=ATOL_PV)
             assert np.allclose(state.u, 0., atol=ATOL_WIND)
             assert np.allclose(state.v, 0., atol=ATOL_WIND)
             assert np.allclose(state.vorticity, 0., atol=ATOL_ZETA)
@@ -31,7 +31,7 @@ class TestConversions:
 
     def test_pv_to_other_to_pv(self):
         grid = Grid()
-        pv = grid.fcor + 1.5e-5 * np.sin(2*grid.phi)**3 * np.sin(3*grid.lam)
+        pv = grid.fcor2 + 1.5e-5 * np.sin(2*grid.phi2)**3 * np.sin(3*grid.lam2)
         state0 = State(grid, 0., pv=pv)
         # Via wind
         state1 = State.from_wind(grid, 0., state0.u, state0.v)
@@ -46,7 +46,7 @@ class TestConversions:
 
     def test_vorticity_to_other_to_vorticity(self):
         grid = Grid()
-        vort = 2.0e-5 * np.sin(2*grid.phi)**3 * np.cos(2*grid.lam)
+        vort = 2.0e-5 * np.sin(2*grid.phi2)**3 * np.cos(2*grid.lam2)
         state0 = State.from_vorticity(grid, 0., vort)
         # Via PV
         state1 = State(grid, 0., pv=state0.pv)
@@ -61,8 +61,8 @@ class TestConversions:
 
     def test_wind_to_other_to_wind(self):
         grid = Grid()
-        u = 15. * np.sin(2*grid.phi)**3
-        v = 0.5 * u * np.sin(2*grid.lam)
+        u = 15. * np.sin(2*grid.phi2)**3
+        v = 0.5 * u * np.sin(2*grid.lam2)
         state0 = State.from_wind(grid, 0., u, v)
         # Via PV
         state1 = State(grid, 0., state0.pv)

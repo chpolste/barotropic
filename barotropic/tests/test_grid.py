@@ -19,7 +19,7 @@ class TestGrid:
     @pytest.mark.parametrize("rsphere", [1000., 10000, 100000.])
     def test_quad_sptrapz(self, resolution, rsphere):
         grid = Grid(resolution, rsphere=rsphere)
-        y = np.ones_like(grid.lat)
+        y = np.ones_like(grid.lat2)
         # Integration mus reproduce area of sphere exactly
         area_sum = grid.quad_sptrapz(y)
         area_ref = 4 * np.pi * rsphere * rsphere
@@ -36,7 +36,7 @@ class TestGrid:
     @pytest.mark.parametrize("rsphere", [1000., 10000, 100000.])
     def test_quad_boxcount(self, resolution, rsphere):
         grid = Grid(resolution, rsphere=rsphere)
-        y = np.ones_like(grid.lat)
+        y = np.ones_like(grid.lat2)
         # Integration mus reproduce area of sphere exactly
         area_sum = grid.quad_boxcount(y)
         area_ref = 4 * np.pi * rsphere * rsphere
@@ -51,8 +51,8 @@ class TestGrid:
 
     def test_derivative_meridional_1D_with_phi(self):
         grid = Grid()
-        ddphi2 = grid.derivative_meridional(grid.phis, order=2)
-        ddphi4 = grid.derivative_meridional(grid.phis, order=4)
+        ddphi2 = grid.derivative_meridional(grid.phi, order=2)
+        ddphi4 = grid.derivative_meridional(grid.phi, order=4)
         # For 1D input, polar points should be set to 0
         assert np.allclose(ddphi2[ 0], 0.)
         assert np.allclose(ddphi2[-1], 0.)
@@ -62,10 +62,10 @@ class TestGrid:
         assert np.allclose(ddphi2[1:-1], 1.)
         assert np.allclose(ddphi4[1:-1], 1.)
 
-    def test_derivative_meridional_1D_with_lats(self):
+    def test_derivative_meridional_1D_with_lat(self):
         grid = Grid()
-        ddphi2 = grid.derivative_meridional(grid.lats, order=2)
-        ddphi4 = grid.derivative_meridional(grid.lats, order=4)
+        ddphi2 = grid.derivative_meridional(grid.lat, order=2)
+        ddphi4 = grid.derivative_meridional(grid.lat, order=4)
         assert np.allclose(ddphi2[ 0], 0.)
         assert np.allclose(ddphi2[-1], 0.)
         assert np.allclose(ddphi4[ 0], 0.)
@@ -124,19 +124,19 @@ class TestGridFiltering:
 
     def test_filter_meridional_call(self):
         grid = Grid(resolution=2.0)
-        assert grid.filter_meridional(grid.lats, "boxcar", 10.).shape == (grid.nlat,)
-        assert grid.filter_meridional(grid.lat, "hann", 14.).shape == grid.shape
-        assert grid.filter_meridional(grid.lats, np.array([0.1, 0.2, 0.3, 0.1, 0.3])).shape == (grid.nlat,)
+        assert grid.filter_meridional(grid.lat, "boxcar", 10.).shape == (grid.nlat,)
+        assert grid.filter_meridional(grid.lat2, "hann", 14.).shape == grid.shape
+        assert grid.filter_meridional(grid.lat, np.array([0.1, 0.2, 0.3, 0.1, 0.3])).shape == (grid.nlat,)
         with pytest.raises(AssertionError):
-            grid.filter_meridional(grid.lons, "hann", 13.)
+            grid.filter_meridional(grid.lon, "hann", 13.)
 
     def test_filter_zonal_call(self):
         grid = Grid(resolution=2.0)
-        assert grid.filter_zonal(grid.lons, "boxcar", 10.).shape == (grid.nlon,)
-        assert grid.filter_zonal(grid.lon, "hann", 14.).shape == grid.shape
-        assert grid.filter_zonal(grid.lons, np.array([0.1, 0.2, 0.3, 0.1, 0.3])).shape == (grid.nlon,)
+        assert grid.filter_zonal(grid.lon, "boxcar", 10.).shape == (grid.nlon,)
+        assert grid.filter_zonal(grid.lon2, "hann", 14.).shape == grid.shape
+        assert grid.filter_zonal(grid.lon, np.array([0.1, 0.2, 0.3, 0.1, 0.3])).shape == (grid.nlon,)
         with pytest.raises(AssertionError):
-            grid.filter_zonal(grid.lats, "hann", 13.)
+            grid.filter_zonal(grid.lat, "hann", 13.)
 
 
 
@@ -146,70 +146,70 @@ class TestGridRegion:
         grid = Grid(resolution=10.)
         region = grid.region[:,:]
         assert region.shape == grid.shape
-        assert np.allclose(region.lats, grid.lats)
-        assert np.allclose(region.lons, grid.lons)
-        assert np.allclose(region.extract(grid.lons), grid.lons)
-        assert np.allclose(region.extract(grid.lats), grid.lats)
+        assert np.allclose(region.lat, grid.lat)
+        assert np.allclose(region.lon, grid.lon)
         assert np.allclose(region.extract(grid.lon), grid.lon)
+        assert np.allclose(region.extract(grid.lat), grid.lat)
+        assert np.allclose(region.extract(grid.lon2), grid.lon2)
 
     @pytest.mark.parametrize("lo,hi", [(30, 60), (60, 30)])
     def test_latitude(self, lo, hi):
         grid = Grid(resolution=10.)
         region = grid.region[:,lo:hi]
         assert region.shape == (4, 36)
-        assert np.allclose(region.lats, [60., 50., 40., 30.])
-        assert np.allclose(region.lons, grid.lons)
-        assert np.all(region.extract(grid.lats) <= 60.)
-        assert np.all(30. <= region.extract(grid.lats))
+        assert np.allclose(region.lat, [60., 50., 40., 30.])
+        assert np.allclose(region.lon, grid.lon)
         assert np.all(region.extract(grid.lat) <= 60.)
         assert np.all(30. <= region.extract(grid.lat))
-        assert np.allclose(region.extract(grid.lons), grid.lons)
+        assert np.all(region.extract(grid.lat2) <= 60.)
+        assert np.all(30. <= region.extract(grid.lat2))
+        assert np.allclose(region.extract(grid.lon), grid.lon)
 
     def test_longitude1(self):
         grid = Grid(resolution=10.)
         region = grid.region[265:,:]
         assert region.shape == (19, 9)
-        assert np.allclose(region.lats, grid.lats)
-        assert np.allclose(region.lons, [270, 280, 290, 300, 310, 320, 330, 340, 350])
-        assert np.all(region.extract(grid.lons) < 360.)
-        assert np.all(265 <= region.extract(grid.lons))
+        assert np.allclose(region.lat, grid.lat)
+        assert np.allclose(region.lon, [270, 280, 290, 300, 310, 320, 330, 340, 350])
         assert np.all(region.extract(grid.lon) < 360.)
-        assert np.all(265. <= region.extract(grid.lon))
-        assert np.allclose(region.extract(grid.lats), grid.lats)
+        assert np.all(265 <= region.extract(grid.lon))
+        assert np.all(region.extract(grid.lon2) < 360.)
+        assert np.all(265. <= region.extract(grid.lon2))
+        assert np.allclose(region.extract(grid.lat), grid.lat)
 
     def test_longitude2(self):
         grid = Grid(resolution=10.)
         region = grid.region[310:40,:]
         assert region.shape == (19, 10)
-        assert np.allclose(region.lats, grid.lats)
-        assert np.allclose(region.lons, [310, 320, 330, 340, 350, 0, 10, 20, 30, 40])
-        assert region.extract(grid.lons).shape == (10,)
-        assert region.extract(grid.lon).shape == (19, 10)
-        assert np.allclose(region.extract(grid.lats), grid.lats)
+        assert np.allclose(region.lat, grid.lat)
+        assert np.allclose(region.lon, [310, 320, 330, 340, 350, 0, 10, 20, 30, 40])
+        assert region.extract(grid.lon).shape == (10,)
+        assert region.extract(grid.lon2).shape == (19, 10)
+        assert np.allclose(region.extract(grid.lat), grid.lat)
 
     def test_combined(self):
         grid = Grid(resolution=10.)
         region = grid.region[20:50,:-50]
         assert region.shape == (5, 4)
-        assert np.allclose(region.lats, [-50, -60, -70, -80, -90])
-        assert np.allclose(region.lons, [20, 30, 40, 50])
-        assert np.allclose(region.extract(grid.lats), [-50, -60, -70, -80, -90])
-        assert np.allclose(region.extract(grid.lons), [20, 30, 40, 50])
-        assert region.extract(grid.phi).shape == (5, 4)
+        assert np.allclose(region.lat, [-50, -60, -70, -80, -90])
+        assert np.allclose(region.lon, [20, 30, 40, 50])
+        assert np.allclose(region.extract(grid.lat), [-50, -60, -70, -80, -90])
+        assert np.allclose(region.extract(grid.lon), [20, 30, 40, 50])
+        assert region.extract(grid.phi2).shape == (5, 4)
 
     def test_single(self):
         grid = Grid(resolution=10.)
         region = grid.region[80:80,40:40]
         assert region.shape == (1, 1)
-        assert np.allclose(region.lats, [40])
-        assert np.allclose(region.lons, [80])
-        assert region.extract(grid.fcor).shape == (1, 1)
+        assert np.allclose(region.lat, [40])
+        assert np.allclose(region.lon, [80])
+        assert region.extract(grid.fcor2).shape == (1, 1)
 
     def test_empty(self):
         grid = Grid(resolution=10.)
         region = grid.region[500:-200,-200:-300]
         assert region.shape == (0, 0)
-        assert region.lats.size == 0
-        assert region.lons.size == 0
-        assert region.extract(grid.lats).size == 0
+        assert region.lat.size == 0
+        assert region.lon.size == 0
+        assert region.extract(grid.lat).size == 0
 

@@ -42,8 +42,8 @@ def grid_repr(grid):
 
 def grid_region_repr(region):
     # Draw a crude "map" with a box for the selection
-    mask_lat = np.histogram(region.lats, np.linspace(-90, 90, 10))[0] > 0
-    mask_lon = np.histogram(region.lons, np.linspace(0, 360., 37))[0] > 0
+    mask_lat = np.histogram(region.lat, np.linspace(-90, 90, 10))[0] > 0
+    mask_lon = np.histogram(region.lon, np.linspace(0, 360., 37))[0] > 0
     mask = mask_lat[::-1,None] & mask_lon[None,:]
     out = ["    " + "".join(row) for row in np.where(mask, "X", "·")]
     out[0] += " 90°N"
@@ -51,8 +51,8 @@ def grid_region_repr(region):
     out[8] += " 90°S"
     out.append("    0°E              180°E")
     return "\n".join([
-        "Region {:6.2f} to {:6.2f} °N (nlat = {})".format(*region.lats[[-1,0]], region.shape[0]),
-        "       {:6.2f} to {:6.2f} °E (nlon = {})".format(*region.lons[[0,-1]], region.shape[1]),
+        "Region {:6.2f} to {:6.2f} °N (nlat = {})".format(*region.lat[[-1,0]], region.shape[0]),
+        "       {:6.2f} to {:6.2f} °E (nlon = {})".format(*region.lon[[0,-1]], region.shape[1]),
         "", *out, "",
         "of {}".format(repr(region._grid))
     ])

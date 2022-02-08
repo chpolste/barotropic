@@ -23,7 +23,7 @@ def from_dataset(dataset, names=None, grid_kwargs=None):
     """
     # TODO also accept fields of absolute/relative vorticity
     # TODO write proper error messages
-    # Dataset should have 3 dimensions: time, lon, lat
+    # Dataset should have 3 dimensions: time, lat, lon
     assert len(dataset.dims) == 3
     # Initialize mapping of coordinate names
     var_map = { "lat": None, "lon": None, "time": None, "u": None, "v": None }
@@ -55,16 +55,16 @@ def from_dataset(dataset, names=None, grid_kwargs=None):
     assert all(var is not None for var in var_map.values())
     # Extract latitude and longitude coordinates and verify basic
     # properties (non-emptyness, shape)
-    lons = dataset[var_map["lon"]].values
-    lats = dataset[var_map["lat"]].values
-    assert lats.size > 0
-    assert lons.size > 0
-    assert lats.shape[0] % 2 == 1
-    assert lats.shape[0] - 1 == lons.shape[-1] // 2
+    lon = dataset[var_map["lon"]].values
+    lat = dataset[var_map["lat"]].values
+    assert lat.size > 0
+    assert lon.size > 0
+    assert lat.shape[0] % 2 == 1
+    assert lat.shape[0] - 1 == lon.shape[-1] // 2
     # Verify that latitudes go from north pole to south pole, longitudes
     # from west to east and grid is regular
-    dlats = np.diff(lats, axis= 0).flatten()
-    dlons = np.diff(lons, axis=-1).flatten()
+    dlats = np.diff(lat, axis= 0).flatten()
+    dlons = np.diff(lon, axis=-1).flatten()
     dlat = dlats[0]
     dlon = dlons[0]
     assert dlat < 0

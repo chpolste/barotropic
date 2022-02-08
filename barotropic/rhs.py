@@ -103,10 +103,10 @@ class Orography(RHS):
     """Pseudo-orographic forcing based on a given gridded orography.
 
     Parameters:
-        lons (array): Longitudes of orography grid.
-        lats (array): Latitudes of orography grid.
+        lon (array): Longitudes of orography grid.
+        lat (array): Latitudes of orography grid.
         orography (array): Height of the orography in m on the lon-lat grid
-            defined by **lons** and **lats**.
+            defined by **lon** and **lat**.
         scale_height (number): Scale height in m.
         wind ((str, number)): Wind used to evaluate the
             forcing. Options:
@@ -142,9 +142,9 @@ class Orography(RHS):
     have to implement the `orography` method.
     """
 
-    def __init__(self, lons, lats, orography, scale_height=10000., wind=("act", 1.), fcor_ref=None):
-        self._lons = lons
-        self._lats = lats
+    def __init__(self, lon, lat, orography, scale_height=10000., wind=("act", 1.), fcor_ref=None):
+        self._lon = lon
+        self._lat = lat
         self._orography = orography
         self._scale_height = scale_height
         self._fcor_ref = fcor_ref
@@ -155,7 +155,7 @@ class Orography(RHS):
         elif wind_kind == "zon":
             self._get_wind = lambda state: (wind_fact * np.mean(state.u, axis=_ZONAL, keepdims=True), 0.)
         elif wind_kind == "sbr":
-            self._get_wind = lambda state: (wind_fact * np.cos(state.grid.phis)[:,None], 0.)
+            self._get_wind = lambda state: (wind_fact * np.cos(state.grid.phi)[:,None], 0.)
         else:
             raise ValueError("wind specification error")
 
@@ -169,9 +169,9 @@ class Orography(RHS):
             Orography in m.
         """
         # Interpolate given orography to grid. Because np.interp requires
-        # increasing x-values, flip sign of lats which range from +90° to -90°.
-        lat_interp = lambda x: np.interp(-grid.lats, -self._lats, x)
-        lon_interp = lambda x: np.interp( grid.lons,  self._lons, x)
+        # increasing x-values, flip sign of lat which range from +90° to -90°.
+        lat_interp = lambda x: np.interp(-grid.lat, -self._lat, x)
+        lon_interp = lambda x: np.interp( grid.lon,  self._lon, x)
         # 2D linear interpolation
         orog = np.apply_along_axis(lat_interp, 0, self._orography)
         return np.apply_along_axis(lon_interp, 1, orog)
@@ -189,7 +189,7 @@ class Orography(RHS):
         """Evaluate the forcing term for the given state."""
         grid = state.grid
         # Fixed coriolis parameter if given or use actual values from grid
-        fcor = grid.fcor if self._fcor_ref is None else self._fcor_ref
+        fcor = grid.fcor2 if self._fcor_ref is None else self._fcor_ref
         # Get wind and gradient of orography
         u, v = self._get_wind(state)
         gradx, grady = self._orography_gradient(grid)
@@ -223,9 +223,9 @@ class GaussianMountain(Orography):
     def orography(self, grid):
         return (self._height
                 # Decaying in zonal direction
-                * ( np.exp(-0.5 * (grid.lon - self._center_lon)**2 / self._stdev_lon_sq) )
+                * ( np.exp(-0.5 * (grid.lon2 - self._center_lon)**2 / self._stdev_lon_sq) )
                 # Decaying in meridional direction
-                * ( np.exp(-0.5 * (grid.lat - self._center_lat)**2 / self._stdev_lat_sq) ))
+                * ( np.exp(-0.5 * (grid.lat2 - self._center_lat)**2 / self._stdev_lat_sq) ))
 
 
 class ZonalSineMountains(Orography):
@@ -252,7 +252,7 @@ class ZonalSineMountains(Orography):
     def orography(self, grid):
         return (self._height
                 # Periodic in zonal direction
-                * ( 0.5 * (1 + np.cos(self._wavenumber * grid.lam)) )
+                * ( 0.5 * (1 + np.cos(self._wavenumber * grid.lam2)) )
                 # Decaying in meridional direction
-                * ( np.exp(-0.5 * (grid.lat - self._center_lat)**2 / self._stdev_lat_sq) ))
+                * ( np.exp(-0.5 * (grid.lat2 - self._center_lat)**2 / self._stdev_lat_sq) ))
 
