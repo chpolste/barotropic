@@ -247,7 +247,7 @@ class Grid:
         Parameters:
             f (array): 1D or 2D input field.
             order (2 | 4): Order of the finite-difference approximation.
-        
+
         Returns:
             Array containing the derivative.
 
@@ -363,7 +363,7 @@ class Grid:
     @property
     def gridpoint_area(self):
         """Surface area of each gridpoint as a function of latitude.
-        
+
         The area associated with a gridpoint (λ, φ) in a regular lon-lat grid::
 
             r² * dλ * ( sin(φ + dφ) - sin(φ - dφ) )
@@ -695,7 +695,7 @@ class Grid:
             return scipy.ndimage.convolve(field, window[:,None], mode="reflect")
         else:
             raise ValueError("input field must be 1- or 2-dimensional")
-            
+
 
     def filter_zonal(self, field, window, width=None):
         """Filter the input in zonal direction with the given window.
@@ -804,7 +804,7 @@ class GridRegionIndexer:
 
 
 class GridRegion:
-    
+
     def __init__(self, grid, lat_indices, lon_indices):
         self._grid = grid
         self._lon_indices = np.require(lon_indices, dtype=int)
@@ -858,7 +858,7 @@ class GridRegion:
     @property
     def lons(self):
         """Longitudes of the region.
-        
+
         If the region crosses the 0° meridian, these will not be monotonic. If
         you need a monotonic longitude coordinate, e.g. for plotting, use
         `lons_mono`, where lontitudes left of the 0° are reduced by 360°.

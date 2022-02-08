@@ -130,7 +130,7 @@ def configure_lat_y(ax, hemisphere):
 def summary(state, figsize=(11, 7), hemisphere="both", center_lon=180, pv_cmap="viridis",
         pv_max=None, v_max=None):
     """4-panel plot showing the model state in terms of vorticity and wind.
-    
+
     Parameters:
         state (:py:class:`.State`): Visualized state.
         figsize ((number, number)): Figure size.
@@ -207,7 +207,7 @@ def summary(state, figsize=(11, 7), hemisphere="both", center_lon=180, pv_cmap="
 
 def wave_activity(state, figsize=(11, 7), hemisphere="both", center_lon=180, falwa_cmap="YlOrRd"):
     """4-panel plot with Finite-Amplitude Wave Activity and PV diagnostics.
-    
+
     Parameters:
         state (:py:class:`.State`): Visualized state.
         figsize ((number, number)): Figure size.
@@ -267,7 +267,7 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", center_lon=180, fal
 def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, v_max=None,
         rwp_max=None, rwp_cmap="YlOrRd"):
     """3-panel plot with Rossby wave packet diagnostics.
-    
+
     Parameters:
         state (:py:class:`.State`): Visualized state.
         figsize ((number, number)): Figure size.
@@ -328,7 +328,7 @@ def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, 
 def waveguides(state, k_waveguides=None, hemisphere="both", klim_bounds=(-5, 15),
         legend_loc=None):
     """2-panel plot showing stationary wavenumber and WKB waveguide diagnostics.
-    
+
     Parameters:
         state (:py:class:`.State`): Visualized state.
         k_waveguides (None | number | iterable): Wavenumber(s) for which

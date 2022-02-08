@@ -15,7 +15,7 @@ class BarotropicModel:
         diffusion_coeff (number): Strength of diffusion.
 
     Barotropic PV equation with forcing::
-    
+
         Dq/Dt = ∂q/∂t + ∇(u·q) = RHS,
 
     where ``q`` is the barotropic potential vorticity (i.e. absolute vorticity)
@@ -76,7 +76,7 @@ class BarotropicModel:
                 states.append(state)
                 t_save += save_every
         return state, states
-    
+
     def euler(self, state_now, dt):
         """Step forward in time with a first-order Euler-forward scheme
 
@@ -156,7 +156,7 @@ class BarotropicModel:
 
 def _to_seconds(dt):
     """Return time interval dt as number of seconds
-    
+
     Provides compatibility with both timedelta objects and direct input of dt
     as a number of seconds.
     """

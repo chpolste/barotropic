@@ -28,7 +28,7 @@ def zonally_symmetric(grid, time=0., u=None, pv=None):
 
     Returns:
         New :py:class:`.State` instance.
-    
+
     **u** xor **pv** must be specified.
     """
     # Zonal profile of zonal wind given
@@ -49,12 +49,12 @@ def zonally_symmetric(grid, time=0., u=None, pv=None):
 
 def solid_body_rotation(grid, time=0., amplitude=15.):
     """A cosine-shaped, zonally-symmetric zonal wind profile.
-    
+
     Parameters:
         grid (:py:class:`.Grid`): Grid specification.
         time (number | datetime): Valid time.
         amplitude (number): Peak zonal wind speed at the equator in m/s.
-    
+
     Returns:
         New :py:class:`.State` instance.
     """
@@ -72,7 +72,7 @@ def gaussian_jet(grid, time=0., amplitude=20., center_lat=45., stdev_lat=5.):
         amplitude (number): Peak zonal wind at the center of the jet in m/s.
         center_lat (number): Center of the jet in degrees.
         stdev_lat (number): Standard deviation of the jet in degrees.
-    
+
     Returns:
         New :py:class:`.State` instance.
 
@@ -98,7 +98,7 @@ def held_1985(grid, time=0., A=25., B=30., C=300.):
         A (number): Coefficient for cos-term.
         B (number): Coefficient for cos³-term.
         C (number): Coefficient for cos⁶sin²-term.
-    
+
     Returns:
         New :py:class:`.State` instance.
 

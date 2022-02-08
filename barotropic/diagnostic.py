@@ -217,7 +217,7 @@ def filter_by_wavenumber(field, wavenumber):
 
     Returns:
         Filtered field.
-    
+
     Apply Hann smoothing in zonal direction with the Hann window width governed
     at every gridpoint by the wavenumber given for the same location. The
     wavelength corresponding to each wavenumber determines the full width at

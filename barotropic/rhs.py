@@ -8,7 +8,7 @@ from .constants import ZONAL as _ZONAL
 
 class RHS:
     """RHS forcing term base class that implements arithmetic operators.
-    
+
     Forcing terms should inherit from this class so they can be added and
     multiplied easily.
     """
@@ -84,7 +84,7 @@ class LinearRelaxation(RHS):
 
     def __init__(self, rate, reference_pv, mask=None):
         """Specify the reference PV field and speed of relaxation.
-        
+
         The forcing is calculated as
 
         where `pv` is the PV field of the current timestep.

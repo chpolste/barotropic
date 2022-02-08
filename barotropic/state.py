@@ -54,7 +54,7 @@ class State:
     @classmethod
     def from_wind(cls, grid, time, u, v):
         """Initialize a model state based on wind components.
-        
+
         Parameters:
             grid (:py:class:`Grid`): Given to the default constructor.
             time (number | datetime): Given to the default constructor.
@@ -86,7 +86,7 @@ class State:
 
     def add_wind(self, other):
         """Wind-based addition of atmospheric states.
-        
+
         Parameters:
             other (tuple | :py:class:`State`): other wind field in the
                 addition. Specify directly as (u,v)-tuple or extracted from
@@ -203,7 +203,7 @@ class State:
     @_cached_property
     def pv_zonalized(self):
         """Zonalized PV profile on the regular latitude grid.
-        
+
         See :py:meth:`Grid.zonalize`.
         """
         return self.grid.zonalize(self.pv, interpolate=True)
@@ -211,7 +211,7 @@ class State:
     @property
     def fawa(self):
         """Finite-Amplitude Wave Activity on the regular grid.
-        
+
         See :py:func:`diagnostic.fawa`.
         """
         # Instead of an extra computation with diagnostic.fawa, use that
@@ -221,7 +221,7 @@ class State:
     @_cached_property
     def falwa(self):
         """Finite-Amplitude Local Wave Activity on the regular grid.
-        
+
         See :py:func:`diagnostic.falwa`.
         """
         return diagnostic.falwa(self, interpolate=True)
@@ -233,7 +233,7 @@ class State:
         The FALWA field is filtered based on the doubled dominant wavenumber of
         the meridional wind obtained from Fourier analysis at each latitude as
         in Ghinassi et al. (2020).
-        
+
         See :py:func:`diagnostic.falwa`,
         :py:func:`diagnostic.dominant_wavenumber_fourier` and
         :py:func:`diagnostic.filter_by_wavenumber`.
@@ -244,7 +244,7 @@ class State:
     @property
     def falwa_hn2016(self):
         """Finite-Amplitude Local Wave Activity on the regular grid.
-        
+
         See :py:func:`diagnostic.falwa_hn2016`.
         """
         # TODO remove, replace with constructor for hn2016 barotropic objects
