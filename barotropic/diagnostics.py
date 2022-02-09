@@ -312,7 +312,7 @@ def stationary_wavenumber(u_or_state, grid=None, order=4, min_u=0.001, kind="com
     raise ValueError("kind parameter must be one of 'squared', 'complex', 'real'")
 
 
-def extract_waveguides(ks_or_state, k, grid=None):
+def extract_ks_waveguides(ks_or_state, k, grid=None):
     """Extract waveguide boundaries based on the stationary wavenumber.
 
     Parameters:

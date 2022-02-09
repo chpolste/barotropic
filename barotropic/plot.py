@@ -3,7 +3,7 @@ from numbers import Number
 import warnings
 import numpy as np
 from .constants import ZONAL as _ZONAL, MERIDIONAL as _MERIDIONAL
-from . import diagnostic, formatting
+from . import diagnostics, formatting
 
 try:
     import matplotlib.pyplot as plt
@@ -264,7 +264,7 @@ def wave_activity(state, figsize=(11, 7), hemisphere="both", center_lon=180, fal
     return fig
 
 
-def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, v_max=None,
+def rwp_diagnostics(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, v_max=None,
         rwp_max=None, rwp_cmap="YlOrRd"):
     """3-panel plot with Rossby wave packet diagnostics.
 
@@ -290,14 +290,14 @@ def rwp_diagnostic(state, figsize=(8, 10.5), hemisphere="both", center_lon=180, 
     v_levels = symmetric_levels(v, 10, ext=v_max)
     ctf = ax1.contourf(grid.lon2, grid.lat2, roll(v), levels=v_levels, cmap="RdBu_r", extend="both")
     fig.colorbar(ctf, ax=ax1)
-    dwn = diagnostic.dominant_wavenumber_wavelet(state.v, grid)
+    dwn = diagnostics.dominant_wavenumber_wavelet(state.v, grid)
     dwn_levels = np.arange(1, 11)
     if np.min(dwn) != np.max(dwn):
         ct = ax1.contour(grid.lon2, grid.lat2, roll(dwn), levels=dwn_levels, colors="k", linestyles="-", linewidths=1)
         ax1.clabel(ct, ct.levels, inline=True, fmt="%d")
     # Common colorbar range for envelope and filtered FALWA
     env = state.v_envelope_hilbert
-    ffalwa = diagnostic.filter_by_wavenumber(state.falwa, 2*dwn)
+    ffalwa = diagnostics.filter_by_wavenumber(state.falwa, 2*dwn)
     if rwp_max is None:
         rwp_max = max(np.max(env), np.max(ffalwa))
     rwp_levels = np.linspace(0, rwp_max, 6)
@@ -358,7 +358,7 @@ def waveguides(state, k_waveguides=None, hemisphere="both", klim_bounds=(-5, 15)
         # Collect boundary points of waveguides, intersperse with NaN values
         # which prevents connection between individual waveguides
         wg_coords = []
-        for x, y in diagnostic.extract_waveguides(ks, k, grid=grid):
+        for x, y in diagnostics.extract_ks_waveguides(ks, k, grid=grid):
             wg_coords += [np.nan, x, y]
         # Let matplotlib choose the color
         ax2.plot([k]*len(wg_coords), wg_coords, label="k={}".format(k))

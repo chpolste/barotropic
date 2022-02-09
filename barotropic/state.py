@@ -1,5 +1,5 @@
 import numpy as np
-from . import diagnostic, formatting
+from . import diagnostics, formatting
 from .constants import ZONAL
 from .grid import Grid
 
@@ -212,9 +212,9 @@ class State:
     def fawa(self):
         """Finite-Amplitude Wave Activity on the regular grid.
 
-        See :py:func:`diagnostic.fawa`.
+        See :py:func:`diagnostics.fawa`.
         """
-        # Instead of an extra computation with diagnostic.fawa, use that
+        # Instead of an extra computation with diagnostics.fawa, use that
         # FAWA is the zonal average of FALWA (Huang and Nakamura 2016)
         return self.falwa.mean(axis=ZONAL)
 
@@ -222,9 +222,9 @@ class State:
     def falwa(self):
         """Finite-Amplitude Local Wave Activity on the regular grid.
 
-        See :py:func:`diagnostic.falwa`.
+        See :py:func:`diagnostics.falwa`.
         """
-        return diagnostic.falwa(self, interpolate=True)
+        return diagnostics.falwa(self, interpolate=True)
 
     @property
     def falwa_filtered(self):
@@ -234,32 +234,32 @@ class State:
         the meridional wind obtained from Fourier analysis at each latitude as
         in Ghinassi et al. (2020).
 
-        See :py:func:`diagnostic.falwa`,
-        :py:func:`diagnostic.dominant_wavenumber_fourier` and
-        :py:func:`diagnostic.filter_by_wavenumber`.
+        See :py:func:`diagnostics.falwa`,
+        :py:func:`diagnostics.dominant_wavenumber_fourier` and
+        :py:func:`diagnostics.filter_by_wavenumber`.
         """
-        dominant_wavenumber = diagnostic.dominant_wavenumber_fourier(self.v, self.grid)
-        return diagnostic.filter_by_wavenumber(self.falwa, 2*dominant_wavenumber)
+        dominant_wavenumber = diagnostics.dominant_wavenumber_fourier(self.v, self.grid)
+        return diagnostics.filter_by_wavenumber(self.falwa, 2*dominant_wavenumber)
 
     @property
     def v_envelope_hilbert(self):
         """Envelope of wave packets based on the Hilbert transform.
 
-        See :py:func:`diagnostic.envelope_hilbert`.
+        See :py:func:`diagnostics.envelope_hilbert`.
         """
-        return diagnostic.envelope_hilbert(self.v, (2, 10))
+        return diagnostics.envelope_hilbert(self.v, (2, 10))
 
     @property
     def stationary_wavenumber(self):
         """Non-dimensionalised stationary (zonal) wavenumber (``Ks``, complex).
 
-        See :py:func:`diagnostic.stationary_wavenumber`.
+        See :py:func:`diagnostics.stationary_wavenumber`.
         """
-        return diagnostic.stationary_wavenumber(self)
+        return diagnostics.stationary_wavenumber(self)
 
-    def extract_waveguides(self, *args, **kwargs):
-        """Shortcut to :py:func:`diagnostic.extract_waveguides`."""
-        return diagnostic.extract_waveguides(self, *args, **kwargs)
+    def extract_ks_waveguides(self, *args, **kwargs):
+        """Shortcut to :py:func:`diagnostics.extract_ks_waveguides`."""
+        return diagnostics.extract_ks_waveguides(self, *args, **kwargs)
 
     # Shortcut to model integration
 
@@ -276,7 +276,7 @@ class State:
 
         Provides shortcuts to:
 
-        - :py:func:`plot.rwp_diagnostic`
+        - :py:func:`plot.rwp_diagnostics`
         - :py:func:`plot.summary`
         - :py:func:`plot.wave_activity`
         - :py:func:`plot.waveguides`
@@ -359,9 +359,9 @@ class StatePlotter:
         from . import plot
         plot.wave_activity(self._state, *args, **kwargs)
 
-    def rwp_diagnostic(self, *args, **kwargs):
+    def rwp_diagnostics(self, *args, **kwargs):
         from . import plot
-        plot.rwp_diagnostic(self._state, *args, **kwargs)
+        plot.rwp_diagnostics(self._state, *args, **kwargs)
 
     def waveguides(self, *args, **kwargs):
         from . import plot
