@@ -29,7 +29,7 @@ def _restrict_fourier_zonal(field, kmin, kmax):
     return np.fft.irfft(xfft, axis=_ZONAL)
 
 
-def fawa(pv_or_state, grid=None, levels=None, interpolate=True):
+def fawa(pv_or_state, grid=None, levels=None, interpolate=True, quad="sptrapz"):
     """Finite-Amplitude Wave Activity according to Nakamura and Zhu (2010).
 
     Parameters:
@@ -41,6 +41,8 @@ def fawa(pv_or_state, grid=None, levels=None, interpolate=True):
             the grid. If `False`, FAWA is returned on the equivalent latitudes
             obtained from the zonalization procedure. These may be irregular
             and unordered.
+        quad (str): Quadrature rule used in the surface integrals of the
+            computation. See :py:meth:`quad`.
 
     Returns:
         If **interpolate** is `True`, return FAWA interpolated onto the
@@ -49,11 +51,11 @@ def fawa(pv_or_state, grid=None, levels=None, interpolate=True):
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
-    qq, yy = grid.zonalize(pv, levels=levels, interpolate=False, quad="sptrapz")
+    qq, yy = grid.zonalize(pv, levels=levels, interpolate=False, quad=quad)
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
-    q_int = np.vectorize(lambda q: grid.quad_sptrapz(pv, pv - q))
-    y_int = np.vectorize(lambda y: grid.quad_sptrapz(pv, grid.lat2 - y))
+    q_int = np.vectorize(lambda q: grid.quad(pv, pv-q, method=quad))
+    y_int = np.vectorize(lambda y: grid.quad(pv, grid.lat2-y, method=quad))
     # Normalize by zonal circumference at each latitude
     fawa = (q_int(qq) - y_int(yy)) / grid.circumference(yy)
     # No interpolation: return contour values on equivalent latitudes from
@@ -64,7 +66,7 @@ def fawa(pv_or_state, grid=None, levels=None, interpolate=True):
     return grid.interpolate_meridional(fawa, yy, pole_values=(0., 0.))
 
 
-def falwa(pv_or_state, grid=None, levels=None, interpolate=True):
+def falwa(pv_or_state, grid=None, levels=None, interpolate=True, quad="sptrapz"):
     """Finite-Amplitude Local Wave Activity according to Huang and Nakamura (2016).
 
     Parameters:
@@ -76,6 +78,8 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=True):
             the grid. If `False`, FALWA is returned on the equivalent latitudes
             obtained from the zonalization procedure. These may be irregular
             and unordered.
+        quad (str): Quadrature rule used in the surface integrals of the
+            computation. See :py:meth:`quad`.
 
     Returns:
         If **interpolate** is `True`, return FALWA interpolated onto the
@@ -84,11 +88,11 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=True):
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
-    qq, yy = grid.zonalize(pv, levels=levels, interpolate=False, quad="sptrapz")
+    qq, yy = grid.zonalize(pv, levels=levels, interpolate=False, quad=quad)
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
-    q_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, pv - q), 2, 1)
-    y_int = np.frompyfunc(lambda q, y: grid.quad_sptrapz_meridional(pv - q, grid.lat2 - y), 2, 1)
+    q_int = np.frompyfunc(lambda q, y: grid.quad_meridional(pv-q, pv-q, method=quad), 2, 1)
+    y_int = np.frompyfunc(lambda q, y: grid.quad_meridional(pv-q, grid.lat2-y, method=quad), 2, 1)
     # Stack meridional integrals (normalized by cosine of latitude) along zonal
     # direction to obtain full field again
     falwa = np.stack((q_int(qq, yy) - y_int(qq, yy)) / np.cos(np.deg2rad(yy)))

@@ -17,11 +17,12 @@ class TestGrid:
 
     @pytest.mark.parametrize("resolution", [2.5, 5, 10., 30., 90.])
     @pytest.mark.parametrize("rsphere", [1000., 10000, 100000.])
-    def test_quad_sptrapz(self, resolution, rsphere):
+    @pytest.mark.parametrize("method", ["boxcount", "sptrapz"])
+    def test_quad(self, resolution, rsphere, method):
         grid = Grid(resolution, rsphere=rsphere)
         y = np.ones_like(grid.lat2)
         # Integration mus reproduce area of sphere exactly
-        area_sum = grid.quad_sptrapz(y)
+        area_sum = grid.quad(y, method=method)
         area_ref = 4 * np.pi * rsphere * rsphere
         assert np.allclose(area_sum, area_ref)
         # Method must fail for other inputs
@@ -31,23 +32,6 @@ class TestGrid:
             grid.quad_sptrapz(np.ones(grid.nlat, dtype=float))
         with pytest.raises(Exception):
             grid.quad_sptrapz(np.ones(grid.nlon, dtype=float))
-
-    @pytest.mark.parametrize("resolution", [2.5, 5, 10., 30., 90.])
-    @pytest.mark.parametrize("rsphere", [1000., 10000, 100000.])
-    def test_quad_boxcount(self, resolution, rsphere):
-        grid = Grid(resolution, rsphere=rsphere)
-        y = np.ones_like(grid.lat2)
-        # Integration mus reproduce area of sphere exactly
-        area_sum = grid.quad_boxcount(y)
-        area_ref = 4 * np.pi * rsphere * rsphere
-        assert np.allclose(area_sum, area_ref)
-        # Method must fail for other inputs
-        with pytest.raises(Exception):
-            grid.quad_boxcount(1.)
-        with pytest.raises(Exception):
-            grid.quad_boxcount(np.ones(grid.nlat, dtype=float))
-        with pytest.raises(Exception):
-            grid.quad_boxcount(np.ones(grid.nlon, dtype=float))
 
     def test_derivative_meridional_1D_with_phi(self):
         grid = Grid()

@@ -418,105 +418,109 @@ class Grid:
 
     # Numerical quadrature
 
-    def quad_boxcount(self, y, where=True):
-        """Surface integral with a box-counting quadrature.
-
-        Parameters:
-            y (array): 2D input field.
-            where (array): Boolean array specifying a custom domain of
-                integration.
-
-        Returns:
-            Value of the integral.
-        """
-        assert y.ndim == 2
-        assert y.shape[0] == self.nlat
-        return np.sum(self.gridpoint_area[:,None] * y, where=where)
-
-    def quad_sptrapz(self, y, z=None):
-        """Surface integral with a trapezoidal quadrature.
+    def quad(self, y, z=None, method="sptrapz"):
+        """Surface integral with an optional custom domain of integration.
 
         Parameters:
             y (array): 2D input field.
             z (array): Custom domain of integration given by the region **z** >= 0.
+            method ("boxcount" | "sptrapz"): quadrature scheme.
 
         Returns:
             Value of the integral.
 
-        See :py:meth:`quad_sptrapz_meridional`.
+        See also :py:meth:`quad_meridional`.
         """
-        return self.rsphere * self.dlam * np.sum(self.quad_sptrapz_meridional(y, z))
+        return self.rsphere * self.dlam * np.sum(self.quad_meridional(y, z, method))
 
-    def quad_sptrapz_meridional(self, y, z=None):
-        """Line integral along meridians using linear interpolation.
+    def quad_meridional(self, y, z=None, method="sptrapz"):
+        """Line integral along meridians.
 
         Parameters:
             y (array): 2D input field.
             z (array): Custom domain of integration given by the region **z** >= 0.
+            method ("boxcount" | "sptrapz"): quadrature scheme.
 
         Returns:
-            nlon-shaped array of integral values.
+            nlon-sized array of integral values.
 
-        The quadrature rule is based on the trapezoidal rule adapted for
-        sperical surface domains using the antiderivate of ``r * (a*φ + b) * cos(φ)``
+        The sptrapz quadrature scheme is based on the trapezoidal rule adapted
+        for sperical surface domains using the antiderivate of ``r * (a*φ + b) * cos(φ)``
         to integrate over the piecewise-linear, interpolated segments between
         gridpoints in the meridional direction. If given, the field that
         defines the custom domain of integration is also linearly interpolated.
-        This implementation is accurate but rather slow.
+        This implementation is accurate but slow compared to the much simpler
+        boxcounting. Note that no interpolation is carried out in the zonal
+        direction (since lines of constant latitude are not great-circles,
+        linear interpolation is non-trivial). The boundaries of the domain of
+        integration are therefore not continuous in the zonal direction even
+        for the sptrapz scheme.
 
-        No interpolation is carried out in the zonal direction (since lines of
-        constant latitude are not great-circles, linear interpolation is
-        non-trivial). The boundaries of the domain of integration are therefore
-        not continuous in the zonal direction.
+        See also :py:meth:`quad`.
         """
-        assert y.ndim == 2
-        assert y.shape[0] == self.nlat
-        # Take only as much of phi as needed for the given data (input might
-        # only be a sector of the full globe)
-        x = self.phi2[:,:y.shape[1]]
-        # If no z-values are given, integrate everywhere
-        if z is None:
-            z = np.ones_like(y)
-        # Construct slicing tuple based on latitude axis (-2)
-        js = slice(None,   -1), slice(None, None)
-        je = slice(   1, None), slice(None, None)
-        # Precompute x- and y-distances along axis
-        dx = x[je] - x[js]
-        dy = y[je] - y[js]
-        # Compute slopes and offsets of piecewise linear y-interpolation
-        # y = a*x + b
-        aa = dy / dx
-        bb = y[js] - aa * x[js]
-        # Determine integration domain: where are z-values greater than 0?
-        nonneg = z >= 0
-        # Case 1: Intervals in which z-values change from negative to positive are
-        # trimmed such that z = 0 at the left boundary point.
-        interp_start = ~nonneg[js] & nonneg[je]
-        zl = z[js][interp_start] # left z-value of interval
-        zr = z[je][interp_start] # right z-value of interval
-        # Compute position of z-root, this is the new left interval boundary
-        xs = x[js].copy()
-        xs[interp_start] = xs[interp_start] - zl / (zr - zl) * dx[interp_start]
-        # Case 2: Intervals in which z-values change from positive to negative are
-        # trimmed such that z = 0 at the right boundary point.
-        interp_end = nonneg[js] & ~nonneg[je]
-        zl = z[js][interp_end] # left z-value of interval
-        zr = z[je][interp_end] # right z-value of interval
-        # Compute position of z-root, this is the new right interval boundary
-        xe = x[je].copy()
-        xe[interp_end] = xe[interp_end] - zr / (zr - zl) * dx[interp_end]
-        # Piecewise integration of
-        #   (a*x + b) * r * cos(x)
-        # along meridian using antiderivative
-        #   (a*cos(x) - (a*x + b) * sin(x)) * r
-        # Integrate in reverse order to flip sign of result since phi goes from
-        # +pi/2 to -pi/2
-        trapz = self.rsphere * (
-                    aa * (np.cos(xs) - np.cos(xe))
-                    + (aa * xs + bb) * np.sin(xs)
-                    - (aa * xe + bb) * np.sin(xe))
-        # Only intervals where z is positive somewhere are considered
-        return np.sum(trapz, where=np.logical_or(nonneg[js], nonneg[je]), axis=-2)
+        # Check that number of meridional gridpoints matches. Allow mismatch in
+        # longitude to make sectoral zonalization possible.
+        assert y.ndim == 2, "input field must be 2-dimensional"
+        assert y.shape[MERIDIONAL] == self.nlat, "shape mismatch in meridional dimension"
+        # Method: boxcounting quadrature
+        if method == "boxcount":
+            # Integrate everywhere or extract domain of integration from z
+            domain = True if z is None else (z >= 0)
+            # Boxcounting is just area times value in the domain
+            area = np.sum(self.gridpoint_area[:,None] * y, where=domain, axis=MERIDIONAL)
+            # Convert to line integral
+            return area / self.rsphere / self.dlam
+        # Method: trapezoidal rule for the sphere
+        elif method == "sptrapz":
+            # Take only as much of phi as needed for the given data (input might
+            # only be a sector of the full globe)
+            x = self.phi2[:,:y.shape[1]]
+            # If no z-values are given, integrate everywhere
+            if z is None:
+                z = np.ones_like(y)
+            # Construct slicing tuple based on latitude axis (-2)
+            js = slice(None,   -1), slice(None, None)
+            je = slice(   1, None), slice(None, None)
+            # Precompute x- and y-distances along axis
+            dx = x[je] - x[js]
+            dy = y[je] - y[js]
+            # Compute slopes and offsets of piecewise linear y-interpolation
+            # y = a*x + b
+            aa = dy / dx
+            bb = y[js] - aa * x[js]
+            # Determine integration domain: where are z-values greater than 0?
+            nonneg = z >= 0
+            # Case 1: Intervals in which z-values change from negative to positive are
+            # trimmed such that z = 0 at the left boundary point.
+            interp_start = ~nonneg[js] & nonneg[je]
+            zl = z[js][interp_start] # left z-value of interval
+            zr = z[je][interp_start] # right z-value of interval
+            # Compute position of z-root, this is the new left interval boundary
+            xs = x[js].copy()
+            xs[interp_start] = xs[interp_start] - zl / (zr - zl) * dx[interp_start]
+            # Case 2: Intervals in which z-values change from positive to negative are
+            # trimmed such that z = 0 at the right boundary point.
+            interp_end = nonneg[js] & ~nonneg[je]
+            zl = z[js][interp_end] # left z-value of interval
+            zr = z[je][interp_end] # right z-value of interval
+            # Compute position of z-root, this is the new right interval boundary
+            xe = x[je].copy()
+            xe[interp_end] = xe[interp_end] - zr / (zr - zl) * dx[interp_end]
+            # Piecewise integration of
+            #   (a*x + b) * r * cos(x)
+            # along meridian using antiderivative
+            #   (a*cos(x) - (a*x + b) * sin(x)) * r
+            # Integrate in reverse order to flip sign of result since phi goes from
+            # +pi/2 to -pi/2
+            trapz = self.rsphere * (
+                        aa * (np.cos(xs) - np.cos(xe))
+                        + (aa * xs + bb) * np.sin(xs)
+                        - (aa * xe + bb) * np.sin(xe))
+            # Only intervals where z is positive somewhere are considered
+            return np.sum(trapz, where=np.logical_or(nonneg[js], nonneg[je]), axis=MERIDIONAL)
+        # Unknown method of quadrature
+        else:
+            raise ValueError(f"unknown quadrature scheme '{method}'")
 
     # Equivalent-latitude zonalization
 
@@ -557,11 +561,8 @@ class Grid:
                 grid. Without interpolation, values are returned on the
                 equivalent latitudes that arise in the computation. These may
                 be irregular and unordered.
-            quad ("sptrapz" | "boxcount"): Quadrature rule used in the surface
-                integrals of the computation. See :py:meth:`quad_sptrapz` and
-                :py:meth:`quad_boxcount`. It is highly recommended to use the
-                slower, but much more accurate trapezoidal quadrature to avoid
-                the "jumpiness" associated with the boxcounting scheme.
+            quad (str): Quadrature rule used in the surface integrals of the
+                computation. See :py:meth:`quad`.
 
         Returns:
             If **interpolate** is `True`, return the contour values
@@ -591,15 +592,10 @@ class Grid:
         # Otherwise use the given contour values
         else:
             q = levels
-        # Determine area where each threshold is exceeded
-        ones = np.ones_like(field) # integrating field of ones yields area
-        if quad == "sptrapz":
-            area_int = lambda thresh: self.quad_sptrapz(ones, z=(field - thresh))
-        elif quad == "boxcount":
-            area_int = lambda thresh: self.quad_boxcount(ones, where=(field >= thresh))
-        else:
-            raise ValueError("unknown quadrature method '{}'".format(quad))
-        area = np.vectorize(area_int)(q)
+        # Integrating a field of ones in the regions where each threshold is
+        # exceeded yields the area of these regions
+        ones = np.ones_like(field)
+        area = np.vectorize(lambda thresh: self.quad(ones, z=(field-thresh), method=quad))(q)
         # If the input field is only a sector of the full globe (determined by
         # the width relative to the full globe at the given resolution), adjust
         # the integrated contour areas such that they correspond to the full
