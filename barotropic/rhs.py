@@ -83,14 +83,6 @@ class LinearRelaxation(RHS):
     """
 
     def __init__(self, rate, reference_pv, mask=None):
-        """Specify the reference PV field and speed of relaxation.
-
-        The forcing is calculated as
-
-        where `pv` is the PV field of the current timestep.
-
-        The `mask` parameter does nothing at the moment.
-        """
         self._rate = rate
         self._reference_pv = reference_pv
         # TODO: mask (allows implementation of sponge-like forcing)
@@ -124,12 +116,9 @@ class Orography(RHS):
             values are used to calculate the forcing, otherwise the given value
             (in 1/s) is used as a constant everywhere.
 
-    The forcing is calculated as::
-
-        -f/H * u·∇h,
-
-    where ``f`` is the coriolis parameter in 1/s, ``H`` the scale height, ``u``
-    the horizontal wind and ``h`` is the height of the orography.
+    The forcing is calculated as ``-f/H * u·∇h`` where ``f`` is the coriolis
+    parameter in 1/s, ``H`` the scale height, ``u`` the horizontal wind and
+    ``h`` is the height of the orography.
 
     This is class only supports time-invariant fields of orography. The height
     field must be given on a lon-lat grid. The orography is linearly

@@ -1,28 +1,25 @@
 Barotropic
 ==========
 
-Integrate the barotropic PV equation on the sphere. Fields are represented on a regular latitude-longitude grid while spatial derivatives are evaluated in spectral space (spherical harmonics). The model uses a leapfrog time integration scheme with Robert-Asselin filter, initialized with an Euler-forward step.
+A framework for barotropic analysis and modelling of the atmosphere.
 
-.. warning::
-   :py:mod:`barotropic` version 3 is in development and will contain changes to the API.
-
-
-Package Documentation
-=====================
-
-.. toctree::
-   :maxdepth: 1
-
-   module
-   init
-   rhs
-   plot
-   diagnostic
-   io
+.. note::
+    Version 3.0, released in Feb 2022, contains extensive changes to the :py:mod:`barotropic` API and breaks backward compatibility in many (if not most) places.
+    See below for advice on the transition from version 2.x to 3.x.
 
 
-Quickstart
-==========
+Features
+========
+
+- Integration of the barotropic PV equation on the sphere. 
+  Fields are represented on a regular latitude-longitude grid while spatial derivatives are evaluated in spectral space (spherical harmonics).
+  The model uses a leapfrog time integration scheme with Robert-Asselin filter, initialized with an Euler-forward step.
+- A range of diagnostic functions to investigate properties of the flow and extract features, e.g. Rossby wave packets.
+- Predefined plotting functions, initial condition presets and forcing terms.
+
+The package is object-oriented, modular and easy to use.
+The implementations are kept simple but sufficiently fast to allow interactive use at moderate spatial and temporal resolutions (e.g. 2.5° spatial resolution with 10 minute timesteps).
+A simulation can be set up, run and visualized in under 10 lines of code, e.g.:
 
 .. code::
    python
@@ -44,29 +41,62 @@ Quickstart
    examples/example-summary-plot.png
 
 
-Examples
-========
 
-Jupyter notebooks utilizing :py:mod:`barotropic`:
+Installation
+============
 
-- :doc:`examples/rwp-diagnostic-ghinassi-et-al-2018`
-- :doc:`examples/waveguidability-wirth-2020`
-- :doc:`examples/wavenumber-based-filtering`
+Get the package from PyPI:
 
+.. code::
+    bash
+
+    $ pip install barotropic
+
+Alternatively, grab the source from GitHub: https://github.com/chpolste/barotropic.
+
+Dependencies:
+
+- :py:mod:`numpy`
+- :py:mod:`scipy`
+- :py:mod:`spharm`
+- :py:mod:`matplotlib` (optional)
+- :py:mod:`pywt` (optional)
+- :py:mod:`hn2016_falwa` (optional)
+
+
+Package Documentation
+=====================
 
 .. toctree::
-    :hidden:
+   :maxdepth: 1
 
-    examples/rwp-diagnostic-ghinassi-et-al-2018
-    examples/waveguidability-wirth-2020
-    examples/wavenumber-based-filtering
+   grid
+   state
+   model
+   init
+   rhs
+   plot
+   diagnostics
+   io
+   tips
+   references
 
 
+Transition from 2.x to 3.x
+==========================
 
-Tips
-====
+.. warning::
+   :py:mod:`barotropic` version 3 is in development and will contain changes to the API.
 
-- Functions with arguments that represent longitude and latitude (coordinates, etc.) will require them in this order (lon, lat), following the order used e.g. in plotting contexts or vector components (e.g. [X°N, Y°E] or [u, v]).
-  Note that this is order is the reverse of the axis order in the underlying arrays, where latitude comes before longitude.
-- Consider using the module-level **ZONAL** and **MERIDIONAL** constants as convenient and readable accessors for the grid dimensions when operating on arrays.
+
+License
+=======
+
+Copyright 2019-2022 Christopher Polster
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
