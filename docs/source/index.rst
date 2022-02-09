@@ -85,8 +85,18 @@ Package Documentation
 Transition from 2.x to 3.x
 ==========================
 
-.. warning::
-   :py:mod:`barotropic` version 3 is in development and will contain changes to the API.
+In the transition from version 2.x to 3.x, many methods, attributes, function arguments, etc. have been moved or renamed.
+Some significant changes include:
+
+- The **lat**, **lon**, etc. properties of :py:class:`.Grid` have been renamed.
+- The former `diagnostic` module is now called `diagnostics`.
+- Quadrature, derivatives and interpolation on :py:class:`.Grid` have been restructured.
+- *scipy* is now a mandatory dependency.
+- Longitude now appears consistently before latitude in argument lists (except for direct array access, where lat is the zeroth dimension).
+
+Thus, it is very unlikely that code from version 2.x still works after upgrading to version 3.x.
+
+Version 2.x continues to be available on the master branch, development of 3.x has moved to a new main branch (which is the default branch of the repository now).
 
 
 License

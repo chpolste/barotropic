@@ -14,7 +14,7 @@ Example Notebooks
 
 Jupyter notebooks utilizing :py:mod:`barotropic`:
 
-- :doc:`examples/rwp-diagnostic-ghinassi-et-al-2018`
+- :doc:`examples/rwp-diagnostics-ghinassi-et-al-2018`
 - :doc:`examples/waveguidability-wirth-2020`
 - :doc:`examples/wavenumber-based-filtering`
 
@@ -22,7 +22,7 @@ Jupyter notebooks utilizing :py:mod:`barotropic`:
 .. toctree::
     :hidden:
 
-    examples/rwp-diagnostic-ghinassi-et-al-2018
+    examples/rwp-diagnostics-ghinassi-et-al-2018
     examples/waveguidability-wirth-2020
     examples/wavenumber-based-filtering
 
