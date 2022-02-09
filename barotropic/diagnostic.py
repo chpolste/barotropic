@@ -96,40 +96,6 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=True, quad="sptrapz")
     return grid.interpolate_meridional(falwa, yy, pole_values=(0., 0.))
 
 
-def falwa_hn2016(pv_or_state, grid=None, normalize_icos=True):
-    """Finite-Amplitude Local Wave Activity according to Huang and Nakamura (2016).
-
-    Parameters:
-        pv_or_state (:py:class:`.State` | array): Input state or 2D PV field.
-        grid (None | :py:class:`.Grid`): Grid information only required if
-            `pv_or_state` is not a :py:class:`.State`.
-        normalize_icos (bool): Multiply FALWA with the inverse of the cosine of
-            latitude to make an explicit connection to angular pseudomomentum.
-            This is always done in :py:func:`falwa`, but `hn2016_falwa` does
-            not do it by default for the barotropic framework.
-
-    Returns:
-        FALWA on the regular lon-lat grid.
-
-    Uses the implementation of https://github.com/csyhuang/hn2016_falwa.
-    """
-    from hn2016_falwa.barotropic_field import BarotropicField
-    grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
-    # hn2016_falwa expects latitudes to start at south pole
-    xlon = grid.lon
-    ylat = np.flip(grid.lat)
-    bf = BarotropicField(xlon, ylat, pv_field=np.flipud(pv))
-    # Extract local wave activity field and flip back
-    lwa = np.flipud(bf.lwa)
-    # hn2016_falwa does not normalize with cosine of latitude by default
-    if normalize_icos:
-        icoslat = 1. / np.cos(grid.phi2)
-        icoslat[ 0,:] = 0. # handle div/0 problem at 1 / cos( 90°)
-        icoslat[-1,:] = 0. # handle div/0 problem at 1 / cos(-90°)
-        lwa = icoslat * lwa
-    return lwa
-
-
 def dominant_wavenumber_fourier(field, grid, smooth=("boxcar", 10), wavenumber_range=(1, 20)):
     """Dominant zonal wavenumber based on the Fourier power spectrum.
 
@@ -256,7 +222,7 @@ def filter_by_wavenumber(field, wavenumber):
         convs.append(scipy.signal.convolve2d(field, hann[None,:], mode="same", boundary="wrap"))
     # Stack into 3-dimensional array
     convs = np.stack(convs)
-    # Extract the filtered value from thrmation only required if ks_or_state is not a :py:class`Se smoothed fields according the the
+    # Extract the filtered value from the smoothed fields according the the
     # width-index mapping
     idx = (hann_width - 1) // 2
     ii, jj = np.indices(field.shape)

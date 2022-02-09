@@ -242,15 +242,6 @@ class State:
         return diagnostic.filter_by_wavenumber(self.falwa, 2*dominant_wavenumber)
 
     @property
-    def falwa_hn2016(self):
-        """Finite-Amplitude Local Wave Activity on the regular grid.
-
-        See :py:func:`diagnostic.falwa_hn2016`.
-        """
-        # TODO remove, replace with constructor for hn2016 barotropic objects
-        return diagnostic.falwa_hn2016(self, normalize_icos=True)
-
-    @property
     def v_envelope_hilbert(self):
         """Envelope of wave packets based on the Hilbert transform.
 
