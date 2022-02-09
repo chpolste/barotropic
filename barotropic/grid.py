@@ -556,7 +556,8 @@ class Grid:
                 used directly. If value is an integer, this number of contours
                 is sampled between the maximum and minimum values in the input
                 field automatically. By default, the number of levels is set
-                equal to the number of latitudes resolved by the grid.
+                equal to a multiple of the number of latitudes resolved by the
+                grid (2 for boxcounting quadrature, 1 otherwise).
             interpolate (bool): Interpolate output onto regular latitudes of
                 grid. Without interpolation, values are returned on the
                 equivalent latitudes that arise in the computation. These may
@@ -575,10 +576,10 @@ class Grid:
         # Select contours for area computations
         q_min = np.min(field)
         q_max = np.max(field)
-        # If nothing is specified about the contour levels, use as many as
-        # there are gridpoints in meridional direction
+        # If nothing is specified about the contour levels, use a multiple of
+        # nlat many (1 for the trapezoidal scheme, 2 for boxcounting)
         if levels is None:
-            levels = self.nlat
+            levels = self.nlat * (2 if quad == "boxcount" else 1)
         # If contours is specified as the number of contours to use, distribute
         # contours between the min and max found in field, following sine in
         # the interval -90° to 90° and scaled and offset such that the min and

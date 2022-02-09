@@ -32,32 +32,12 @@ def _restrict_fourier_zonal(field, kmin, kmax):
 def fawa(pv_or_state, grid=None, levels=None, interpolate=True, quad="sptrapz"):
     """Finite-Amplitude Wave Activity according to Nakamura and Zhu (2010).
 
-    Parameters:
-        pv_or_state (:py:class:`.State` | array): Input state or 2D PV field.
-        grid (None | :py:class:`.Grid`): Grid information only required if
-            `pv_or_state` is not a :py:class:`.State`.
-        levels (None | array | int): Parameter of :py:meth:`.Grid.zonalize`.
-        interpolate (bool): Interpolate output onto the regular latitudes of
-            the grid. If `False`, FAWA is returned on the equivalent latitudes
-            obtained from the zonalization procedure. These may be irregular
-            and unordered.
-        quad (str): Quadrature rule used in the surface integrals of the
-            computation. See :py:meth:`quad`.
-
-    Returns:
-        If **interpolate** is `True`, return FAWA interpolated onto the
-        regular latitudes as an array. Otherwise, return a tuple of FAWA and
-        the associated equivalent latitudes (both arrays).
+    Computes FAWA as the zonal mean of :py:func:`falwa`.
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
-    # Compute zonalized background state of PV
-    qq, yy = grid.zonalize(pv, levels=levels, interpolate=False, quad=quad)
-    # Use formulation that integrates PV over areas north of PV
-    # contour/equivalent latitude and then computes difference
-    q_int = np.vectorize(lambda q: grid.quad(pv, pv-q, method=quad))
-    y_int = np.vectorize(lambda y: grid.quad(pv, grid.lat2-y, method=quad))
-    # Normalize by zonal circumference at each latitude
-    fawa = (q_int(qq) - y_int(yy)) / grid.circumference(yy)
+    # FAWA is zonal mean of FALWA
+    lwa, yy = falwa(pv, grid, levels, interpolate=False, quad=quad)
+    fawa = lwa.mean(axis=_ZONAL)
     # No interpolation: return contour values on equivalent latitudes from
     # zonalization and return the latitudes as well for reference
     if not interpolate:
@@ -79,16 +59,28 @@ def falwa(pv_or_state, grid=None, levels=None, interpolate=True, quad="sptrapz")
             obtained from the zonalization procedure. These may be irregular
             and unordered.
         quad (str): Quadrature rule used in the surface integrals of the
-            computation. See :py:meth:`quad`.
+            computation. See :py:meth:`.Grid.quad`.
 
     Returns:
         If **interpolate** is `True`, return FALWA interpolated onto the
         regular latitudes as an array. Otherwise, return a tuple of FALWA and
         the associated equivalent latitudes (both arrays).
+
+    To improve numerical stability if a boxcounting quadrature is selected, the
+    zonalized PV profile is always interpolated to the dual latitude grid.
+    Therefore, **levels** does not affect the output latitudes, even if
+    **interpolate** is set to `False`.
     """
     grid, pv = _get_grid_vars(["pv"], grid, pv_or_state)
     # Compute zonalized background state of PV
     qq, yy = grid.zonalize(pv, levels=levels, interpolate=False, quad=quad)
+    # Interpolate between gridpoints in case of the the boxcounting quadrature
+    # to stabilize the computation (boxcounting does not interpolate the domain
+    # of integration so being aligned with the gridbox boundaries helps)
+    if quad == "boxcount":
+        interp = grid.interp1d_meridional(qq, yy, pole_values=(np.max(pv), np.min(pv)))
+        yy = 0.5 * (grid.lat[:-1] + grid.lat[1:])
+        qq = interp(yy)
     # Use formulation that integrates PV over areas north of PV
     # contour/equivalent latitude and then computes difference
     q_int = np.frompyfunc(lambda q, y: grid.quad_meridional(pv-q, pv-q, method=quad), 2, 1)
