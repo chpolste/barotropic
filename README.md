@@ -1,17 +1,17 @@
 # barotropic
 
-Integrate the barotropic PV equation on the sphere.
-Fields are represented on a regular latitude-longitude grid while spatial derivatives are evaluated in spectral space (spherical harmonics).
-The model uses a leapfrog time integration scheme with Robert-Asselin filter, initialized with an Euler-forward step.
+A framework for barotropic analysis and modelling of the atmosphere.
 
 
 ## Features
 
-- Initial condition and forcing presets for atmospheric science experiments
-- A range of diagnostic functions to investigate properties of the flow
-- Predefined plotting functions
+- Integration of the barotropic PV equation on the sphere. 
+  Fields are represented on a regular latitude-longitude grid while spatial derivatives are evaluated in spectral space (spherical harmonics).
+  The model uses a leapfrog time integration scheme with Robert-Asselin filter, initialized with an Euler-forward step.
+- A range of diagnostic functions to investigate properties of the flow and extract features, e.g. Rossby wave packets.
+- Predefined plotting functions, initial condition presets and forcing terms.
 
-The model code is object-oriented, modular and easy to use.
+The package is object-oriented, modular and easy to use.
 The implementations are kept simple but sufficiently fast to allow interactive use at moderate spatial and temporal resolutions (e.g. 2.5° spatial resolution with 10 minute timesteps).
 A simulation can be set up, run and visualized in under 10 lines of code, e.g.:
 
@@ -30,8 +30,14 @@ last.plot.summary()
 
 ![example of the summary plot preset](examples/example-summary-plot.png)
 
-- Consult the [online documentation](https://chpolste.github.io/barotropic/docs/barotropic) to learn about the public interface.
-- A few [example notebooks](examples) are provided in which the module is used to reproduce results from research papers.
+Consult the [online documentation](https://chpolste.github.io/barotropic/docs/build/html) to learn more about features and how to use the package.
+
+
+## Installation
+
+barotropic is available on PyPI:
+
+    $ pip install barotropic
 
 
 ## Dependencies
@@ -49,21 +55,9 @@ Additional dependencies for plotting, diagnostics, etc.:
 These are imported on demand and not required to just run the model.
 
 
-## Installation
-
-Installation as a package requires [setuptools](https://pypi.org/project/setuptools/).
-From the root directory of the repository run
-
-    pip install .
-
-Optional dependencies are specified as an [extra](https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies) and can be turned into required dependencies by installing with
-
-    pip install .[with-optional]
-
-
 ## License
 
-Copyright 2019-2020 Christopher Polster
+Copyright 2019-2022 Christopher Polster
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
