@@ -30,7 +30,9 @@ last.plot.summary()
 
 ![example of the summary plot preset](examples/example-summary-plot.png)
 
-Consult the [online documentation](https://chpolste.github.io/barotropic/docs/build/html) to learn more about features and how to use the package.
+Consult the [online documentation](https://chpolste.github.io/barotropic/build/html) to learn more about features and how to use the package.
+Note that the API has changed substantially with the release of version 3 in Feb 2022.
+Version 2 will remain accessible from the [master](https://github.com/chpolste/barotropic/tree/master) branch for a while longer, while development continues on the new main branch.
 
 
 ## Installation
@@ -39,20 +41,14 @@ barotropic is available on PyPI:
 
     $ pip install barotropic
 
-
-## Dependencies
+Dependencies:
 
 - [numpy](https://github.com/numpy/numpy)
 - [scipy](https://github.com/scipy/scipy)
 - [pyspharm](https://github.com/jswhit/pyspharm)
-
-Additional dependencies for plotting, diagnostics, etc.:
-
-- [matplotlib](https://github.com/matplotlib/matplotlib)
-- [PyWavelets](https://github.com/PyWavelets/pywt) (>= 1.1)
-- [hn2016_falwa](https://github.com/csyhuang/hn2016_falwa)
-
-These are imported on demand and not required to just run the model.
+- [matplotlib](https://github.com/matplotlib/matplotlib) (optional)
+- [PyWavelets](https://github.com/PyWavelets/pywt) (optional, >= 1.1)
+- [hn2016_falwa](https://github.com/csyhuang/hn2016_falwa) (optional)
 
 
 ## License
