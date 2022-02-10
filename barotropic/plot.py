@@ -161,8 +161,7 @@ def summary(state, figsize=(11, 7), hemisphere="both", center_lon=180, pv_cmap="
     # Panel: zonal mean vorticity line plot
     ax11.vlines([0], -90, 90, linestyle="--", linewidth=0.5, color="#666666")
     # Planetary vorticity
-    zmpv = np.mean(grid.fcor * 10000, axis=_ZONAL)
-    ax11.plot(zmpv, grid.lat, color="#999999", label="pla.")
+    ax11.plot(grid.fcor * 10000, grid.lat, color="#999999", label="pla.")
     # Zonal mean relative vorticity
     zmrv = np.mean(state.vorticity * 10000, axis=_ZONAL)
     ax11.plot(zmrv, grid.lat, color="#006699", label="rel.")
