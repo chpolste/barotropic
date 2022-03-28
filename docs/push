@@ -6,6 +6,7 @@ git branch -D gh-pages
 git checkout --orphan gh-pages
 git reset
 git add -f .nojekyll
+git add -f index.html
 git add -f build/html
 git commit --author "documentation <docs@build.local>" -m "Add documentation pages"
 git push -f origin gh-pages
