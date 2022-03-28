@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="barotropic",
     description="A framework for barotropic analysis and modelling of the atmosphere",
-    version="3.0.0",
+    version="3.0.1",
     author="Christopher Polster",
     url="https://github.com/chpolste/barotropic",
     packages=find_packages(),
