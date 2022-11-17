@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Barotropic &#8212; barotropic 3.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Grid" href="grid.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="grid.html" title="Grid"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">barotropic 3.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Barotropic</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="barotropic">
+<h1>Barotropic<a class="headerlink" href="#barotropic" title="Permalink to this headline">¶</a></h1>
+<p>A framework for barotropic analysis and modelling of the atmosphere.</p>
+<a class="reference external image-reference" href="https://zenodo.org/badge/latestdoi/213849638"><img alt="https://zenodo.org/badge/213849638.svg" src="https://zenodo.org/badge/213849638.svg" /></a>
+</section>
+<section id="features">
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p>Integration of the barotropic PV equation on the sphere.
+Fields are represented on a regular latitude-longitude grid while spatial derivatives are evaluated in spectral space (spherical harmonics).
+The model uses a leapfrog time integration scheme with Robert-Asselin filter, initialized with an Euler-forward step.</p></li>
+<li><p>A range of diagnostic functions to investigate properties of the flow and extract features, e.g. Rossby wave packets.</p></li>
+<li><p>Predefined plotting functions, initial condition presets and forcing terms.</p></li>
+</ul>
+<p>The package is object-oriented, modular and easy to use.
+The implementations are kept simple but sufficiently fast to allow interactive use at moderate spatial and temporal resolutions (e.g. 2.5° spatial resolution with 10 minute timesteps).
+A simulation can be set up, run and visualized in under 10 lines of code, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">barotropic</span> <span class="k">as</span> <span class="nn">bt</span>
+
+<span class="n">grid</span>    <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">Grid</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="n">initial</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">solid_body_rotation</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">forcing</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">rhs</span><span class="o">.</span><span class="n">GaussianMountain</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">45</span><span class="p">),</span> <span class="n">stdev</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<span class="n">model</span>   <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">BarotropicModel</span><span class="p">(</span><span class="n">forcing</span><span class="p">,</span> <span class="n">diffusion_order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">last</span><span class="p">,</span> <span class="n">all_states</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="mi">15</span><span class="o">*</span><span class="n">bt</span><span class="o">.</span><span class="n">MIN</span><span class="p">,</span> <span class="mi">10</span><span class="o">*</span><span class="n">bt</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span> <span class="n">save_every</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">bt</span><span class="o">.</span><span class="n">HOUR</span><span class="p">)</span>
+
+<span class="n">last</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="_images/example-summary-plot.png" src="_images/example-summary-plot.png" />
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Get the package from PyPI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install barotropic
+</pre></div>
+</div>
+<p>Alternatively, grab the source from GitHub: <a class="reference external" href="https://github.com/chpolste/barotropic">https://github.com/chpolste/barotropic</a>.</p>
+<p>Dependencies:</p>
+<ul class="simple">
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy</span></code></p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">scipy</span></code></p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">spharm</span></code></p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code> (optional)</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pywt</span></code> (optional)</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">hn2016_falwa</span></code> (optional)</p></li>
+</ul>
+</section>
+<section id="package-documentation">
+<h1>Package Documentation<a class="headerlink" href="#package-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">BarotropicModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+</div>
+</section>
+<section id="license">
+<h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
+<p>Copyright 2019-2022 Christopher Polster</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”); you may not use this file except in compliance with the License. You may obtain a copy of the License at</p>
+<p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p>Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</p>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="#">Barotropic</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">BarotropicModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Barotropic</a></li>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#package-documentation">Package Documentation</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+</ul>
+
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="grid.html" title="Grid"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">barotropic 3.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Barotropic</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

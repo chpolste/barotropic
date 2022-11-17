@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Initial Conditions &#8212; barotropic 3.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Forcing Terms" href="rhs.html" />
+    <link rel="prev" title="BarotropicModel" href="model.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rhs.html" title="Forcing Terms"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="model.html" title="BarotropicModel"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Initial Conditions</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-barotropic.init">
+<span id="initial-conditions"></span><h1>Initial Conditions<a class="headerlink" href="#module-barotropic.init" title="Permalink to this headline">¶</a></h1>
+<p>Preconfigured initial conditions and initial condition helpers.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.init.gaussian_jet">
+<span class="sig-prename descclassname"><span class="pre">barotropic.init.</span></span><span class="sig-name descname"><span class="pre">gaussian_jet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdev_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.init.gaussian_jet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A bell-shaped, zonally-symmetric zonal jet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid specification.</p></li>
+<li><p><strong>time</strong> (<em>number</em><em> | </em><em>datetime</em>) – Valid time.</p></li>
+<li><p><strong>amplitude</strong> (<em>number</em>) – Peak zonal wind at the center of the jet in m/s.</p></li>
+<li><p><strong>center_lat</strong> (<em>number</em>) – Center of the jet in degrees.</p></li>
+<li><p><strong>stdev_lat</strong> (<em>number</em>) – Standard deviation of the jet in degrees.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instance.</p>
+</dd>
+</dl>
+<p>A linear wind profile in latitude is added to zero wind speeds at both
+poles.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.init.held_1985">
+<span class="sig-prename descclassname"><span class="pre">barotropic.init.</span></span><span class="sig-name descname"><span class="pre">held_1985</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.init.held_1985" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zonal wind profile similar to that of the upper troposphere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid specification.</p></li>
+<li><p><strong>time</strong> (<em>number</em><em> | </em><em>datetime</em>) – Valid time.</p></li>
+<li><p><strong>A</strong> (<em>number</em>) – Coefficient for cos-term.</p></li>
+<li><p><strong>B</strong> (<em>number</em>) – Coefficient for cos³-term.</p></li>
+<li><p><strong>C</strong> (<em>number</em>) – Coefficient for cos⁶sin²-term.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instance.</p>
+</dd>
+</dl>
+<p>Introduced by Held (1985), also used by Held and Phillips (1987) and
+Ghinassi et al. (2018).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.init.motionless">
+<span class="sig-prename descclassname"><span class="pre">barotropic.init.</span></span><span class="sig-name descname"><span class="pre">motionless</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.init.motionless" title="Permalink to this definition">¶</a></dt>
+<dd><p>A motionless state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid specification.</p></li>
+<li><p><strong>time</strong> (<em>number</em><em> | </em><em>datetime</em>) – Valid time.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.init.solid_body_rotation">
+<span class="sig-prename descclassname"><span class="pre">barotropic.init.</span></span><span class="sig-name descname"><span class="pre">solid_body_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.init.solid_body_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cosine-shaped, zonally-symmetric zonal wind profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid specification.</p></li>
+<li><p><strong>time</strong> (<em>number</em><em> | </em><em>datetime</em>) – Valid time.</p></li>
+<li><p><strong>amplitude</strong> (<em>number</em>) – Peak zonal wind speed at the equator in m/s.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.init.zonally_symmetric">
+<span class="sig-prename descclassname"><span class="pre">barotropic.init.</span></span><span class="sig-name descname"><span class="pre">zonally_symmetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.init.zonally_symmetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a given zonal profile of zonal wind or PV into a full 2D-state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid specification.</p></li>
+<li><p><strong>time</strong> (<em>number</em><em> | </em><em>datetime</em>) – Valid time.</p></li>
+<li><p><strong>u</strong> (<em>array</em>) – Meridional profile of the zonal wind.</p></li>
+<li><p><strong>pv</strong> (<em>array</em>) – Meridional profile of the potential vorticity.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instance.</p>
+</dd>
+</dl>
+<p><strong>u</strong> xor <strong>pv</strong> must be specified.</p>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Barotropic</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">BarotropicModel</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rhs.html" title="Forcing Terms"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="model.html" title="BarotropicModel"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Initial Conditions</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

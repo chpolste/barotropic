@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Input/Output &#8212; barotropic 3.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tips and Examples" href="tips.html" />
+    <link rel="prev" title="Diagnostics" href="diagnostics.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tips.html" title="Tips and Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="diagnostics.html" title="Diagnostics"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Input/Output</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="input-output">
+<h1>Input/Output<a class="headerlink" href="#input-output" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The input/output routines are a <strong>work in progress</strong>. Their interface may change without announcement.</p>
+</div>
+<span class="target" id="module-barotropic.io"></span><p>Input/output functions (<strong>work in progress</strong>).</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.io.from_dataset">
+<span class="sig-prename descclassname"><span class="pre">barotropic.io.</span></span><span class="sig-name descname"><span class="pre">from_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.io.from_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load states from u and v components in an xarray Dataset</p>
+<p>If automatic detection of grid and winds based on the coordinate
+attributes of the dataset fails, the association of <cite>lat</cite>, <cite>lon</cite>,
+<cite>time</cite>, <cite>u</cite> and <cite>v</cite> can be specified explicitly with a dict given to
+names. A <cite>Grid</cite> object shared by the returned states is created based
+on the dataset coordinates. Additional arguments for the <cite>Grid</cite>
+instanciation can be specified with the <cite>grid_kwargs</cite> argument.</p>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Barotropic</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">BarotropicModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tips.html" title="Tips and Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="diagnostics.html" title="Diagnostics"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Input/Output</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>
