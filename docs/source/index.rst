@@ -3,9 +3,8 @@ Barotropic
 
 A framework for barotropic analysis and modelling of the atmosphere.
 
-.. note::
-    Version 3.0, released in Feb 2022, contains extensive changes to the :py:mod:`barotropic` API and breaks backward compatibility in many (if not most) places.
-    See below for advice on the transition from version 2.x to 3.x.
+.. image:: https://zenodo.org/badge/213849638.svg
+   :target: https://zenodo.org/badge/latestdoi/213849638
 
 
 Features
@@ -80,23 +79,6 @@ Package Documentation
    io
    tips
    references
-
-
-Transition from 2.x to 3.x
-==========================
-
-In the transition from version 2.x to 3.x, many methods, attributes, function arguments, etc. have been moved or renamed.
-Some significant changes include:
-
-- The **lat**, **lon**, etc. properties of :py:class:`.Grid` have been renamed.
-- The former `diagnostic` module is now called `diagnostics`.
-- Quadrature, derivatives and interpolation on :py:class:`.Grid` have been restructured.
-- *scipy* is now a mandatory dependency.
-- Longitude now appears consistently before latitude in argument lists (except for direct array access, where lat is the zeroth dimension).
-
-Thus, it is very unlikely that code from version 2.x still works after upgrading to version 3.x.
-
-Version 2.x continues to be available on the master branch, development of 3.x has moved to a new main branch (which is the default branch of the repository now).
 
 
 License
