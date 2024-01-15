@@ -23,7 +23,7 @@ class BarotropicModel:
     from the PV by inversion).
 
     Does not carry state aside from the forcing and diffusion setup and can be
-    reused for multiple integrations with different :py:class`barotropic.State`
+    reused for multiple integrations with different :py:class:`barotropic.State`
     instances.
     """
 

@@ -368,7 +368,7 @@ class Grid:
 
         The area associated with a gridpoint (λ, φ) in a regular lon-lat grid::
 
-            r² * dλ * ( sin(φ + dφ) - sin(φ - dφ) )
+            r² * dλ * ( sin(φ + dφ/2) - sin(φ - dφ/2) )
         """
         # Calculate dual phi grid (latitude mid-points)
         mid_phi = 0.5 * (self.phi[1:] + self.phi[:-1])
