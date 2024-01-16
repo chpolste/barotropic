@@ -18,6 +18,10 @@ div#searchbox {
     margin-bottom: 10px;
 }
 
+dl {
+    margin-bottom: 22px;
+}
+
 body,
 div.related,
 div.sphinxsidebar h3,
@@ -31,6 +35,17 @@ div.body h6,
 .viewcode-back {
     font-family: sans-serif;
     text-shadow: none;
+}
+
+div.sphinxsidebar {
+    width: 260px;
+    overflow: hidden;
+}
+div.sphinxsidebar ul ul {
+    margin-left: 12px;
+}
+div.bodywrapper {
+    margin-left: 260px;
 }
 
 .highlight .c { color: #666666 } /* Comment */
