@@ -127,10 +127,59 @@ class Grid:
 
     @property
     def region(self):
-        """Region extractor with indexing syntax.
+        """Region extractor with indexing syntax based on coordinates::
+
+            grid.region[lon_slice,lat_slice]
+
+        with the slices' `start` and `stop` values in the range of 0° to 360°.
+        Slices must not have the `step` parameter specified but `start` and
+        `stop` can be left unspecified.
+
+        Returns:
+            Configured :py:class:`barotropic.grid.GridRegion` instance.
 
         .. note::
-            Coordinate order is [lon,lat]. This is inverted compared to indexing into the arrays.
+            Coordinate order is [lon,lat] (plotting convention) and inclusive
+            on all sides (like xarray selections). This is different from
+            indexing into the arrays directly on purpose.
+
+        Selections can cross the grid boundary in the (periodic) longitude
+        dimension and the order of the selection ranges does not matter:
+
+        >>> grid = bt.Grid(10.)
+        >>> grid.region[300:50,-5:-50]
+        Region -50.00 to -10.00 °N (nlat = 5)
+               300.00 to  50.00 °E (nlon = 12)
+            ···································· 90°N
+            ····································
+            ····································
+            ····································
+            XXXXXX························XXXXXX EQ
+            XXXXXX························XXXXXX
+            XXXXXX························XXXXXX
+            ····································
+            ···································· 90°S
+            0°E              180°E
+        of <barotropic.Grid> ...
+
+        The latitude dimension accepts ``"N"`` and ``"S"`` as special keywords
+        for easy reference to the northern and southern hemisphere,
+        respectively, e.g.:
+
+        >>> grid.region[:,"N"]
+        Region   0.00 to  90.00 °N (nlat = 10)
+                 0.00 to 350.00 °E (nlon = 36)
+            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 90°N
+            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX EQ
+            ····································
+            ····································
+            ····································
+            ···································· 90°S
+            0°E              180°E
+        of <barotropic.Grid> ...
         """
         return GridRegionIndexer(self)
 
@@ -388,7 +437,7 @@ class Grid:
             field (array): 2D input field.
             axis (None | int | "meridional" | "zonal"): Axis over which to
                 compute the mean.
-            region (None | :py:class:`GridRegion`): Region to which the mean is
+            region (None | :py:class:`grid.GridRegion`): Region to which the mean is
                 restricted. Construct regions with :py:attr:`region` or specify
                 any object that implements a compatible **extract** method.
 
@@ -803,6 +852,19 @@ class GridRegionIndexer:
 
 
 class GridRegion:
+    """Region selection for convenient data extraction.
+
+    .. note::
+        Use :py:attr:`barotropic.Grid.region` to create instances of this
+        class.
+
+    Parameters: 
+        grid (Grid): Lon-lat grid instance that the selection is tied to.
+        lat_indices (sequence): Latitude dimension indices included in the
+            selection.
+        lon_indices (sequence): Longitude dimension indices included in the
+            selection.
+    """
 
     def __init__(self, grid, lat_indices, lon_indices):
         self._grid = grid
@@ -829,7 +891,40 @@ class GridRegion:
             raise ValueError("unable to extract from field '{}'".format(field))
 
     def extract(self, *fields):
-        """Extract the region from the given fields."""
+        """Extract data from the selected region.
+
+        Parameters:
+            fields (array): Field or fields from which to extract the selected
+                region. The shape of each field must match that of the
+                :py:class:`Grid` associated with the :py:class:`GridRegion`
+                instance.
+
+        Returns:
+            A single array (one-argument call) or a tuple of arrays
+            (multi-argument call, order preserved) containing the data
+            selection.
+
+        >>> grid = bt.Grid(10.)
+        >>> sel = grid.region[45:90,-20:30]
+        >>> sel.extract(grid.lon2)
+        array([[50., 60., 70., 80., 90.],
+               [50., 60., 70., 80., 90.],
+               [50., 60., 70., 80., 90.],
+               [50., 60., 70., 80., 90.],
+               [50., 60., 70., 80., 90.],
+               [50., 60., 70., 80., 90.]])
+
+        If the region crosses the periodic boundary in the longitude
+        dimension, the two parts of the fields from the original array are
+        reassembled into a field connected across the boundary:
+
+        >>> grid.region[340:10,60:70].extract(grid.lon2)
+        array([[340., 350.,   0.,  10.],
+               [340., 350.,   0.,  10.]])
+
+        Use :py:attr:`GridRegion.lon_mono` to obtain continuous longitude
+        coordinates in such situations.
+        """
         if len(fields) == 0:
             raise ValueError("no field(s) given for extraction")
         elif len(fields) == 1:
@@ -839,7 +934,7 @@ class GridRegion:
 
     @property
     def mask(self):
-        """Boolean array that is true in the region."""
+        """Boolean array that is *True* in the selected region."""
         mask = np.full(self._grid.shape, False)
         mask[np.ix_(self._lat_indices, self._lon_indices)] = True
         return mask
@@ -851,22 +946,33 @@ class GridRegion:
 
     @property
     def lat(self):
-        """Latitudes of the region."""
+        """Latitude coordinate array for the region."""
         return self._grid.lat[self._lat_indices]
 
     @property
     def lon(self):
-        """Longitudes of the region.
+        """Longitude coordinate array for the region.
 
-        If the region crosses the 0° meridian, these will not be monotonic. If
-        you need a monotonic longitude coordinate, e.g. for plotting, use
-        `lon_mono`, where longitudes left of 0° are reduced by 360°.
+        .. note::
+            The array will not be monotonic if the region crosses the 0°
+            meridian.  In case a monotonic longitude coordinate is required,
+            e.g. for plotting, use :py:attr:`lon_mono`.
         """
         return self._grid.lon[self._lon_indices]
 
     @property
     def lon_mono(self):
-        """Longitudes of the region, monotonic even for regions crossing 0°"""
+        """Longitude coordinate array for the region, monotonic across 0°.
+
+        Longitudes west of 0° (the western edge of a :py:class:`Grid`) are
+        reduced by 360° to obtain monotonic values:
+
+        >>> sel = bt.Grid(10.).region[320:30,:]
+        >>> sel.lon
+        array([320., 330., 340., 350.,   0.,  10.,  20.,  30.])
+        >>> sel.lon_mono
+        array([-40., -30., -20., -10.,   0.,  10.,  20.,  30.])
+        """
         lon = self.lon
         jump = np.argwhere(np.diff(lon) < 0)
         assert 0 <= jump.size <= 1
@@ -876,8 +982,13 @@ class GridRegion:
 
     @property
     def gridpoint_area(self):
+        """See :py:attr:`barotropic.Grid.gridpoint_area`."""
         return self.extract(self._grid.gridpoint_area)
 
     def mean(self, field):
+        """Area-weighted mean in the selected region.
+
+        Wraps :py:meth:`barotropic.Grid.mean`.
+        """
         return self._grid.mean(field, region=self)
 
