@@ -292,25 +292,25 @@ class State:
     # Connection to other packages
 
     def as_hn2016(self, **barofield_kwargs):
-        """Convert state to hn2016_falwa Barotropic state.
+        """Convert state to a :py:mod:`falwa` Barotropic state.
 
         Parameters:
             barofield_kwargs: Keyword arguments given to the constructor.
 
         Returns:
-            :py:class:`hn2016_falwa.barotropic_field.BarotropicField` instance.
+            :py:class:`falwa.barotropic_field.BarotropicField` instance.
 
         .. note::
-            In :py:mod:`hn2016_falwa` latitude starts at the South Pole, so
+            In :py:mod:`falwa` latitude starts at the South Pole, so
             array contents are meridionally flipped compared to :py:mod:`barotropic`.
 
         See :py:meth:`State.from_hn2016` for the inverse operation.
 
-        Requires :py:mod:`hn2016_falwa`.
+        Requires `falwa <https://github.com/csyhuang/hn2016_falwa>`_ package.
         """
-        from hn2016_falwa.barotropic_field import BarotropicField
+        from falwa.barotropic_field import BarotropicField
         pv = self.pv
-        # hn2016_falwa expects latitudes to start at the South Pole
+        # falwa expects latitudes to start at the South Pole
         xlon = self.grid.lon
         ylat = np.flip(self.grid.lat)
         pvud = np.flipud(self.pv)
@@ -318,7 +318,7 @@ class State:
 
     @classmethod
     def from_hn2016(cls, grid, time, barofield):
-        """Take PV from :py:mod:`hn2016_falwa` barotropic state object.
+        """Take PV from :py:mod:`falwa` barotropic state object.
 
         Parameters:
             grid (:py:class:`Grid` | None): Grid used for instantiated
@@ -326,7 +326,7 @@ class State:
                 the input is created.
             time (number | datetime): Valid time as number in seconds or
                 a datetime-like object.
-            barofield (:py:class:`hn2016_falwa.barotropic_field.BarotropicField`):
+            barofield (:py:class:`falwa.barotropic_field.BarotropicField`):
                 Instance from which to take PV field for instantiation.
 
         Returns:
