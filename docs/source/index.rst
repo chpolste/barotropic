@@ -78,6 +78,7 @@ Package Documentation
    diagnostics
    io
    tips
+   notes
    references
 
 
