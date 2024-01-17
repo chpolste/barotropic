@@ -13,6 +13,8 @@ class BarotropicModel:
         diffusion_order (int): Order of diffusion term added for numerical
             stability to the PV equation. Hyperdiffusion by default.
         diffusion_coeff (number): Strength of diffusion.
+        diffusion_bg (array | None): A background vorticity field that is
+            removed before application of the diffusion steps.
 
     Barotropic PV equation with forcing::
 
@@ -23,14 +25,18 @@ class BarotropicModel:
     from the PV by inversion).
 
     Does not carry state aside from the forcing and diffusion setup and can be
-    reused for multiple integrations with different :py:class:`barotropic.State`
-    instances.
+    reused for multiple integrations with different :py:class:`State` instances
+    (though note that when used with the **diffusion_bg** parameter or some RHS
+    terms, the :py:class:`BarotropicModel` can be restricted to a specific grid
+    resolution).
     """
 
-    def __init__(self, rhs=None, diffusion_order=2, diffusion_coeff=1.e15):
+    def __init__(self, rhs=None, diffusion_order=2, diffusion_coeff=1.e15,
+            diffusion_bg=None):
         self.rhs = rhs
         self.diffusion_order = diffusion_order
         self.diffusion_coeff = diffusion_coeff
+        self._diffusion_bg = diffusion_bg
 
     def __repr__(self):
         return formatting.barotropic_model_repr(self)
@@ -146,12 +152,22 @@ class BarotropicModel:
         return tendency 
 
     def _apply_diffusion(self, grid, dt, pv_spectral):
-        return grid.solve_diffusion_spectral(
+        # If a reference background field is specified, apply the diffusion
+        # only to the anomaly field
+        if self._diffusion_bg is not None:
+            background = grid.to_spectral(self._diffusion_bg) # keep for later
+            pv_spectral = pv_spectral - background
+        # Solve on step of the diffusion equation
+        pv_spectral = grid.solve_diffusion_spectral(
             pv_spectral,
             dt=dt,
             coeff=self.diffusion_coeff,
             order=self.diffusion_order
         )
+        # Reinstate the full field if a background was removed
+        if self._diffusion_bg is not None:
+            pv_spectral = pv_spectral + background
+        return pv_spectral
 
 
 def _to_seconds(dt):
