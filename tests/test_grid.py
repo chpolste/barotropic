@@ -181,9 +181,10 @@ class TestGridRegion:
         assert np.allclose(region.extract(grid.lon), [20, 30, 40, 50])
         assert region.extract(grid.phi2).shape == (5, 4)
 
-    def test_single(self):
+    @pytest.mark.parametrize("selection", [(80, 40), (slice(80, 80), slice(40, 40))])
+    def test_single(self, selection):
         grid = Grid(resolution=10.)
-        region = grid.region[80:80,40:40]
+        region = grid.region[selection]
         assert region.shape == (1, 1)
         assert np.allclose(region.lat, [40])
         assert np.allclose(region.lon, [80])

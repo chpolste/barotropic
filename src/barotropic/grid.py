@@ -133,10 +133,13 @@ class Grid:
 
         with the slices' `start` and `stop` values in the range of 0° to 360°.
         Slices must not have the `step` parameter specified but `start` and
-        `stop` can be left unspecified.
+        `stop` can be left unspecified. If a single numeric value :code:`x` is
+        given instead of a slice, the value is treated like :code:`slice(x, x)`
+        but additionally verified for existence on the :py:class:`Grid`.
 
         Returns:
-            Configured :py:class:`barotropic.grid.GridRegion` instance.
+            Configured :py:class:`barotropic.grid.GridRegion` instance for
+            a valid selection.
 
         .. note::
             Coordinate order is [lon,lat] (plotting convention) and inclusive
@@ -794,6 +797,12 @@ class GridRegionIndexer:
         return GridRegion(self._grid, lat_indices, lon_indices)
 
     def _get_lat_indices(self, slc):
+        # Single-value selection still returns full array but value is checked
+        if isinstance(slc, Number):
+            idx = np.argwhere(np.isclose(self._grid.lat, slc)).flatten()
+            if idx.size != 1:
+                raise IndexError(f"latitude {slc} is not on the grid")
+            return idx
         # Allow special values N and S to select hemispheres
         if slc == "N":
             slc = slice(0, 90)
@@ -823,6 +832,12 @@ class GridRegionIndexer:
             return indices[(min(lo, hi) <= self._grid.lat) & (self._grid.lat <= max(lo, hi))]
 
     def _get_lon_indices(self, slc):
+        # Single-value selection still returns full array but value is checked
+        if isinstance(slc, Number):
+            idx = np.argwhere(np.isclose(self._grid.lon, slc)).flatten()
+            if idx.size != 1:
+                raise IndexError(f"longitude {slc} is not on the grid")
+            return idx
         # Selection must be a numeric slice without a step parameter
         if not isinstance(slc, slice):
             raise IndexError("longitude selection must given as a slice")
@@ -924,6 +939,12 @@ class GridRegion:
 
         Use :py:attr:`GridRegion.lon_mono` to obtain continuous longitude
         coordinates in such situations.
+
+        Always returns fields of full dimensionality, even for single-value
+        selections:
+
+        >>> grid.region[0,50].extract(grid.fcor2)
+        array([[0.00011172]])
         """
         if len(fields) == 0:
             raise ValueError("no field(s) given for extraction")
