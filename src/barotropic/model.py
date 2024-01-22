@@ -1,7 +1,9 @@
 from numbers import Number
+
 import numpy as np
+
 from . import formatting
-from .state import State
+from .state import State, StateList
 
 
 class BarotropicModel:
@@ -58,8 +60,8 @@ class BarotropicModel:
                 **dt** currently.
 
         Returns:
-            Tuple containing the final state and a list of all saved
-            intermediate states.
+            Tuple containing the final state (:py:class:`State`) and a list of
+            all saved intermediate states (:py:class:`StateList`).
 
         Initializes with a first-order Euler forward step, then continues with
         second-order Leapfrog steps.
@@ -81,7 +83,7 @@ class BarotropicModel:
             if save_every > 0 and state.time >= t_save:
                 states.append(state)
                 t_save += save_every
-        return state, states
+        return state, StateList(states)
 
     def euler(self, state_now, dt):
         """Step forward in time with a first-order Euler-forward scheme

@@ -1,4 +1,10 @@
+import collections.abc
+import itertools
+import functools
+import numbers
+
 import numpy as np
+
 from . import diagnostics, formatting
 from .constants import ZONAL
 from .grid import Grid
@@ -264,7 +270,7 @@ class State:
     # Shortcut to model integration
 
     def run(self, model, *args, **kwargs):
-        """Shortcut to :py:meth:`BarotropicModel.run`"""
+        """Shortcut to :py:meth:`BarotropicModel.run`."""
         return model.run(self, *args, **kwargs)
 
     # Shortcuts to plotting. Do not return figures here, so user does not have
@@ -366,3 +372,115 @@ class StatePlotter:
     def waveguides(self, *args, **kwargs):
         from . import plot
         plot.waveguides(self._state, *args, **kwargs)
+
+
+
+def _convert_sequence(seq):
+    """Put a sequence into a more "appropriate" container.
+
+    The compatibility of the objects in the sequence is checked only
+    rudimentarily. Implemented:
+
+    - numpy arrays → numpy array (with an additional dimension)
+    - numbers → numpy array
+    - States → StateList
+
+    Other sequences are returned as a list.
+    """
+    seq = list(seq)
+    if all(isinstance(x, np.ndarray) for x in seq):
+        return np.asarray(seq)
+    if all(isinstance(x, numbers.Number) for x in seq):
+        return np.asarray(seq)
+    if all(isinstance(x, State) for x in seq):
+        return StateList(seq)
+    return seq
+
+
+class StateList(collections.abc.Sequence):
+    """Immutable sequence of :py:class:`State` instances.
+
+    Collection intended to represent the temporal evolution of a simulation or
+    a the state of an ensemble of simulations at a fixed time step. Provides
+    convenient access to all :py:class:`State` properties and methods and
+    a :py:meth:`.map` method for customized function application.
+
+    Parameters:
+        states (iterable of :py:class:`State`): states to be included.
+    """
+
+    def __init__(self, states):
+        self._states = tuple(states)
+
+    def __getitem__(self, index):
+        return self._states[index]
+
+    def __len__(self):
+        return len(self._states)
+
+    def __iter__(self):
+        return iter(self._states)
+
+    def __repr__(self):
+        return f"<StateList with {len(self)} states>"
+
+    def __add__(self, other):
+        return StateList(itertools.chain(self, other))
+
+    # Broadcasting
+
+    def __getattr__(self, name):
+        # Need to separate simple attributes/properties and State methods:
+        # Attribute access can be evaluated immediately. Method access is
+        # converted to a partially evaluated function that collects the result
+        # from the invocation on every State in the StateList. Separate
+        # attributes and methods by checking if the (unbound) method exists on
+        # the State class.
+        attr = getattr(State, name, None)
+        if callable(attr):
+            return functools.partial(self.map, attr)
+        return _convert_sequence(getattr(state, name) for state in self)
+
+    def map(self, func, *args, **kwargs):
+        """Apply a function to each State and collect the output.
+
+        Parameters:
+            func (callable): Function to apply.
+            args: additional positional arguments supplied to `func` with every
+                invocation.
+            kwargs: additional keyword argument supplied to `func` with every
+                invocation.
+
+        Returns:
+            Sequence container with results from function applications. For
+            special return types of `func` (e.g. numbers) a specialized
+            container (e.g. numpy array) is returned.
+        """
+        return _convert_sequence(func(state, *args, **kwargs) for state in self)
+
+    def run(self, model, *args, **kwargs):
+        """Shortcut to :py:meth:`BarotropicModel.run`.
+
+        Parameters:
+            model (:py:class:`BarotropicModel`): the temporal integrator.
+            args: forwarded positional arguments.
+            kwargs: forwarded keyword arguments.
+
+        Returns:
+            2-tuple of final states (:py:class:`StateList`) and full simulation
+            outputs (list of :py:class:`StateList`).
+        """
+        all_last = []
+        all_step = []
+        for state in self:
+            last, step = model.run(state, *args, **kwargs)
+            all_last.append(last)
+            all_step.append(step)
+        return StateList(all_last), all_step
+
+    # Shortcuts
+
+    def as_dataset(self, *args, **kwargs):
+        """Shortcut to :py:func:`.io.as_dataset`"""
+        from . import io
+        return io.as_dataset(self, *args, **kwargs)

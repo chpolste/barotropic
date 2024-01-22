@@ -1,7 +1,7 @@
 import pytest
 
 import numpy as np
-from barotropic import Grid, State
+from barotropic import Grid, State, StateList, init
 
 
 # np.isclose and np.allclose must be given an appropriate value of atol for
@@ -74,4 +74,37 @@ class TestConversions:
         assert np.allclose(state0.pv, state2.pv, atol=ATOL_PV)
         assert np.allclose(state0.u,  state2.u,  atol=ATOL_WIND)
         assert np.allclose(state0.v,  state2.v,  atol=ATOL_WIND)
+
+
+class TestStateListAccessors:
+
+    def test_property_access(self):
+        grid = Grid()
+        states = StateList([init.solid_body_rotation(grid, 0., x) for x in [0., 1., 2., 3., 4.]])
+        # Meridional profiles
+        assert states.fawa.shape == (5, grid.nlat)
+        assert states.pv_zonalized.shape == (5, grid.nlat)
+        assert states.stationary_wavenumber.shape == (5, grid.nlat)
+        # 2D fields
+        assert states.energy.shape == (5, *grid.shape)
+        assert states.enstrophy.shape == (5, *grid.shape)
+        assert states.falwa.shape == (5, *grid.shape)
+        assert states.pv.shape == (5, *grid.shape)
+        assert states.streamfunction.shape == (5, *grid.shape)
+        assert states.u.shape == (5, *grid.shape)
+        assert states.v.shape == (5, *grid.shape)
+        assert states.v_envelope_hilbert.shape == (5, *grid.shape)
+        assert states.vorticity.shape == (5, *grid.shape)
+
+    def test_map_collection(self):
+        grid = Grid()
+        states = StateList([init.solid_body_rotation(grid, 0., x) for x in [0., 1., 2., 3., 4.]])
+        # Number to array
+        assert states.map(lambda s: s.enstrophy.sum()).shape == (5,)
+        # Array to array
+        assert states.map(lambda s: s.u.mean(axis=-1)).shape == (5, grid.nlat)
+        # Identity
+        assert isinstance(states.map(lambda s: s), StateList)
+        # Other stuff is put into a list
+        assert isinstance(states.map(lambda s: "foo"), list)
 
