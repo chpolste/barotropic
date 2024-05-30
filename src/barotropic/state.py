@@ -411,6 +411,11 @@ class StateList(collections.abc.Sequence):
 
     def __init__(self, states):
         self._states = tuple(states)
+        for state in self._states:
+            if not isinstance(state, State):
+                raise TypeError(f"non-State object in StateList: {state}")
+            # Enforce that all states have the same grid
+            assert self.grid == state.grid, "states in StateList must live on same grid"
 
     def __getitem__(self, index):
         return self._states[index]
@@ -480,7 +485,13 @@ class StateList(collections.abc.Sequence):
 
     # Shortcuts
 
+    @property
+    def grid(self):
+        """The underlying :py:class:`.Grid` of all states"""
+        return self[0].grid if self else None
+
     def as_dataset(self, *args, **kwargs):
         """Shortcut to :py:func:`.io.as_dataset`"""
         from . import io
         return io.as_dataset(self, *args, **kwargs)
+

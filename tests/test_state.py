@@ -78,6 +78,14 @@ class TestConversions:
 
 class TestStateListAccessors:
 
+    def test_refuse_nonstate(self):
+        grid = Grid()
+        pytest.raises(
+            TypeError,
+            StateList,
+            [init.motionless(grid), "foobar", init.motionless(grid)]
+        )
+
     def test_property_access(self):
         grid = Grid()
         states = StateList([init.solid_body_rotation(grid, 0., x) for x in [0., 1., 2., 3., 4.]])
@@ -107,4 +115,13 @@ class TestStateListAccessors:
         assert isinstance(states.map(lambda s: s), StateList)
         # Other stuff is put into a list
         assert isinstance(states.map(lambda s: "foo"), list)
+
+    def test_refuse_different_grids(self):
+        grid1 = Grid(1.0)
+        grid2 = Grid(2.0)
+        pytest.raises(
+            AssertionError,
+            StateList,
+            [init.motionless(grid1), init.motionless(grid1), init.motionless(grid2)]
+        )
 
