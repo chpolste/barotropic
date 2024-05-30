@@ -1,14 +1,120 @@
 """Input/output functions (**work in progress**)."""
 
-import numpy as np
+from collections import abc
 import datetime as dt
-from .state import State
+
+import numpy as np
+
+from .state import State, StateList
 from .grid import Grid
 
 
-def to_dataset(states):
-    # TODO
-    raise NotImplementedError("This feature has not been implemented yet")
+def as_dataset(states, fields=("pv", "u", "v"), concat_dim="time"):
+    """Create an :py:class:`xarray.Dataset` from a collection of states.
+
+    Parameters:
+        states (iterable of :py:class:`.State`): states to include in the
+            created dataset.
+        fields (str | iterable | dict): fields extracted and placed in the
+            dataset. If a name or list of names is specified, the
+            correspondingly named attributes of the provided states are
+            extracted. Alternatively, a mapping from names to attributes or
+            callables can be specified. Fields are then extracted by accessing
+            the attribute or calling the provided callable on all states and
+            placed in the dataset under the names specified in the mapping.
+        concat_dim (str): The dimension used to index the fields in the output
+            dataset. By default, the time dimension is used as an index.
+            Alternatively, a different dimension can be specified. If all
+            states have a corresponding attribute, the attribute's values are
+            used to construct a coordinate. Otherwise the coordinate is
+            generated with :py:func:`numpy.arange`.
+
+    Returns:
+        :py:class:`xarray.Dataset`
+
+    >>> states
+    <StateList with 9 states>
+    >>> bt.io.as_dataset(states, fields={ "pv": "pv", "ubar": lambda s: s.u.mean(axis=bt.ZONAL) })
+    <xarray.Dataset>
+    Dimensions:    (latitude: 73, longitude: 144, time: 9)
+    Coordinates:
+      * latitude   (latitude) float64 ...
+      * longitude  (longitude) float64 ...
+      * time       (time) float64 ...
+    Data variables:
+        pv         (time, latitude, longitude) float32 ...
+        ubar       (time, latitude) float32 ...
+
+    An empty list of states returns an empty dataset:
+
+    >>> bt.io.as_dataset([])
+    <xarray.Dataset>
+    Dimensions:  ()
+    Data variables:
+        *empty*
+
+    See also:
+        :py:meth:`.StateList.as_dataset`.
+
+    """
+    import xarray as xr
+    from . import __version__
+    # Empty input
+    if not states:
+        return xr.Dataset()
+    # Compatibility for single-state input
+    if isinstance(states, State):
+        states = [states]
+    # Convert into state collection for accessors and basic integrity checks
+    states = StateList(states)
+    # Extract basic coordinates
+    coords = dict()
+    coords["latitude"] = xr.DataArray(states.grid.lat, dims=["latitude"], attrs={
+        "units": "degrees_north"
+    })
+    coords["longitude"] = xr.DataArray(states.grid.lon, dims=["longitude"], attrs={
+        "units": "degrees_east"
+    })
+    coords["time"] = xr.DataArray(states.time, dims=["time"])
+    # Numeric time coordinate in seconds as in BarotropicModel integrator
+    if coords["time"].dtype.kind in "fiu":
+        coords["time"].attrs["units"] = "s"
+    # Attach non-time index coordinate if specified
+    if concat_dim != "time":
+        try:
+            values = getattr(states, concat_dim)
+        except AttributeError:
+            values = np.arange(len(states))
+        coords[concat_dim] = values
+    # Convert single-field and list-like field input
+    if isinstance(fields, str):
+        fields = [fields]
+    if not isinstance(fields, abc.Mapping):
+        fields = { field: field for field in fields }
+    # Collect all fields
+    data_vars = dict()
+    for name, getter in fields.items():
+        # Extract fields from state collection
+        values = states.map(getter) if callable(getter) else getattr(states, getter)
+        # Attach coordinates according to dimensions of values
+        if values.ndim == 3:
+            dims = [concat_dim, "latitude", "longitude"]
+        elif values.ndim == 2 and values.shape[1] == states.grid.nlat:
+            dims = [concat_dim, "latitude"]
+        elif values.ndim == 2 and values.shape[1] == states.grid.nlon:
+            dims = [concat_dim, "longitude"]
+        elif values.ndim == 1:
+            dims = [concat_dim]
+        else:
+            raise NotImplementedError(
+                f"field {name}: extracting fields with dimensions other "
+                "than latitude or longitude is not (yet) supported"
+            )
+        data_vars[name] = xr.DataArray(values, dims=dims)
+    # Assemble and return
+    return xr.Dataset(data_vars, coords, attrs={
+        "package": f"barotropic {__version__}"
+    })
 
 
 def from_dataset(dataset, names=None, grid_kwargs=None):
