@@ -1,5 +1,6 @@
 from collections import abc
 import datetime as dt
+import itertools
 import warnings
 
 import numpy as np
@@ -127,21 +128,22 @@ _VAR_NAMES = {
     "pv": ["avo", "absv", "absolute_vorticity", "pv"],
 }
 
-def _extract_var(ds, names, override=None):
+def _select_var(ds, names, override=None):
     if override is not None:
         return ds[name]
     for name in names:
         if name in ds:
-            return ds[name]
+            return name
     return None
 
-def from_dataset(ds, names=None, grid_kwargs=None):
+def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
     """Load states from u and v components in an xarray Dataset
 
     Parameters:
         dataset (:py:class:`xarray.Dataset`): TODO
         names (dict | None): TODO
         grid_kwargs (dict | None): TODO
+        time_fill (number | datetime): TODO
 
     Returns:
         :py:class:`.StateList`
@@ -153,27 +155,30 @@ def from_dataset(ds, names=None, grid_kwargs=None):
     on the dataset coordinates. Additional arguments for the `Grid`
     instanciation can be specified with the `grid_kwargs` argument.
     """
-    # TODO allow path for ds, open here with xr.open_dataset
+    import xarray as xr
+    # If a path is given, read first
+    if isinstance(ds, str):
+        ds = xr.open_dataset(ds)
+    # Processing below assumes input is a Dataset
+    if isinstance(ds, xr.DataArray):
+        ds = ds.to_dataset()
+    ds = ds.squeeze()
 
     # Extract coordinates, respect user override if provided
     if names is None:
         names = dict()
     var_map = {
-        k: _extract_var(ds, ns, override=names.get(k, None))
-        for k, ns in _VAR_NAMES.items()
+        ref: names.get(ref, _select_var(ds, ns)) # try override first, else pick from ds
+        for ref, ns in _VAR_NAMES.items()
     }
 
     # Verify longitude coordinate
     if var_map["lon"] is None:
         raise ValueError("required coordinate 'lon' not detected, please provide name")
-    lon = var_map["lon"]
-    if "units" in lon.attrs:
-        units = lon.attrs["units"]
-        if not "degree" in units and "east" in units:
-            warnings.warn(f"expected 'degrees_east' as units of lon, but found '{units}'")
+    lon = ds.coords[var_map["lon"]]
     assert lon.ndim == 1, "lon coordinate must be one-dimensional"
     assert lon.size > 0, "lon coordinate is empty"
-    dlons = np.diff(lon)
+    dlons = np.diff(lon.values)
     dlon = dlons[0]
     assert np.isclose(dlon, dlons).all(), "lon spacing is not regular"
     assert dlon > 0, "lon coordinate must be increasing (W to E)"
@@ -182,16 +187,12 @@ def from_dataset(ds, names=None, grid_kwargs=None):
     # Verify latitude coordinate
     if var_map["lat"] is None:
         raise ValueError("required coordinate 'lat' not detected, please provide name")
-    lat = var_map["lat"] # also ensures extracted var is a coordinate
-    if "units" in lat.attrs:
-        units = var_map["lat"].attrs["units"]
-        if not "degree" in units and "north" in units:
-            warnings.warn(f"expected 'degrees_north' as units of lat, but found '{units}'")
+    lat = ds.coords[var_map["lat"]] # also ensures extracted var is a coordinate
     assert lat.ndim == 1, "lat coordinate must be one-dimensional"
     assert lat.size > 0, "lat coordinate is empty"
     assert lat.size % 2 == 1, "lat coordinate must have odd number of grid points"
     assert lat.size - 1 == lon.size // 2, f"grid of shape [{lat.size}, {lon.size}] is not regular"
-    dlats = np.diff(lat)
+    dlats = np.diff(lat.values)
     dlat = dlats[0]
     assert np.isclose(dlat, dlats).all(), "lat spacing is not regular"
     assert dlat < 0, "lat coordinate must be decreasing (N to S)"
@@ -204,46 +205,61 @@ def from_dataset(ds, names=None, grid_kwargs=None):
     # Consider multiple options to construct states:
     # States from horizontal wind components
     if var_map["u"] is not None and var_map["v"] is not None:
-        # TODO verify u (NaN, plausibility, units, ...)
-        # TODO verify v (NaN, plausibility, units, ...)
-        # Verify that wind components are given in m/s
-        #lname = var.attrs["long_name"].lower() if "long_name" in var.attrs else None
-        #units = var.attrs["units"].lower() if "units" in var.attrs else None
-        #if lname is not None and "wind" in lname:
-        #    assert "m s**-1" in units or "m s^-1" in units or "m/s" in units
-        #    if "u component" in lname or "zonal" in lname:
-        #        var_map["u"] = name
-        #    if "v component" in lname or "meridional" in lname:
-        #        var_map["v"] = name
-        as_state = lambda t, d: State.from_wind(grid, t, d[var_map["u"]], d[var_map["v"]])
+        if ds[var_map["u"]].dims != ds[var_map["v"]].dims:
+            raise ValueError(f"dims of fields '{var_map['u']}' and '{var_map['v']}' not identical")
+        data = ds[var_map["u"]]
+        # Two fields required to initialize: proceed with DataArray of u for
+        # data, and select matching v field during construction of the State
+        def as_state(t, da):
+            u = da.values
+            # Select matching meridional wind field (dims_flatten assigned below)
+            v = ds[var_map["v"]].sel({ dim: da.coords[dim] for dim in dims_flatten }).values
+            return State.from_wind(grid, t, u, v)
     # States from relative vorticity
     elif var_map["rv"] is not None:
-        # TODO verify rv (NaN, plausibility, units, ...)
-        as_state = lambda t, d: State.from_vorticity(grid, t, d[var_map["vo"]])
+        data = ds[var_map["vo"]] # DataArray, no further selection necessary
+        as_state = lambda t, da: State.from_vorticity(grid, t, da.values)
     # States from absolute vorticity
     elif var_map["pv"] is not None:
-        # TODO verify pv (NaN, plausibility, units, ...)
-        as_state = lambda t, d: State(grid, t, pv=d[var_map["vo"]])
+        data = ds[var_map["pv"]] # DataArray, no further selection necessary
+        as_state = lambda t, da: State(grid, t, pv=da.values)
     else:
         raise ValueError(
             "no fields for state construction detected, please specify"
             " names of either 'u' and 'v', 'rv' or 'pv'."
         )
 
-    # Dataset should have 3 dimensions: time, lat, lon
-    assert len(ds.dims) == 3 # TODO not necessary, but warn of flattening
-    # TODO rewrite with more construction options
+    # Make sure last two dimensions are lat and lon
+    assert data.dims[-2] == lat.name, "lat dimension not in position -2, please transpose"
+    assert data.dims[-1] == lon.name, "lon dimension not in position -1, please transpose"
+    # Only 1-dimensional StateList output supported, so all dimensions other
+    # than lon and lat are flattened
+    dims_flatten = data.dims[:-2]
+    dims_values = [data.coords[dim].values for dim in dims_flatten]
+    if len(dims_flatten) > 0:
+        _ = ", ".join(f"'{dim}'" for dim in dims_flatten)
+        warnings.warn(f"dimension(s) {_} flattened in output StateList")
+
     states = []
-    for time in var_map["time"].values:
-        data = ds.sel({ var_map["time"].name: time }, drop=True)
-        # Verify that coordinates are in the right order
-        assert tuple(data.coords) == (var_map["lon"].name, var_map["lat"].name)
-        # Convert numpy datetime type into a regular datetime instance
-        # https://stackoverflow.com/questions/13703720/
-        if isinstance(time, np.datetime64):
-            time = dt.datetime.utcfromtimestamp((time - np.datetime64(0, "s")) / np.timedelta64(1, "s"))
-        states.append(
-            State.from_wind(grid, time, data[var_map["u"].name].values, data[var_map["v"].name].values)
-        )
+    # Because itertools.product returns an empty tuple when called without any
+    # arguments (here: when dims_values is empty), this also covers the case of
+    # single field input with no flattened dimensions
+    for selection in itertools.product(*dims_values):
+        # Extract the current lon-lat field
+        field = data.sel(dict(zip(dims_flatten, selection)))
+        # Try to use time value from coordinates if possible, otherwise fall
+        # back to fill value
+        time = time_fill
+        if var_map["time"] in field.coords:
+            time = field.coords[var_map["time"]].values
+            # Convert numpy datetime type into a regular datetime instance
+            if isinstance(time, np.datetime64):
+                # https://stackoverflow.com/questions/13703720/
+                time = dt.datetime.utcfromtimestamp(
+                    (time - np.datetime64(0, "s")) / np.timedelta64(1, "s")
+                )
+        # Create State and add to collection
+        states.append(as_state(time, field))
+
     return StateList(states)
 
