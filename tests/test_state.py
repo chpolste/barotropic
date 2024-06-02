@@ -3,15 +3,7 @@ import pytest
 import numpy as np
 from barotropic import Grid, State, StateList, init
 
-
-# np.isclose and np.allclose must be given an appropriate value of atol for
-# different fields. Also, pyspharm uses single-precision floats, so the values
-# must account for the limited accuracy possible even when comparing doubles.
-ATOL_WIND = 1e-4 # ...
-ATOL_PV   = 1e-10 # ...
-ATOL_ZETA = 1e-10 # ...
-ATOL_PSI  = 1e+1 # ...
-
+from . import ATOL_WIND, ATOL_PV, ATOL_VO, ATOL_PSI
 
 
 class TestConversions:
@@ -26,7 +18,7 @@ class TestConversions:
             assert np.allclose(state.pv, grid.fcor2, atol=ATOL_PV)
             assert np.allclose(state.u, 0., atol=ATOL_WIND)
             assert np.allclose(state.v, 0., atol=ATOL_WIND)
-            assert np.allclose(state.vorticity, 0., atol=ATOL_ZETA)
+            assert np.allclose(state.vorticity, 0., atol=ATOL_VO)
             assert np.allclose(state.streamfunction, 0., atol=ATOL_PSI)
 
     def test_pv_to_other_to_pv(self):
