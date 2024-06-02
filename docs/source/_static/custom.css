@@ -48,6 +48,11 @@ div.bodywrapper {
     margin-left: 260px;
 }
 
+div.seealso {
+    background-color: unset;
+    border: none;
+}
+
 .highlight .c { color: #666666 } /* Comment */
 .highlight .o { font-weight: normal } /* Operator */
 .highlight .p { font-weight: normal } /* Punctuation */

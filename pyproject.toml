@@ -33,10 +33,11 @@ extras = [
     "matplotlib >=3.4.2",
     "PyWavelets >=1.1.1",
     "falwa >=1.0.0",
+    "xarray >= 2022.03.0"
 ]
 docs = [
-    "Sphinx >=6.2.1",
-    "nbsphinx >=0.9.2"
+    "Sphinx >=7.3.7",
+    "nbsphinx >=0.9.4"
 ]
 
 [project.urls]

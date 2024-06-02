@@ -4,6 +4,26 @@ Release Notes
 .. py:module:: barotropic
 
 
+Barotropic 3.1
+--------------
+
+Minor release, 2 Jun 2024.
+
+New features:
+
+- Add :py:class:`.StateList`.
+- Add :py:func:`.io.as_dataset`.
+- Reimplement :py:func:`.io.from_dataset`.
+- Allow specification of reference state for diffusion in :py:class:`.BarotropicModel`.
+
+Package and documentation:
+
+- Add documentation for :py:attr:`Grid.region` and :py:class:`grid.GridRegion`.
+- Replace `setup.py` with `pyproject.toml`.
+- Restructure repository.
+- Update dependencies.
+
+
 Barotropic 3.0.1
 ----------------
 

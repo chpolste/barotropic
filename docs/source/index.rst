@@ -57,7 +57,7 @@ Dependencies:
 
 - :py:mod:`numpy`
 - :py:mod:`scipy`
-- :py:mod:`spharm`
+- :py:mod:`pyspharm`
 - :py:mod:`matplotlib` (optional)
 - :py:mod:`pywt` (optional)
 - :py:mod:`hn2016_falwa` (optional)
