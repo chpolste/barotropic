@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Model Integration &#8212; barotropic 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=0f882399" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3688a873" />
+    <script src="_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Initial Conditions" href="init.html" />
+    <link rel="prev" title="Model State" href="state.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="init.html" title="Initial Conditions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="state.html" title="Model State"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Model Integration</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="model-integration">
+<h1>Model Integration<a class="headerlink" href="#model-integration" title="Link to this heading">¶</a></h1>
+<p>A <a class="reference internal" href="#barotropic.BarotropicModel" title="barotropic.BarotropicModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarotropicModel</span></code></a> is a representation of the barotropic PV equation and provides temporal integrators to advance the flow contained in <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> objects in time.
+The forcing and the numerical diffusion are configured with the <a class="reference internal" href="#barotropic.BarotropicModel" title="barotropic.BarotropicModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarotropicModel</span></code></a>.</p>
+<section id="barotropicmodel">
+<h2>BarotropicModel<a class="headerlink" href="#barotropicmodel" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="barotropic.BarotropicModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">barotropic.</span></span><span class="sig-name descname"><span class="pre">BarotropicModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_bg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.BarotropicModel" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Integrate the barotropic PV equation on the sphere forward in time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rhs</strong> (<a class="reference internal" href="rhs.html#barotropic.rhs.RHS" title="barotropic.rhs.RHS"><code class="xref py py-class docutils literal notranslate"><span class="pre">rhs.RHS</span></code></a>) – Model forcing. Build from the components
+provided in <code class="xref py py-mod docutils literal notranslate"><span class="pre">rhs</span></code>.</p></li>
+<li><p><strong>diffusion_order</strong> (<em>int</em>) – Order of diffusion term added for numerical
+stability to the PV equation. Hyperdiffusion by default.</p></li>
+<li><p><strong>diffusion_coeff</strong> (<em>number</em>) – Strength of diffusion.</p></li>
+<li><p><strong>diffusion_bg</strong> (<em>array</em><em> | </em><em>None</em>) – A background vorticity field that is
+removed before application of the diffusion steps.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Barotropic PV equation with forcing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Dq/Dt = ∂q/∂t + ∇(u·q) = RHS,
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">q</span></code> is the barotropic potential vorticity (i.e. absolute vorticity)
+and <code class="docutils literal notranslate"><span class="pre">u</span></code> is the divergence-free horizontal wind (which can be obtained
+from the PV by inversion).</p>
+<p>Does not carry state aside from the forcing and diffusion setup and can be
+reused for multiple integrations with different <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instances
+(though note that when used with the <strong>diffusion_bg</strong> parameter or some RHS
+terms, the <a class="reference internal" href="#barotropic.BarotropicModel" title="barotropic.BarotropicModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarotropicModel</span></code></a> can be restricted to a specific grid
+resolution).</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 3.1: </span>The <em>diffusion_bg</em> parameter.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="barotropic.BarotropicModel.euler">
+<span class="sig-name descname"><span class="pre">euler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_now</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.BarotropicModel.euler" title="Link to this definition">¶</a></dt>
+<dd><p>Step forward in time with a first-order Euler-forward scheme</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_now</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – Initial state.</p></li>
+<li><p><strong>dt</strong> (<em>number</em><em> | </em><em>timedelta</em>) – Time step size.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="barotropic.BarotropicModel.leapfrog">
+<span class="sig-name descname"><span class="pre">leapfrog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_now</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.BarotropicModel.leapfrog" title="Link to this definition">¶</a></dt>
+<dd><p>Step forward in time using a filtered leapfrog scheme.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_old</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – Last State.</p></li>
+<li><p><strong>state_now</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – Current state.</p></li>
+<li><p><strong>filter_parameter</strong> (<em>number</em>) – Strength paramter of the Robert-Asselin
+filter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple containing filtered current state and next step as new
+<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instances.</p>
+</dd>
+</dl>
+<p>The timestep size is determined automatically from the difference of
+the given input fields <strong>state_old</strong> and <strong>state_now</strong>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="barotropic.BarotropicModel.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.BarotropicModel.run" title="Link to this definition">¶</a></dt>
+<dd><p>Run the model until a specified time is reached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_init</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – State from which the integration
+starts.</p></li>
+<li><p><strong>dt</strong> (<em>number</em><em> | </em><em>timedelta</em>) – Time step size. Either a number in seconds
+or a timedelta.</p></li>
+<li><p><strong>tend</strong> (<em>number</em><em> | </em><em>datetime</em>) – Time after which the integration stops.
+The model will not try to reach this time exactly, but stop as
+soon as it is exeeded.</p></li>
+<li><p><strong>save_every</strong> (<em>number</em>) – If larger than zero, an intermediate state is
+saved and returned in the list of states every time this time
+interval is exceeded. Does not work for datetime/timedelta
+<strong>dt</strong> currently.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple containing the final state (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) and a list of
+all saved intermediate states (<a class="reference internal" href="state.html#barotropic.StateList" title="barotropic.StateList"><code class="xref py py-class docutils literal notranslate"><span class="pre">StateList</span></code></a>).</p>
+</dd>
+</dl>
+<p>Initializes with a first-order Euler forward step, then continues with
+second-order Leapfrog steps.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Barotropic</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Model Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">Model State</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Model Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Model Integration</a><ul>
+<li><a class="reference internal" href="#barotropicmodel">BarotropicModel</a><ul>
+<li><a class="reference internal" href="#barotropic.BarotropicModel"><code class="docutils literal notranslate"><span class="pre">BarotropicModel</span></code></a><ul>
+<li><a class="reference internal" href="#barotropic.BarotropicModel.euler"><code class="docutils literal notranslate"><span class="pre">BarotropicModel.euler()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.BarotropicModel.leapfrog"><code class="docutils literal notranslate"><span class="pre">BarotropicModel.leapfrog()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.BarotropicModel.run"><code class="docutils literal notranslate"><span class="pre">BarotropicModel.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="init.html" title="Initial Conditions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="state.html" title="Model State"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Model Integration</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

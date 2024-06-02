@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Release Notes &#8212; barotropic 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=0f882399" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3688a873" />
+    <script src="_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="References" href="references.html" />
+    <link rel="prev" title="Wavenumber-based Filtering with a Hann Window" href="examples/wavenumber-based-filtering.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="references.html" title="References"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="examples/wavenumber-based-filtering.html" title="Wavenumber-based Filtering with a Hann Window"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Release Notes</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-barotropic">
+<span id="release-notes"></span><h1>Release Notes<a class="headerlink" href="#module-barotropic" title="Link to this heading">¶</a></h1>
+<section id="barotropic-3-1">
+<h2>Barotropic 3.1<a class="headerlink" href="#barotropic-3-1" title="Link to this heading">¶</a></h2>
+<p>Minor release, 2 Jun 2024.</p>
+<p>New features:</p>
+<ul class="simple">
+<li><p>Add <a class="reference internal" href="state.html#barotropic.StateList" title="barotropic.StateList"><code class="xref py py-class docutils literal notranslate"><span class="pre">StateList</span></code></a>.</p></li>
+<li><p>Add <a class="reference internal" href="io.html#barotropic.io.as_dataset" title="barotropic.io.as_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">io.as_dataset()</span></code></a>.</p></li>
+<li><p>Reimplement <a class="reference internal" href="io.html#barotropic.io.from_dataset" title="barotropic.io.from_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">io.from_dataset()</span></code></a>.</p></li>
+<li><p>Allow specification of reference state for diffusion in <a class="reference internal" href="model.html#barotropic.BarotropicModel" title="barotropic.BarotropicModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarotropicModel</span></code></a>.</p></li>
+</ul>
+<p>Package and documentation:</p>
+<ul class="simple">
+<li><p>Add documentation for <a class="reference internal" href="grid.html#barotropic.Grid.region" title="barotropic.Grid.region"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Grid.region</span></code></a> and <a class="reference internal" href="grid.html#barotropic.grid.GridRegion" title="barotropic.grid.GridRegion"><code class="xref py py-class docutils literal notranslate"><span class="pre">grid.GridRegion</span></code></a>.</p></li>
+<li><p>Replace <cite>setup.py</cite> with <cite>pyproject.toml</cite>.</p></li>
+<li><p>Restructure repository.</p></li>
+<li><p>Update dependencies.</p></li>
+</ul>
+</section>
+<section id="barotropic-3-0-1">
+<h2>Barotropic 3.0.1<a class="headerlink" href="#barotropic-3-0-1" title="Link to this heading">¶</a></h2>
+<p>Patch release, 28 Mar 2022.</p>
+<ul class="simple">
+<li><p>Fix planetary vorticity in summary plot.</p></li>
+</ul>
+</section>
+<section id="barotropic-3-0">
+<h2>Barotropic 3.0<a class="headerlink" href="#barotropic-3-0" title="Link to this heading">¶</a></h2>
+<p>Major release, 9 Feb 2022.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This version is not backwards-compatible with v2.x.</p>
+</div>
+<p>New features:</p>
+<ul class="simple">
+<li><p>Add <a class="reference internal" href="grid.html#barotropic.Grid.mean" title="barotropic.Grid.mean"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.mean()</span></code></a>.</p></li>
+<li><p>Add <a class="reference internal" href="grid.html#barotropic.Grid.region" title="barotropic.Grid.region"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Grid.region</span></code></a> and <a class="reference internal" href="grid.html#barotropic.grid.GridRegion" title="barotropic.grid.GridRegion"><code class="xref py py-class docutils literal notranslate"><span class="pre">grid.GridRegion</span></code></a>.</p></li>
+<li><p>Add <a class="reference internal" href="grid.html#barotropic.Grid.filter_meridional" title="barotropic.Grid.filter_meridional"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.filter_meridional()</span></code></a> and <a class="reference internal" href="grid.html#barotropic.Grid.filter_zonal" title="barotropic.Grid.filter_zonal"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.filter_zonal()</span></code></a>.</p></li>
+<li><p>Add <a class="reference internal" href="grid.html#barotropic.Grid.laplace" title="barotropic.Grid.laplace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.laplace()</span></code></a> and <a class="reference internal" href="grid.html#barotropic.Grid.laplace_spectral" title="barotropic.Grid.laplace_spectral"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.laplace_spectral()</span></code></a>.</p></li>
+<li><p>Add <a class="reference internal" href="grid.html#barotropic.Grid.solve_poisson" title="barotropic.Grid.solve_poisson"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.solve_poisson()</span></code></a> and <a class="reference internal" href="grid.html#barotropic.Grid.solve_poisson_spectral" title="barotropic.Grid.solve_poisson_spectral"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.solve_poisson_spectral()</span></code></a>.</p></li>
+<li><p>Add <a class="reference internal" href="grid.html#barotropic.Grid.solve_diffusion" title="barotropic.Grid.solve_diffusion"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.solve_diffusion()</span></code></a> and <a class="reference internal" href="grid.html#barotropic.Grid.solve_diffusion_spectral" title="barotropic.Grid.solve_diffusion_spectral"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.solve_diffusion_spectral()</span></code></a>.</p></li>
+<li><p>Allow for sectoral zonalization with <a class="reference internal" href="grid.html#barotropic.Grid.zonalize" title="barotropic.Grid.zonalize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.zonalize()</span></code></a>.</p></li>
+<li><p>Add <a class="reference internal" href="state.html#barotropic.State.as_hn2016" title="barotropic.State.as_hn2016"><code class="xref py py-meth docutils literal notranslate"><span class="pre">State.as_hn2016()</span></code></a> and <a class="reference internal" href="state.html#barotropic.State.from_hn2016" title="barotropic.State.from_hn2016"><code class="xref py py-meth docutils literal notranslate"><span class="pre">State.from_hn2016()</span></code></a>.</p></li>
+<li><p>Add informative <cite>__repr__</cite> methods to some classes.</p></li>
+<li><p>Add <a class="reference internal" href="diagnostics.html#barotropic.diagnostics.dominant_wavenumber_fourier" title="barotropic.diagnostics.dominant_wavenumber_fourier"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.dominant_wavenumber_fourier()</span></code></a>.</p></li>
+</ul>
+<p>Changes:</p>
+<ul class="simple">
+<li><p>Make longitude the first dimension in all user-facing code, following plotting convention.</p></li>
+<li><p>Make <cite>resolution</cite> the first argument of the <a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a> constructor.</p></li>
+<li><p>Rename <code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.ddphi()</span></code> to <a class="reference internal" href="grid.html#barotropic.Grid.derivative_meridional" title="barotropic.Grid.derivative_meridional"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.derivative_meridional()</span></code></a>.</p></li>
+<li><p>Rename <code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.zonalize_eqlat()</span></code> to <a class="reference internal" href="grid.html#barotropic.Grid.zonalize" title="barotropic.Grid.zonalize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.zonalize()</span></code></a>.</p></li>
+<li><p>Fix <code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.quad_boxcount()</span></code>.</p></li>
+<li><p>Merge quadrature functions into <a class="reference internal" href="grid.html#barotropic.Grid.quad" title="barotropic.Grid.quad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.quad()</span></code></a>.</p></li>
+<li><p>Add <a class="reference internal" href="grid.html#barotropic.Grid.fcor" title="barotropic.Grid.fcor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Grid.fcor</span></code></a> and rename old <cite>fcor</cite> to <cite>fcor2</cite>.</p></li>
+<li><p>Perform more <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> computations in spectral space to improve accuracy.</p></li>
+<li><p>Always send PV field through spectral space to ensure consistency in <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> constructor.</p></li>
+<li><p>Rename attributes of <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>: <cite>lats</cite> to <cite>lat</cite>, <cite>lons</cite> to <cite>lon</cite>, <cite>lat</cite> to <cite>lat2</cite>, <cite>lon</cite> to <cite>lon2</cite></p></li>
+<li><p>Renamed <a class="reference internal" href="state.html#barotropic.State.v_envelope_hilbert" title="barotropic.State.v_envelope_hilbert"><code class="xref py py-attr docutils literal notranslate"><span class="pre">State.v_envelope_hilbert</span></code></a>.</p></li>
+<li><p>Remove <code class="xref py py-attr docutils literal notranslate"><span class="pre">State.dominant_wavenumber</span></code>.</p></li>
+<li><p>Switch to much faster Fourier-based dominant wavenumber computation in <a class="reference internal" href="state.html#barotropic.State.falwa_filtered" title="barotropic.State.falwa_filtered"><code class="xref py py-class docutils literal notranslate"><span class="pre">State.falwa_filtered</span></code></a>.</p></li>
+<li><p>Fix double diffusion step in <a class="reference internal" href="model.html#barotropic.BarotropicModel.euler" title="barotropic.BarotropicModel.euler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BarotropicModel.euler()</span></code></a>.</p></li>
+<li><p>Rename <a class="reference internal" href="diagnostics.html#module-barotropic.diagnostics" title="barotropic.diagnostics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">barotropic.diagnostics</span></code></a> module and some function therein.</p></li>
+<li><p>Arguments of <a class="reference internal" href="diagnostics.html#barotropic.diagnostics.envelope_hilbert" title="barotropic.diagnostics.envelope_hilbert"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.envelope_hilbert()</span></code></a> now match <a class="reference internal" href="diagnostics.html#barotropic.diagnostics.dominant_wavenumber_fourier" title="barotropic.diagnostics.dominant_wavenumber_fourier"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.dominant_wavenumber_fourier()</span></code></a>.</p></li>
+<li><p>Remove <code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.falwa_hn2016()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">State.falwa_hn2016()</span></code>.</p></li>
+<li><p>Reimplement interpolation in <a class="reference internal" href="diagnostics.html#barotropic.diagnostics.falwa" title="barotropic.diagnostics.falwa"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.falwa()</span></code></a> and <a class="reference internal" href="diagnostics.html#barotropic.diagnostics.fawa" title="barotropic.diagnostics.fawa"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.fawa()</span></code></a>.</p></li>
+<li><p>The wavenumber in <a class="reference internal" href="diagnostics.html#barotropic.diagnostics.filter_by_wavenumber" title="barotropic.diagnostics.filter_by_wavenumber"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.filter_by_wavenumber()</span></code></a> is now determined by FWHM.
+Previously the wavelength corresponding to the given wavenumber determined the full width of the window.
+The change aligns the implementation with the original intention of filtering like Ghinassi et al. (<a class="reference external" href="https://doi.org/10.1175/MWR-D-18-0068.1">2018</a>, <a class="reference external" href="https://doi.org/10.1175/JAS-D-19-0149.1">2020</a>).
+Things worked out before because the dominant wavenumber extracted from the meridional wind is half that of the corresponding FALWA field so the filter widths were sized as intended.
+Now the v-based wavenumber is doubled in <a class="reference internal" href="state.html#barotropic.State.falwa_filtered" title="barotropic.State.falwa_filtered"><code class="xref py py-attr docutils literal notranslate"><span class="pre">State.falwa_filtered</span></code></a> before it is given to <a class="reference internal" href="diagnostics.html#barotropic.diagnostics.filter_by_wavenumber" title="barotropic.diagnostics.filter_by_wavenumber"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.filter_by_wavenumber()</span></code></a> to compensate for the change.</p></li>
+<li><p><a class="reference internal" href="diagnostics.html#barotropic.diagnostics.filter_by_wavenumber" title="barotropic.diagnostics.filter_by_wavenumber"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.filter_by_wavenumber()</span></code></a> now accepts zonally symmetric wavenumber fields as 1-dimensional nlat-sized arrays and is faster as it omits computation of smoothed fields that are not required.</p></li>
+</ul>
+<p>Package and documentation:</p>
+<ul class="simple">
+<li><p>Move unit tests to <cite>pytest</cite>.</p></li>
+<li><p>Move documentation to <cite>sphinx</cite>.</p></li>
+<li><p>Add <cite>scipy</cite> as a non-optional dependency.</p></li>
+<li><p>General improvements to documentation.</p></li>
+<li><p>New example notebook that demonstrates wavenumber-based filtering.</p></li>
+</ul>
+</section>
+<section id="barotropic-2-0-1">
+<h2>Barotropic 2.0.1<a class="headerlink" href="#barotropic-2-0-1" title="Link to this heading">¶</a></h2>
+<p>Patch release, 12 Jul 2020.</p>
+<ul class="simple">
+<li><p>Fix import of <cite>BarotropicField</cite> from <a class="reference external" href="https://github.com/csyhuang/hn2016_falwa">hn2016_falwa</a>.</p></li>
+<li><p>Declare the public interface explicitly with <cite>__all__</cite> in the <cite>__init__.py</cite>.</p></li>
+<li><p>Improve consistency of docstrings and add missing docstrings.</p></li>
+<li><p>Hide imported constants in submodules.</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">rhs.RHSSum</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">rhs.RHSProduct</span></code> have been renamed and are now hidden.</p></li>
+<li><p><a class="reference internal" href="plot.html#barotropic.plot.reduce_vectors" title="barotropic.plot.reduce_vectors"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot.reduce_vectors()</span></code></a> has different argument names.</p></li>
+</ul>
+</section>
+<section id="barotropic-2-0">
+<h2>Barotropic 2.0<a class="headerlink" href="#barotropic-2-0" title="Link to this heading">¶</a></h2>
+<p>Major release, 23 Apr 2020.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This version is not backwards-compatible with v1.x.</p>
+</div>
+<p>New features:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a> exposes additional properties (<cite>nlon</cite>, <cite>nlat</cite>, <cite>dlon</cite>, <cite>dlat</cite>, <cite>phis</cite>, <cite>lams</cite>).</p></li>
+<li><p><a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a> is now able to compute gradients.</p></li>
+<li><p>The output of <code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.zonalize_eqlat()</span></code> should have improved in terms of contour value sampling and computation time for the default arguments.</p></li>
+<li><p>Stationary wavenumber diagnostic, waveguide detection and plot preset.</p></li>
+<li><p>New initial states <a class="reference internal" href="init.html#barotropic.init.motionless" title="barotropic.init.motionless"><code class="xref py py-func docutils literal notranslate"><span class="pre">init.motionless()</span></code></a> and <a class="reference internal" href="init.html#barotropic.init.zonally_symmetric" title="barotropic.init.zonally_symmetric"><code class="xref py py-func docutils literal notranslate"><span class="pre">init.zonally_symmetric()</span></code></a> have been added.</p></li>
+<li><p>Plot presets now allow selection of the latitude that is centered in maps.</p></li>
+<li><p>The pseudo-orography term has been completely reimplemented and now provides more configuration options and the possiblity to load a gridded orography.</p></li>
+<li><p>A new <code class="xref py py-mod docutils literal notranslate"><span class="pre">io</span></code> submodule allows import of xarray datasets.
+However this functionality is not fully implemented yet.</p></li>
+</ul>
+<p>Some functions and arguments have been renamed to achieve a more consistent naming throughout the code:</p>
+<ul class="simple">
+<li><p>Initial states are now accessible from a new <a class="reference internal" href="init.html#module-barotropic.init" title="barotropic.init"><code class="xref py py-mod docutils literal notranslate"><span class="pre">barotropic.init</span></code></a> submodule instead of being staticmethods of <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="model.html#barotropic.BarotropicModel" title="barotropic.BarotropicModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarotropicModel</span></code></a> now accepts <code class="docutils literal notranslate"><span class="pre">None</span></code> for the RHS forcing.</p></li>
+<li><p>The <cite>diffusion_kappa</cite> parameter of <a class="reference internal" href="model.html#barotropic.BarotropicModel" title="barotropic.BarotropicModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarotropicModel</span></code></a> is now called <cite>diffusion_coeff</cite>.</p></li>
+<li><p>RHS PV tendencies are expected to be gridded instead of spectral.</p></li>
+<li><p>The resolution of a <a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a> is now specified with the <cite>resolution</cite> argument (was named <cite>latlon_resolution</cite>).</p></li>
+<li><p>The properties <cite>latitudes</cite> and <cite>longitudes</cite> of <a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a> are now called <cite>lats</cite> and <cite>lons</cite>.</p></li>
+<li><p>The parameters to specify the properties of the <cite>gaussian_jet</cite> initial state and orographic forcing have been changed.</p></li>
+<li><p>Plots are now accessible via a <cite>plot</cite> property of <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> instead of methods whose names start with <cite>plot_</cite>.</p></li>
+</ul>
+<p>Documentation:</p>
+<ul class="simple">
+<li><p>New example notebook recreating the experiments from <a class="reference external" href="https://doi.org/10.5194/wcd-1-111-2020">Wirth (2020)</a>.</p></li>
+</ul>
+</section>
+<section id="barotropic-1-0">
+<h2>Barotropic 1.0<a class="headerlink" href="#barotropic-1-0" title="Link to this heading">¶</a></h2>
+<p>Initial release, 26 Nov 2019.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Barotropic</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Model Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">Model State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Release Notes</a><ul>
+<li><a class="reference internal" href="#barotropic-3-1">Barotropic 3.1</a></li>
+<li><a class="reference internal" href="#barotropic-3-0-1">Barotropic 3.0.1</a></li>
+<li><a class="reference internal" href="#barotropic-3-0">Barotropic 3.0</a></li>
+<li><a class="reference internal" href="#barotropic-2-0-1">Barotropic 2.0.1</a></li>
+<li><a class="reference internal" href="#barotropic-2-0">Barotropic 2.0</a></li>
+<li><a class="reference internal" href="#barotropic-1-0">Barotropic 1.0</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="references.html" title="References"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="examples/wavenumber-based-filtering.html" title="Wavenumber-based Filtering with a Hann Window"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Release Notes</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

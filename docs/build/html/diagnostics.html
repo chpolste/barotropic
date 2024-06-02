@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Diagnostics &#8212; barotropic 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=0f882399" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3688a873" />
+    <script src="_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Input/Output" href="io.html" />
+    <link rel="prev" title="Plotting" href="plot.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="io.html" title="Input/Output"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="plot.html" title="Plotting"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Diagnostics</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="diagnostics">
+<h1>Diagnostics<a class="headerlink" href="#diagnostics" title="Link to this heading">¶</a></h1>
+<section id="waveguide-diagnostics">
+<h2>Waveguide Diagnostics<a class="headerlink" href="#waveguide-diagnostics" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.diagnostics.extract_ks_waveguides">
+<span class="sig-prename descclassname"><span class="pre">barotropic.diagnostics.</span></span><span class="sig-name descname"><span class="pre">extract_ks_waveguides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ks_or_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.diagnostics.extract_ks_waveguides" title="Link to this definition">¶</a></dt>
+<dd><p>Extract waveguide boundaries based on the stationary wavenumber.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ks_or_state</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> | array) – Input state or stationary
+wavenumber profile (complex variant).</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Wavenumber for which waveguides are extracted.</p></li>
+<li><p><strong>grid</strong> (None | <a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid information only required
+if <cite>ks_or_state</cite> is not a <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of tuples that contain the boundary latitudes of the detected
+waveguides (one tuple per waveguide) in degrees.</p>
+</dd>
+</dl>
+<p>WKB and ray-tracing theory say that Rossby waves are refracted towards
+latitudes of higher stationary wavenumber. A local maximum in the
+meridional profile of stationary zonal wavenumber Ks can therefore trap
+waves and constitutes a waveguide. See e.g. Petoukhov et al. (2013), Wirth
+(2020).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.diagnostics.stationary_wavenumber">
+<span class="sig-prename descclassname"><span class="pre">barotropic.diagnostics.</span></span><span class="sig-name descname"><span class="pre">stationary_wavenumber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_or_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'complex'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.diagnostics.stationary_wavenumber" title="Link to this definition">¶</a></dt>
+<dd><p>Non-dimensionalised stationary (zonal) wavenumber.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_or_state</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> | array) – Input state or 2D field of
+zonal wind component.</p></li>
+<li><p><strong>grid</strong> (None | <a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid information only required if
+<cite>u_or_state</cite> is not a <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>.</p></li>
+<li><p><strong>order</strong> (<em>2</em><em> | </em><em>4</em>) – Order of the derivative used in the calculation.
+Parameter of <a class="reference internal" href="grid.html#barotropic.Grid.derivative_meridional" title="barotropic.Grid.derivative_meridional"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.derivative_meridional()</span></code></a>.</p></li>
+<li><p><strong>min_u</strong> (<em>number</em>) – Threshold for the absolute value of the zonal wind
+below which it is considered to be zero.</p></li>
+<li><p><strong>kind</strong> (<em>&quot;complex&quot;</em><em> | </em><em>&quot;real&quot;</em><em> | </em><em>&quot;squared&quot;</em>) – <p><code class="docutils literal notranslate"><span class="pre">Ks²</span></code> can be negative.
+Determine how <code class="docutils literal notranslate"><span class="pre">Ks</span></code> is returned:</p>
+<ul>
+<li><p><cite>”complex”</cite>: return complex number <cite>√(Ks²)</cite>.</p></li>
+<li><p><cite>”real”</cite>: return real number <code class="docutils literal notranslate"><span class="pre">Re(Ks)</span> <span class="pre">-</span> <span class="pre">Im(Ks)</span></code> where <code class="docutils literal notranslate"><span class="pre">Ks</span></code> is the
+complex number <code class="docutils literal notranslate"><span class="pre">√(Ks²)</span></code>. Since <code class="docutils literal notranslate"><span class="pre">Ks²</span></code> is real, <code class="docutils literal notranslate"><span class="pre">Im(Ks)</span></code> is
+always zero when <code class="docutils literal notranslate"><span class="pre">Re(Ks)</span></code> is non-zero and vice versa, rendering
+this expression of <code class="docutils literal notranslate"><span class="pre">Ks</span></code> unique.</p></li>
+<li><p><cite>”squared”</cite>: return <code class="docutils literal notranslate"><span class="pre">Ks²</span></code>.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Meridional profile of stationary wavenumber.</p>
+</dd>
+</dl>
+<p>Stationary zonal wavenumber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Ks² = r²·βM/uM,
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">r</span></code> is the radius of the sphere, <code class="docutils literal notranslate"><span class="pre">βM</span></code> is the Mercator projection
+gradient of zonal-mean PV and <code class="docutils literal notranslate"><span class="pre">uM</span></code> is the Mercator projection zonal-mean
+wind. See e.g. Hoskins and Karoly (1981), Wirth (2020).</p>
+</dd></dl>
+
+</section>
+<section id="wave-activity-diagnostics">
+<h2>Wave Activity Diagnostics<a class="headerlink" href="#wave-activity-diagnostics" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.diagnostics.falwa">
+<span class="sig-prename descclassname"><span class="pre">barotropic.diagnostics.</span></span><span class="sig-name descname"><span class="pre">falwa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pv_or_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sptrapz'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.diagnostics.falwa" title="Link to this definition">¶</a></dt>
+<dd><p>Finite-Amplitude Local Wave Activity according to Huang and Nakamura (2016).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pv_or_state</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> | array) – Input state or 2D PV field.</p></li>
+<li><p><strong>grid</strong> (None | <a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid information only required if
+<cite>pv_or_state</cite> is not a <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>.</p></li>
+<li><p><strong>levels</strong> (<em>None</em><em> | </em><em>array</em><em> | </em><em>int</em>) – Parameter of <a class="reference internal" href="grid.html#barotropic.Grid.zonalize" title="barotropic.Grid.zonalize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.zonalize()</span></code></a>.</p></li>
+<li><p><strong>interpolate</strong> (<em>bool</em>) – Interpolate output onto the regular latitudes of
+the grid. If <cite>False</cite>, FALWA is returned on the equivalent latitudes
+obtained from the zonalization procedure. These may be irregular
+and unordered.</p></li>
+<li><p><strong>quad</strong> (<em>str</em>) – Quadrature rule used in the surface integrals of the
+computation. See <a class="reference internal" href="grid.html#barotropic.Grid.quad" title="barotropic.Grid.quad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.quad()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If <strong>interpolate</strong> is <cite>True</cite>, return FALWA interpolated onto the
+regular latitudes as an array. Otherwise, return a tuple of FALWA and
+the associated equivalent latitudes (both arrays).</p>
+</dd>
+</dl>
+<p>To improve numerical stability if a boxcounting quadrature is selected, the
+zonalized PV profile is always interpolated to the dual latitude grid.
+Therefore, <strong>levels</strong> does not affect the output latitudes, even if
+<strong>interpolate</strong> is set to <cite>False</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.diagnostics.fawa">
+<span class="sig-prename descclassname"><span class="pre">barotropic.diagnostics.</span></span><span class="sig-name descname"><span class="pre">fawa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pv_or_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sptrapz'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.diagnostics.fawa" title="Link to this definition">¶</a></dt>
+<dd><p>Finite-Amplitude Wave Activity according to Nakamura and Zhu (2010).</p>
+<p>Computes FAWA as the zonal mean of <a class="reference internal" href="#barotropic.diagnostics.falwa" title="barotropic.diagnostics.falwa"><code class="xref py py-func docutils literal notranslate"><span class="pre">falwa()</span></code></a>.</p>
+</dd></dl>
+
+</section>
+<section id="wave-packet-diagnostics">
+<h2>Wave Packet Diagnostics<a class="headerlink" href="#wave-packet-diagnostics" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.diagnostics.envelope_hilbert">
+<span class="sig-prename descclassname"><span class="pre">barotropic.diagnostics.</span></span><span class="sig-name descname"><span class="pre">envelope_hilbert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavenumber_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(2,</span> <span class="pre">10)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.diagnostics.envelope_hilbert" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the envelope of wave packets with the Hilbert transform.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<em>array</em>) – 2D input field.</p></li>
+<li><p><strong>wavenumber_range</strong> (<em>(</em><em>number</em><em>, </em><em>number</em><em>)</em>) – Restrict the interval in which the
+dominant wavenumber is determined.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filtered output field.</p>
+</dd>
+</dl>
+<p>Applied to the merdional wind for RWP detection by Zimin et al. (2003).</p>
+</dd></dl>
+
+</section>
+<section id="module-barotropic.diagnostics">
+<span id="other"></span><h2>Other<a class="headerlink" href="#module-barotropic.diagnostics" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.diagnostics.dominant_wavenumber_fourier">
+<span class="sig-prename descclassname"><span class="pre">barotropic.diagnostics.</span></span><span class="sig-name descname"><span class="pre">dominant_wavenumber_fourier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('boxcar',</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavenumber_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">20)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.diagnostics.dominant_wavenumber_fourier" title="Link to this definition">¶</a></dt>
+<dd><p>Dominant zonal wavenumber based on the Fourier power spectrum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<em>array</em>) – 2D input field.</p></li>
+<li><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid associated with input field.</p></li>
+<li><p><strong>smooth</strong> (<em>None</em><em> | </em><em>tuple</em>) – If not <cite>None</cite>, the output wavenumber profile is
+filtered with <a class="reference internal" href="grid.html#barotropic.Grid.filter_meridional" title="barotropic.Grid.filter_meridional"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.filter_meridional()</span></code></a>, whose <cite>window</cite>
+and <cite>width</cite> arguments are set by <cite>smooth</cite>.</p></li>
+<li><p><strong>wavenumber_range</strong> (<em>(</em><em>number</em><em>, </em><em>number</em><em>)</em>) – Restrict the interval in which the
+dominant wavenumber is determined.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the dominant zonal wavenumber as a function of latitude.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.diagnostics.dominant_wavenumber_wavelet">
+<span class="sig-prename descclassname"><span class="pre">barotropic.diagnostics.</span></span><span class="sig-name descname"><span class="pre">dominant_wavenumber_wavelet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('hann',</span> <span class="pre">40,</span> <span class="pre">10)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.diagnostics.dominant_wavenumber_wavelet" title="Link to this definition">¶</a></dt>
+<dd><p>Dominant zonal wavenumber based on Wavelet Analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<em>array</em>) – 2D input field.</p></li>
+<li><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Grid associated with input field.</p></li>
+<li><p><strong>smooth</strong> (<em>None</em><em> | </em><em>tuple</em>) – The smoothing applied to the dominant wavenumber
+field. Set to <cite>None</cite> if no smoothing is desired. Otherwise provide
+a 3-tuple <cite>(window, width_lon, width_lat)</cite> used as input to
+<a class="reference internal" href="grid.html#barotropic.Grid.filter_meridional" title="barotropic.Grid.filter_meridional"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.filter_meridional()</span></code></a> and <a class="reference internal" href="grid.html#barotropic.Grid.filter_zonal" title="barotropic.Grid.filter_zonal"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.filter_zonal()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Gridded dominant zonal wavenumber.</p>
+</dd>
+</dl>
+<p>Implements the procedure of Ghinassi et al. (2018) that determines
+a local dominant wavenumber at every gridpoint of the input field.</p>
+<p>Requires <code class="xref py py-mod docutils literal notranslate"><span class="pre">pywt</span></code> (version &gt;= 1.1.0).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.diagnostics.filter_by_wavenumber">
+<span class="sig-prename descclassname"><span class="pre">barotropic.diagnostics.</span></span><span class="sig-name descname"><span class="pre">filter_by_wavenumber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavenumber</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.diagnostics.filter_by_wavenumber" title="Link to this definition">¶</a></dt>
+<dd><p>Zonal Hann smoothing based on a space-dependent wavenumber field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<em>array</em>) – 2D input field.</p></li>
+<li><p><strong>wavenumber</strong> (<em>array</em>) – <cite>nlat</cite>-sized 1D array or <cite>field</cite>-shaped 2D
+array of wavenumbers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filtered field.</p>
+</dd>
+</dl>
+<p>Apply Hann smoothing in zonal direction with the Hann window width governed
+at every gridpoint by the wavenumber given for the same location. The
+wavelength corresponding to each wavenumber determines the full width at
+half maximum of the Hann window.</p>
+<p>Used by Ghinassi et al. (2018) to filter the FALWA field, discounting phase
+information in order to diagnose wave packets as a whole.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Barotropic</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Model Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">Model State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Diagnostics</a><ul>
+<li><a class="reference internal" href="#waveguide-diagnostics">Waveguide Diagnostics</a><ul>
+<li><a class="reference internal" href="#barotropic.diagnostics.extract_ks_waveguides"><code class="docutils literal notranslate"><span class="pre">extract_ks_waveguides()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.diagnostics.stationary_wavenumber"><code class="docutils literal notranslate"><span class="pre">stationary_wavenumber()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wave-activity-diagnostics">Wave Activity Diagnostics</a><ul>
+<li><a class="reference internal" href="#barotropic.diagnostics.falwa"><code class="docutils literal notranslate"><span class="pre">falwa()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.diagnostics.fawa"><code class="docutils literal notranslate"><span class="pre">fawa()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wave-packet-diagnostics">Wave Packet Diagnostics</a><ul>
+<li><a class="reference internal" href="#barotropic.diagnostics.envelope_hilbert"><code class="docutils literal notranslate"><span class="pre">envelope_hilbert()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-barotropic.diagnostics">Other</a><ul>
+<li><a class="reference internal" href="#barotropic.diagnostics.dominant_wavenumber_fourier"><code class="docutils literal notranslate"><span class="pre">dominant_wavenumber_fourier()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.diagnostics.dominant_wavenumber_wavelet"><code class="docutils literal notranslate"><span class="pre">dominant_wavenumber_wavelet()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.diagnostics.filter_by_wavenumber"><code class="docutils literal notranslate"><span class="pre">filter_by_wavenumber()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="io.html" title="Input/Output"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="plot.html" title="Plotting"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Diagnostics</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

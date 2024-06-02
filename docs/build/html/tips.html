@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Tips and Examples &#8212; barotropic 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=0f882399" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3688a873" />
+    <script src="_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Rossby Wave Packet Diagnostics (Ghinassi et al. 2018)" href="examples/rwp-diagnostics-ghinassi-et-al-2018.html" />
+    <link rel="prev" title="Input/Output" href="io.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples/rwp-diagnostics-ghinassi-et-al-2018.html" title="Rossby Wave Packet Diagnostics (Ghinassi et al. 2018)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="io.html" title="Input/Output"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Tips and Examples</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="tips-and-examples">
+<h1>Tips and Examples<a class="headerlink" href="#tips-and-examples" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><p>Functions with arguments that represent longitude and latitude (coordinates, etc.) will always take them in this order (first lon, then lat), following the order used e.g. in plotting contexts or vector components (e.g. [X°N, Y°E] or [u, v]).
+Note that this is order is the reverse of the axis order in the underlying arrays, where latitude comes before longitude.</p></li>
+<li><p>To ensure numerically robust and accurate results, <a class="reference internal" href="grid.html#barotropic.Grid.quad" title="barotropic.Grid.quad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.quad()</span></code></a> and <a class="reference internal" href="grid.html#barotropic.Grid.quad_meridional" title="barotropic.Grid.quad_meridional"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.quad_meridional()</span></code></a> as well as functions relying on these routines, such as <a class="reference internal" href="grid.html#barotropic.Grid.zonalize" title="barotropic.Grid.zonalize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Grid.zonalize()</span></code></a> and <a class="reference internal" href="diagnostics.html#barotropic.diagnostics.falwa" title="barotropic.diagnostics.falwa"><code class="xref py py-func docutils literal notranslate"><span class="pre">diagnostics.falwa()</span></code></a>, use the <em>sptrapz</em> integration scheme by default.
+Consider using the <em>boxcount</em> scheme to accelerate computations where highest accuracy is not required.</p></li>
+<li><p>Use the convenience constants <code class="xref py py-data docutils literal notranslate"><span class="pre">ZONAL</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">MERIDIONAL</span></code> from the top-level namespace to address field dimensions.</p></li>
+<li><p>Use the convenience factors <code class="xref py py-data docutils literal notranslate"><span class="pre">MIN</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">HOUR</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">DAY</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">WEEK</span></code> to create time intervals in a readable manner. Alternatively, both <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a> and <a class="reference internal" href="model.html#barotropic.BarotropicModel" title="barotropic.BarotropicModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarotropicModel</span></code></a> can handle <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.timedelta</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code> objects as input.</p></li>
+</ul>
+<section id="example-notebooks">
+<h2>Example Notebooks<a class="headerlink" href="#example-notebooks" title="Link to this heading">¶</a></h2>
+<p>Jupyter notebooks utilizing <a class="reference internal" href="notes.html#module-barotropic" title="barotropic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">barotropic</span></code></a>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="examples/rwp-diagnostics-ghinassi-et-al-2018.html"><span class="doc">Rossby Wave Packet Diagnostics (Ghinassi et al. 2018)</span></a></p></li>
+<li><p><a class="reference internal" href="examples/waveguidability-wirth-2020.html"><span class="doc">Waveguidability (Wirth 2020)</span></a></p></li>
+<li><p><a class="reference internal" href="examples/wavenumber-based-filtering.html"><span class="doc">Wavenumber-based Filtering with a Hann Window</span></a></p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="transition-from-2-x-to-3-x">
+<h2>Transition from 2.x to 3.x<a class="headerlink" href="#transition-from-2-x-to-3-x" title="Link to this heading">¶</a></h2>
+<p>In the transition from version 2.x to 3.x, many methods, attributes, function arguments, etc. have been moved or renamed.
+Some significant changes include:</p>
+<ul class="simple">
+<li><p>The <strong>lat</strong>, <strong>lon</strong>, etc. properties of <a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a> have been renamed.</p></li>
+<li><p>The former <cite>diagnostic</cite> module is now called <cite>diagnostics</cite>.</p></li>
+<li><p>Quadrature, derivatives and interpolation on <a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a> have been restructured.</p></li>
+<li><p><em>scipy</em> is now a mandatory dependency.</p></li>
+<li><p>Longitude now appears consistently before latitude in argument lists (except for direct array access, where lat is the zeroth dimension).</p></li>
+</ul>
+<p>Thus, it is very unlikely that code from version 2.x still works after upgrading to version 3.x.</p>
+<p>Version 2.x continues to be available on the master branch, development of 3.x has moved to a new main branch (which is the default branch of the repository now).</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Barotropic</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Model Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">Model State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Tips and Examples</a><ul>
+<li><a class="reference internal" href="#example-notebooks">Example Notebooks</a></li>
+<li><a class="reference internal" href="#transition-from-2-x-to-3-x">Transition from 2.x to 3.x</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples/rwp-diagnostics-ghinassi-et-al-2018.html" title="Rossby Wave Packet Diagnostics (Ghinassi et al. 2018)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="io.html" title="Input/Output"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Tips and Examples</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

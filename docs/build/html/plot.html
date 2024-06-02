@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Plotting &#8212; barotropic 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=0f882399" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3688a873" />
+    <script src="_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Diagnostics" href="diagnostics.html" />
+    <link rel="prev" title="Forcing Terms" href="rhs.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="diagnostics.html" title="Diagnostics"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rhs.html" title="Forcing Terms"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Plotting</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="plotting">
+<h1>Plotting<a class="headerlink" href="#plotting" title="Link to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Plotting requires <code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code>. If <code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code> is not available, a warning will be emitted on import but some of the helper functions will still work.</p>
+</div>
+<section id="plot-presets">
+<h2>Plot presets<a class="headerlink" href="#plot-presets" title="Link to this heading">¶</a></h2>
+<p>All plot presets are also accessible for interactive use as methods of the <a class="reference internal" href="state.html#barotropic.State.plot" title="barotropic.State.plot"><code class="xref py py-attr docutils literal notranslate"><span class="pre">State.plot</span></code></a> interface.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.rwp_diagnostics">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">rwp_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">10.5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemisphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_lon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rwp_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rwp_cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'YlOrRd'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.rwp_diagnostics" title="Link to this definition">¶</a></dt>
+<dd><p>3-panel plot with Rossby wave packet diagnostics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – Visualized state.</p></li>
+<li><p><strong>figsize</strong> (<em>(</em><em>number</em><em>, </em><em>number</em><em>)</em>) – Figure size.</p></li>
+<li><p><strong>hemisphere</strong> (<em>&quot;both&quot;</em><em> | </em><em>&quot;N&quot;</em><em> | </em><em>&quot;S&quot;</em>) – Which hemisphere(s) to show.</p></li>
+<li><p><strong>center_lon</strong> (<em>number</em>) – Longitude at center of maps.</p></li>
+<li><p><strong>v_max</strong> (<em>number</em>) – Override for maximum of meridional wind colorbar.</p></li>
+<li><p><strong>rwp_max</strong> (<em>number</em>) – Override for maximum of RWP colorbar.</p></li>
+<li><p><strong>rwp_cmap</strong> (<em>str</em>) – Name of colormap for RWP.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.summary">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(11,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemisphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_lon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pv_cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pv_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.summary" title="Link to this definition">¶</a></dt>
+<dd><p>4-panel plot showing the model state in terms of vorticity and wind.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – Visualized state.</p></li>
+<li><p><strong>figsize</strong> (<em>(</em><em>number</em><em>, </em><em>number</em><em>)</em>) – Figure size.</p></li>
+<li><p><strong>hemisphere</strong> (<em>&quot;both&quot;</em><em> | </em><em>&quot;N&quot;</em><em> | </em><em>&quot;S&quot;</em>) – Which hemisphere(s) to show.</p></li>
+<li><p><strong>center_lon</strong> (<em>number</em>) – Longitude at center of maps.</p></li>
+<li><p><strong>pv_cmap</strong> (<em>str</em>) – Name of colormap for PV.</p></li>
+<li><p><strong>pv_max</strong> (<em>number</em>) – Override for maximum of PV colorbar.</p></li>
+<li><p><strong>v_max</strong> (<em>number</em>) – Override for maximum of meridional wind colorbar.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure instance.</p>
+</dd>
+</dl>
+<p>Example plot with default configuration:</p>
+<img alt="_images/example-summary-plot.png" src="_images/example-summary-plot.png" />
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.wave_activity">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">wave_activity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(11,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemisphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_lon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">falwa_cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'YlOrRd'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.wave_activity" title="Link to this definition">¶</a></dt>
+<dd><p>4-panel plot with Finite-Amplitude Wave Activity and PV diagnostics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – Visualized state.</p></li>
+<li><p><strong>figsize</strong> (<em>(</em><em>number</em><em>, </em><em>number</em><em>)</em>) – Figure size.</p></li>
+<li><p><strong>hemisphere</strong> (<em>&quot;both&quot;</em><em> | </em><em>&quot;N&quot;</em><em> | </em><em>&quot;S&quot;</em>) – Which hemisphere(s) to show.</p></li>
+<li><p><strong>center_lon</strong> (<em>number</em>) – Longitude at center of maps.</p></li>
+<li><p><strong>falwa_cmap</strong> (<em>str</em>) – Name of colormap for FALWA.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.waveguides">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">waveguides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_waveguides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemisphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">klim_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-5,</span> <span class="pre">15)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.waveguides" title="Link to this definition">¶</a></dt>
+<dd><p>2-panel plot showing stationary wavenumber and WKB waveguide diagnostics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – Visualized state.</p></li>
+<li><p><strong>k_waveguides</strong> (<em>None</em><em> | </em><em>number</em><em> | </em><em>iterable</em>) – Wavenumber(s) for which
+waveguides are highlighted.</p></li>
+<li><p><strong>hemisphere</strong> (<em>&quot;both&quot;</em><em> | </em><em>&quot;N&quot;</em><em> | </em><em>&quot;S&quot;</em>) – Which hemisphere(s) to show.</p></li>
+<li><p><strong>klim_bounds</strong> (<em>(</em><em>number</em><em>, </em><em>number</em><em>)</em>) – Bounds for wavenumber axis (x-axis).</p></li>
+<li><p><strong>legend_loc</strong> (<em>str</em>) – Where the legend is positioned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-barotropic.plot">
+<span id="helper-functions"></span><h2>Helper functions<a class="headerlink" href="#module-barotropic.plot" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.configure_lat_y">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">configure_lat_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hemisphere</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.configure_lat_y" title="Link to this definition">¶</a></dt>
+<dd><p>Set up the y-axis ticks to display longitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>Axes</em>) – Axes to configure.</p></li>
+<li><p><strong>hemisphere</strong> (<em>any</em><em> | </em><em>&quot;N&quot;</em><em> | </em><em>&quot;S&quot;</em>) – If <cite>“N”</cite> or <cite>“S”</cite>, show Northern or
+Southern hemisphere only. Otherwise show full globe.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.configure_lon_x">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">configure_lon_x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.configure_lon_x" title="Link to this definition">¶</a></dt>
+<dd><p>Set up the x-axis ticks to display longitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>Axes</em>) – Axes to configure.</p></li>
+<li><p><strong>offset</strong> (<em>number</em>) – Offset applied to longitudes before label generation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.hovmoellerify">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">hovmoellerify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.hovmoellerify" title="Link to this definition">¶</a></dt>
+<dd><p>Prepare data for plotting as a Hovmöller diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>states</strong> (list of <a class="reference internal" href="state.html#barotropic.State" title="barotropic.State"><code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code></a>) – Input states, ordered
+chronologically.</p></li>
+<li><p><strong>f</strong> (<em>callable</em>) – Function applied to each :py:class`.State` in <strong>states</strong>,
+should return either a zonal or meridional 1D profile.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple containing x-coordinates, y-coordinates and the Hovmöller field.
+If <strong>f</strong> returns a meridional cross-section (determined by the length
+of the vector), time is on the x-axis and latitude on the y-axis.
+Otherwise time is on the y-axis and longitude on the x-axis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.reduce_vectors">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">reduce_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ny</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.reduce_vectors" title="Link to this definition">¶</a></dt>
+<dd><p>Reduce the density of points in the inputs by slicing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Coordinates of x-dimension.</p></li>
+<li><p><strong>y</strong> (<em>array</em>) – Coordinates of y-dimension.</p></li>
+<li><p><strong>u</strong> (<em>array</em>) – Input vector field x-component.</p></li>
+<li><p><strong>v</strong> (<em>array</em>) – Input vector field y-component.</p></li>
+<li><p><strong>ny</strong> (<em>number</em>) – How many points are (approximately) kept in y-dimension.
+The x-dimension is sliced with the same stride.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple consisting of reduced <strong>x</strong>, <strong>y</strong>, <strong>u</strong> and <strong>v</strong>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.roll_lon">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">roll_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.roll_lon" title="Link to this definition">¶</a></dt>
+<dd><p>Center 2D fields around the given meridian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lon</strong> (<em>array</em>) – Longitude coordinates in degrees.</p></li>
+<li><p><strong>center</strong> (<em>number</em>) – The new center longitude in degrees.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple containing a roll function that should be applied to 2D fields
+before plotting and a <a class="reference internal" href="#barotropic.plot.configure_lon_x" title="barotropic.plot.configure_lon_x"><code class="xref py py-func docutils literal notranslate"><span class="pre">configure_lon_x()</span></code></a> function set up to
+label the zonal axis correctly when using the unmodified lon from the
+grid during plotting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="barotropic.plot.symmetric_levels">
+<span class="sig-prename descclassname"><span class="pre">barotropic.plot.</span></span><span class="sig-name descname"><span class="pre">symmetric_levels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.plot.symmetric_levels" title="Link to this definition">¶</a></dt>
+<dd><p>Generate contour levels symmetric around 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Input field for which contours are generated.</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – Number of contour levels.</p></li>
+<li><p><strong>ext</strong> (<em>number</em>) – Override for the absolute value of the outermost levels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of linearly spaced contour values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Barotropic</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Model Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">Model State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rhs.html">Forcing Terms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Plotting</a><ul>
+<li><a class="reference internal" href="#plot-presets">Plot presets</a><ul>
+<li><a class="reference internal" href="#barotropic.plot.rwp_diagnostics"><code class="docutils literal notranslate"><span class="pre">rwp_diagnostics()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.plot.summary"><code class="docutils literal notranslate"><span class="pre">summary()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.plot.wave_activity"><code class="docutils literal notranslate"><span class="pre">wave_activity()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.plot.waveguides"><code class="docutils literal notranslate"><span class="pre">waveguides()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-barotropic.plot">Helper functions</a><ul>
+<li><a class="reference internal" href="#barotropic.plot.configure_lat_y"><code class="docutils literal notranslate"><span class="pre">configure_lat_y()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.plot.configure_lon_x"><code class="docutils literal notranslate"><span class="pre">configure_lon_x()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.plot.hovmoellerify"><code class="docutils literal notranslate"><span class="pre">hovmoellerify()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.plot.reduce_vectors"><code class="docutils literal notranslate"><span class="pre">reduce_vectors()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.plot.roll_lon"><code class="docutils literal notranslate"><span class="pre">roll_lon()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.plot.symmetric_levels"><code class="docutils literal notranslate"><span class="pre">symmetric_levels()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="diagnostics.html" title="Diagnostics"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rhs.html" title="Forcing Terms"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Plotting</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

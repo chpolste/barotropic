@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Forcing Terms &#8212; barotropic 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=0f882399" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3688a873" />
+    <script src="_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Plotting" href="plot.html" />
+    <link rel="prev" title="Initial Conditions" href="init.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plot.html" title="Plotting"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="init.html" title="Initial Conditions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Forcing Terms</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="forcing-terms">
+<h1>Forcing Terms<a class="headerlink" href="#forcing-terms" title="Link to this heading">¶</a></h1>
+<p>Wavemakers, sponges and other terms that may be part of the forcing of the barotropic PV equation.</p>
+<section id="base-class-operations">
+<h2>Base Class Operations<a class="headerlink" href="#base-class-operations" title="Link to this heading">¶</a></h2>
+<p>All predefined forcing terms inherit from <a class="reference internal" href="#barotropic.rhs.RHS" title="barotropic.rhs.RHS"><code class="xref py py-class docutils literal notranslate"><span class="pre">rhs.RHS</span></code></a>, which provides addition and multiplication operators to combine individual terms into a more complicated right hand side:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="barotropic.rhs.RHS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">barotropic.rhs.</span></span><span class="sig-name descname"><span class="pre">RHS</span></span><a class="headerlink" href="#barotropic.rhs.RHS" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>RHS forcing term base class that implements arithmetic operators.</p>
+<p>Forcing terms should inherit from this class so they can be added and
+multiplied easily.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="barotropic.rhs.RHS.__add__">
+<span class="sig-name descname"><span class="pre">__add__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.RHS.__add__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="barotropic.rhs.RHS.__mul__">
+<span class="sig-name descname"><span class="pre">__mul__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.RHS.__mul__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="orographic-forcing">
+<h2>Orographic Forcing<a class="headerlink" href="#orographic-forcing" title="Link to this heading">¶</a></h2>
+<p>While an actual bottom orography is not part of the barotropic framework, (pseudo-)orographic forcing can be approximated.
+All orographic terms inherit from a common base class:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="barotropic.rhs.Orography">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">barotropic.rhs.</span></span><span class="sig-name descname"><span class="pre">Orography</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orography</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('act',</span> <span class="pre">1.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fcor_ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.Orography" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#barotropic.rhs.RHS" title="barotropic.rhs.RHS"><code class="xref py py-class docutils literal notranslate"><span class="pre">RHS</span></code></a></p>
+<p>Pseudo-orographic forcing based on a given gridded orography.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lon</strong> (<em>array</em>) – Longitudes of orography grid.</p></li>
+<li><p><strong>lat</strong> (<em>array</em>) – Latitudes of orography grid.</p></li>
+<li><p><strong>orography</strong> (<em>array</em>) – Height of the orography in m on the lon-lat grid
+defined by <strong>lon</strong> and <strong>lat</strong>.</p></li>
+<li><p><strong>scale_height</strong> (<em>number</em>) – Scale height in m.</p></li>
+<li><p><strong>wind</strong> (<em>(</em><em>str</em><em>, </em><em>number</em><em>)</em>) – <p>Wind used to evaluate the
+forcing. Options:</p>
+<ul>
+<li><p><cite>(“act”, factor)</cite>: The actual 2D-wind is used, scaled by the
+given factor.</p></li>
+<li><p><cite>(“zon”, factor)</cite>: The zonal-mean zonal wind is used, scaled by
+the given factor. The meridional wind component is set to 0.</p></li>
+<li><p><cite>(“sbr”, maxval)</cite>: A constant solid body rotation wind profile
+is used with the given maximum wind speed at the equator. This
+can be useful to define a constant orography-based wavemaker for
+simple experiments.</p></li>
+</ul>
+</p></li>
+<li><p><strong>fcor_ref</strong> (<em>None</em><em> | </em><em>number</em>) – If <cite>None</cite>, the actual coriolis parameter
+values are used to calculate the forcing, otherwise the given value
+(in 1/s) is used as a constant everywhere.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The forcing is calculated as <code class="docutils literal notranslate"><span class="pre">-f/H</span> <span class="pre">*</span> <span class="pre">u·∇h</span></code> where <code class="docutils literal notranslate"><span class="pre">f</span></code> is the coriolis
+parameter in 1/s, <code class="docutils literal notranslate"><span class="pre">H</span></code> the scale height, <code class="docutils literal notranslate"><span class="pre">u</span></code> the horizontal wind and
+<code class="docutils literal notranslate"><span class="pre">h</span></code> is the height of the orography.</p>
+<p>This is class only supports time-invariant fields of orography. The height
+field must be given on a lon-lat grid. The orography is linearly
+interpolated to the required grid when the forcing is evaluated by the
+model. <strong>lons</strong> and <strong>orography</strong> should be prepared such that the 0°
+column exists at both 0° and 360° to ensure that the interpolation does not
+yield <code class="docutils literal notranslate"><span class="pre">NaN</span></code>-values at the periodic boundary.</p>
+<p>Other orographic forcing terms can inherit from this class and should only
+have to implement the <cite>orography</cite> method.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="barotropic.rhs.Orography.orography">
+<span class="sig-name descname"><span class="pre">orography</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.Orography.orography" title="Link to this definition">¶</a></dt>
+<dd><p>Interpolated orography.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Interpolation target grid.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Orography in m.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p>Pre-defined orographic features:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="barotropic.rhs.GaussianMountain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">barotropic.rhs.</span></span><span class="sig-name descname"><span class="pre">GaussianMountain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(30.0,</span> <span class="pre">45.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(7.5,</span> <span class="pre">20.0)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">orog_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.GaussianMountain" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#barotropic.rhs.Orography" title="barotropic.rhs.Orography"><code class="xref py py-class docutils literal notranslate"><span class="pre">Orography</span></code></a></p>
+<p>Gaussian-shaped pseudo-orography.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>height</strong> (<em>number</em>) – Height of the mountain in m.</p></li>
+<li><p><strong>center</strong> (<em>(</em><em>number</em><em>, </em><em>number</em><em>)</em>) – Center (λ,φ) of the mountain in degrees.</p></li>
+<li><p><strong>stdev</strong> (<em>number</em><em> | </em><em>(</em><em>number</em><em>, </em><em>number</em><em>)</em>) – Standard deviation in degrees,
+either as single value for both directions, or a tuple of values
+for different mountain widths in lon and lat.</p></li>
+<li><p><strong>orog_kwargs</strong> – Arguments given to the <a class="reference internal" href="#barotropic.rhs.Orography" title="barotropic.rhs.Orography"><code class="xref py py-class docutils literal notranslate"><span class="pre">Orography</span></code></a> base class
+constructor.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="barotropic.rhs.GaussianMountain.orography">
+<span class="sig-name descname"><span class="pre">orography</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.GaussianMountain.orography" title="Link to this definition">¶</a></dt>
+<dd><p>Interpolated orography.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Interpolation target grid.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Orography in m.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="barotropic.rhs.ZonalSineMountains">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">barotropic.rhs.</span></span><span class="sig-name descname"><span class="pre">ZonalSineMountains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdev_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavenumber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">orog_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.ZonalSineMountains" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#barotropic.rhs.Orography" title="barotropic.rhs.Orography"><code class="xref py py-class docutils literal notranslate"><span class="pre">Orography</span></code></a></p>
+<p>Sinusoidal pseudo-orography in the zonal direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>height</strong> (<em>number</em>) – Peak height of the mountains in m.</p></li>
+<li><p><strong>center_lat</strong> (<em>number</em>) – Central latitude of the mountain chain.</p></li>
+<li><p><strong>stdev_lat</strong> (<em>number</em>) – Standard deviation governing the meridional extent
+of the mountains in m.</p></li>
+<li><p><strong>wavenumber</strong> (<em>int</em>) – Number of crest-valley-pairs in the zonal direction.</p></li>
+<li><p><strong>orog_kwargs</strong> – Arguments given to the <a class="reference internal" href="#barotropic.rhs.Orography" title="barotropic.rhs.Orography"><code class="xref py py-class docutils literal notranslate"><span class="pre">Orography</span></code></a> base class
+constructor.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="barotropic.rhs.ZonalSineMountains.orography">
+<span class="sig-name descname"><span class="pre">orography</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.ZonalSineMountains.orography" title="Link to this definition">¶</a></dt>
+<dd><p>Interpolated orography.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference internal" href="grid.html#barotropic.Grid" title="barotropic.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a>) – Interpolation target grid.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Orography in m.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="relaxation">
+<h2>Relaxation<a class="headerlink" href="#relaxation" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="barotropic.rhs.LinearRelaxation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">barotropic.rhs.</span></span><span class="sig-name descname"><span class="pre">LinearRelaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_pv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.LinearRelaxation" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#barotropic.rhs.RHS" title="barotropic.rhs.RHS"><code class="xref py py-class docutils literal notranslate"><span class="pre">RHS</span></code></a></p>
+<p>Linear relaxation towards a reference PV state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rate</strong> (<em>number</em>) – Relaxation rate in 1/s.</p></li>
+<li><p><strong>reference_pv</strong> (<em>array</em>) – PV field that is relaxed toward.</p></li>
+<li><p><strong>mask</strong> (<em>array</em>) – Does nothing at the moment.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Implements <strong>rate</strong> * (<strong>reference_pv</strong> - pv).</p>
+</dd></dl>
+
+</section>
+<section id="module-barotropic.rhs">
+<span id="other"></span><h2>Other<a class="headerlink" href="#module-barotropic.rhs" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="barotropic.rhs.TimedOffSwitch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">barotropic.rhs.</span></span><span class="sig-name descname"><span class="pre">TimedOffSwitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#barotropic.rhs.TimedOffSwitch" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#barotropic.rhs.RHS" title="barotropic.rhs.RHS"><code class="xref py py-class docutils literal notranslate"><span class="pre">RHS</span></code></a></p>
+<p>Turn off another forcing term after a specified amount of time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tend</strong> (<em>number</em><em> | </em><em>datetime</em>) – Return <code class="docutils literal notranslate"><span class="pre">1</span></code> until this switch-off time is
+reached after which return <code class="docutils literal notranslate"><span class="pre">0</span></code> forever.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Term for multiplication with other RHS terms.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Barotropic</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="grid.html">Model Grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state.html">Model State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init.html">Initial Conditions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Forcing Terms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Forcing Terms</a><ul>
+<li><a class="reference internal" href="#base-class-operations">Base Class Operations</a><ul>
+<li><a class="reference internal" href="#barotropic.rhs.RHS"><code class="docutils literal notranslate"><span class="pre">RHS</span></code></a><ul>
+<li><a class="reference internal" href="#barotropic.rhs.RHS.__add__"><code class="docutils literal notranslate"><span class="pre">RHS.__add__()</span></code></a></li>
+<li><a class="reference internal" href="#barotropic.rhs.RHS.__mul__"><code class="docutils literal notranslate"><span class="pre">RHS.__mul__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#orographic-forcing">Orographic Forcing</a><ul>
+<li><a class="reference internal" href="#barotropic.rhs.Orography"><code class="docutils literal notranslate"><span class="pre">Orography</span></code></a><ul>
+<li><a class="reference internal" href="#barotropic.rhs.Orography.orography"><code class="docutils literal notranslate"><span class="pre">Orography.orography()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#barotropic.rhs.GaussianMountain"><code class="docutils literal notranslate"><span class="pre">GaussianMountain</span></code></a><ul>
+<li><a class="reference internal" href="#barotropic.rhs.GaussianMountain.orography"><code class="docutils literal notranslate"><span class="pre">GaussianMountain.orography()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#barotropic.rhs.ZonalSineMountains"><code class="docutils literal notranslate"><span class="pre">ZonalSineMountains</span></code></a><ul>
+<li><a class="reference internal" href="#barotropic.rhs.ZonalSineMountains.orography"><code class="docutils literal notranslate"><span class="pre">ZonalSineMountains.orography()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#relaxation">Relaxation</a><ul>
+<li><a class="reference internal" href="#barotropic.rhs.LinearRelaxation"><code class="docutils literal notranslate"><span class="pre">LinearRelaxation</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-barotropic.rhs">Other</a><ul>
+<li><a class="reference internal" href="#barotropic.rhs.TimedOffSwitch"><code class="docutils literal notranslate"><span class="pre">TimedOffSwitch</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plot.html" title="Plotting"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="init.html" title="Initial Conditions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">barotropic 3.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Forcing Terms</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>
