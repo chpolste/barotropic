@@ -144,30 +144,110 @@ def _select_var(ds, names, override=None):
     return None
 
 def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
-    """Load states from u and v components in an xarray Dataset
+    """Turn an xarray dataset into a collection of states.
 
     Parameters:
-        dataset (:py:class:`xarray.Dataset`): TODO
-        names (dict | None): TODO
-        grid_kwargs (dict | None): TODO
-        time_fill (number | datetime): TODO
+        ds (Dataset | DataArray): Input data containing the field(s) from
+            which to construct the :py:class:`.State` objects.
+        names (dict | None): Name overrides for variable detection. Expects
+            a mapping of reference variable names to actual variable names as
+            occurring in the datset. See below for the list of reference names.
+        grid_kwargs (dict | None): Keyword arguments given to the
+            :py:class:`.Grid` constructor.
+        time_fill (number | datetime): Fill value for :py:attr:`.State.time` if
+            a value cannot be extracted from the dataset.
 
     Returns:
-        :py:class:`.StateList`
-    
-    If automatic detection of grid and winds based on the coordinate
-    attributes of the dataset fails, the association of `lat`, `lon`,
-    `time`, `u` and `v` can be specified explicitly with a dict given to
-    names. A `Grid` object shared by the returned states is created based
-    on the dataset coordinates. Additional arguments for the `Grid`
-    instanciation can be specified with the `grid_kwargs` argument.
+        :py:class:`.StateList` with all dimensions (other than longitude and
+        latitude) flattened.
+
+    The built-in variable detection recognizes the following names:
+
+    .. list-table::
+        :header-rows: 1
+
+        * - Init.
+          - Ref.
+          - Detected Variable Names
+          - Description
+
+        * -
+          - ``lon``
+          - ``longitude``, ``lon``
+          - longitude coordinate (mandatory)
+
+        * -
+          - ``lat``
+          - ``latitude``, ``lat``
+          - latitude coordinate (mandatory)
+
+        * -
+          - ``time``
+          - ``time``
+          - time coordinate for :py:attr:`.State.time` (optional)
+
+        * - A
+          - ``u``
+          - ``u``, ``ugrd``, ``eastward_wind``
+          - zonal wind component
+
+        * - A
+          - ``v``
+          - ``v``, ``vgrd``, ``northward_wind``
+          - meridional wind component
+
+        * - B
+          - ``vo``
+          - ``vo``, ``relv``, ``vorticity``, ``relative_vorticity``
+          - relative vorticity
+
+        * - C
+          - ``avo``
+          - ``avo``, ``absv``, ``absolute_vorticity``, ``pv``
+          - absolute vorticity (barotropic PV)
+
+    If the associated variable(s) are detected, the output :py:class:`State`
+    objects are constructed with the following order of priority:
+
+    A. From horizontal wind components (``u``, ``v``), using
+       :py:meth:`.State.from_wind`.
+    B. From relative vorticity (``vo``), using
+       :py:meth:`.State.from_vorticity`.
+    C. From absolute vorticity (``avo``), using the default :py:class:`.State`
+       constructor.
+
+    Only the first available construction is used. To enforce a specific
+    initialization path, only supply the variable(s) required for that
+    construction. The reference names can be mapped to custom variable names
+    via the `names` argument.
+
+    .. note::
+        While ``pv`` is used throughout this package to refer to absolute
+        vorticity, it may refer to Ertel or QG PV in other datasets. Therefore,
+        names explicitly referring to absolute vorticity are given priority in
+        the detection.
+
+    If the dimensions of the initialization fields do not end with latitude and
+    longitude, transpose the data first.
+
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:    (time: 6, latitude: 181, longitude: 360)
+    Coordinates:
+      * longitude  (longitude) float32 0.0 1.0 2.0 3.0 ... 356.0 357.0 358.0 359.0
+      * latitude   (latitude) float32 90.0 89.0 88.0 87.0 ... -88.0 -89.0 -90.0
+      * time       (time) datetime64[ns] ...
+    Data variables:
+        u          (time, latitude, longitude) float32 ...
+        v          (time, latitude, longitude) float32 ...
+    >>> bt.io.from_dataset(ds)
+    <StateList with 6 states>
+
+    .. versionadded:: 3.1
     """
-    import xarray as xr
-    # If a path is given, read first
-    if isinstance(ds, str):
-        ds = xr.open_dataset(ds)
-    # Processing below assumes input is a Dataset
-    if isinstance(ds, xr.DataArray):
+    # Processing below assumes input is a Dataset, this converts DataArray (and
+    # maybe other) input without having to import xarray for an isinstance check.
+    if hasattr(ds, "to_dataset"):
         ds = ds.to_dataset()
     ds = ds.squeeze()
 

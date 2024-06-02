@@ -1,9 +1,12 @@
 Input/Output
 ============
 
-.. warning::
-    The input/output routines are a **work in progress**. Their interface may change without announcement.
+Export and import data from other sources and formats.
 
 
-.. automodule:: barotropic.io
+Xarray
+------
+
+.. autofunction:: barotropic.io.as_dataset
+.. autofunction:: barotropic.io.from_dataset
 
