@@ -31,6 +31,9 @@ class BarotropicModel:
     (though note that when used with the **diffusion_bg** parameter or some RHS
     terms, the :py:class:`BarotropicModel` can be restricted to a specific grid
     resolution).
+
+    .. versionadded:: 3.1
+        The *diffusion_bg* parameter.
     """
 
     def __init__(self, rhs=None, diffusion_order=2, diffusion_coeff=1.e15,

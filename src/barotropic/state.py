@@ -34,11 +34,15 @@ class State:
 
     Note:
         There are alternative classmethod constructors of :py:class:`State` and
-        the :py:mod:`init` module also provides functions to create
+        the :py:mod:`.init` module also provides functions to create
         :py:class:`State` objects for model initialization.
 
     Provides convenient access to fields, diagnostics and plots. Should
     generally be treated as an immutable object.
+
+    Attributes:
+        time: Valid time.
+        grid: Associated :py:class:`.Grid` object.
     """
 
     def __init__(self, grid, time, pv=None, pv_spectral=None):
@@ -416,13 +420,14 @@ def _convert_sequence(seq):
 class StateList(collections.abc.Sequence):
     """Immutable sequence of :py:class:`State` instances.
 
-    Collection intended to represent the temporal evolution of a simulation or
-    a the state of an ensemble of simulations at a fixed time step. Provides
-    convenient access to all :py:class:`State` properties and methods and
-    a :py:meth:`.map` method for customized function application.
-
     Parameters:
         states (iterable of :py:class:`State`): states to be included.
+
+    One-dimensional collection intended to represent the temporal evolution of
+    a simulation. Provides access to all :py:class:`State` properties and
+    methods and a :py:meth:`.map` method for customized function application.
+
+    .. versionadded:: 3.1
     """
 
     def __init__(self, states):
