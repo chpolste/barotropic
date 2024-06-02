@@ -51,8 +51,6 @@ class Grid:
         # at the North pole, which is the convention used by pyspharm.
         self.nlon = int(360. / resolution)
         self.nlat = int(180. / resolution) + 1
-        if self.nlat % 2 == 0:
-            raise ValueError("Number of latitudes must be odd but is {}".format(self.nlat))
         self.lon = np.linspace( 0., 360., self.nlon, endpoint=False)
         self.lat = np.linspace(90., -90., self.nlat, endpoint=True)
         self.lon2, self.lat2 = np.meshgrid(self.lon, self.lat)

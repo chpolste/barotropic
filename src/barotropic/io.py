@@ -277,7 +277,6 @@ def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
     lat = ds.coords[var_map["lat"]] # also ensures extracted var is a coordinate
     assert lat.ndim == 1, "lat coordinate must be one-dimensional"
     assert lat.size > 0, "lat coordinate is empty"
-    assert lat.size % 2 == 1, "lat coordinate must have odd number of grid points"
     assert lat.size - 1 == lon.size // 2, f"grid of shape [{lat.size}, {lon.size}] is not regular"
     dlats = np.diff(lat.values)
     dlat = dlats[0]
