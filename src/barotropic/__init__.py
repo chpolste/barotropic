@@ -4,7 +4,7 @@ from .grid import Grid
 from .model import BarotropicModel
 from .state import State, StateList
 
-__version__ = "3.0.1"
+__version__ = "3.1.0"
 
 # Explicitly define the public interface
 __all__ = [

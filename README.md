@@ -50,12 +50,12 @@ Dependencies:
 - [pyspharm](https://github.com/jswhit/pyspharm)
 - [matplotlib](https://github.com/matplotlib/matplotlib) (optional)
 - [PyWavelets](https://github.com/PyWavelets/pywt) (optional, >= 1.1)
-- [hn2016_falwa](https://github.com/csyhuang/hn2016_falwa) (optional)
+- [falwa](https://github.com/csyhuang/hn2016_falwa) (optional, hn2016_falwa for 3.0.x)
 
 
 ## License
 
-Copyright 2019-2022 Christopher Polster
+Copyright 2019-2024 Christopher Polster
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
