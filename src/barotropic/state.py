@@ -141,6 +141,14 @@ class State:
         return self._pv
 
     @property
+    def avo(self):
+        """Absolute vorticity (alias of :py:attr:`.pv`).
+
+        .. versionadded:: 3.1
+        """
+        return self.pv
+
+    @property
     def pv_spectral(self):
         """Barotropic potential vorticity in spectral space."""
         if self._pv_spectral is None:
@@ -184,6 +192,14 @@ class State:
     def vorticity(self):
         """Relative vorticity."""
         return self.pv - self.grid.fcor2
+
+    @property
+    def vo(self):
+        """Relative vorticity (alias of :py:attr:`.vorticity`).
+
+        .. versionadded:: 3.1
+        """
+        return self.vorticity
 
     @property
     def vorticity_spectral(self):

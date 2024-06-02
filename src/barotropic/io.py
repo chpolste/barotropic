@@ -9,8 +9,8 @@ from .state import State, StateList
 from .grid import Grid
 
 
-def as_dataset(states, fields=("pv", "u", "v"), concat_dim="time"):
-    """Create an :py:class:`xarray.Dataset` from a collection of states.
+def as_dataset(states, fields=("u", "v"), concat_dim="time"):
+    """Export a collection of states to an xarray dataset.
 
     Parameters:
         states (iterable of :py:class:`.State`): states to include in the
@@ -32,9 +32,14 @@ def as_dataset(states, fields=("pv", "u", "v"), concat_dim="time"):
     Returns:
         :py:class:`xarray.Dataset`
 
+    .. note::
+        Export of spectral fields is currently not supported.
+
+    Requrires :py:mod:`xarray`.
+
     >>> states
     <StateList with 9 states>
-    >>> bt.io.as_dataset(states, fields={ "pv": "pv", "ubar": lambda s: s.u.mean(axis=bt.ZONAL) })
+    >>> bt.io.as_dataset(states, fields={ "avo": "avo", "ubar": lambda s: s.u.mean(axis=bt.ZONAL) })
     <xarray.Dataset>
     Dimensions:    (latitude: 73, longitude: 144, time: 9)
     Coordinates:
@@ -42,7 +47,7 @@ def as_dataset(states, fields=("pv", "u", "v"), concat_dim="time"):
       * longitude  (longitude) float64 ...
       * time       (time) float64 ...
     Data variables:
-        pv         (time, latitude, longitude) float32 ...
+        avo        (time, latitude, longitude) float32 ...
         ubar       (time, latitude) float32 ...
 
     An empty list of states returns an empty dataset:
@@ -53,7 +58,9 @@ def as_dataset(states, fields=("pv", "u", "v"), concat_dim="time"):
     Data variables:
         *empty*
 
-    See also:
+    .. versionadded:: 3.1
+
+    .. seealso::
         :py:meth:`.StateList.as_dataset`.
 
     """
@@ -123,9 +130,9 @@ _VAR_NAMES = {
     "time": ["time"],
     "u": ["u", "ugrd", "eastward_wind"],
     "v": ["v", "vgrd", "northward_wind"],
-    "rv": ["vo", "relv", "vorticity", "relative_vorticity"],
+    "vo": ["vo", "relv", "vorticity", "relative_vorticity"],
     # PV is usually not absolute vorticity and only considered as a last resort
-    "pv": ["avo", "absv", "absolute_vorticity", "pv"],
+    "avo": ["avo", "absv", "absolute_vorticity", "pv"],
 }
 
 def _select_var(ds, names, override=None):
@@ -216,17 +223,17 @@ def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
             v = ds[var_map["v"]].sel({ dim: da.coords[dim] for dim in dims_flatten }).values
             return State.from_wind(grid, t, u, v)
     # States from relative vorticity
-    elif var_map["rv"] is not None:
+    elif var_map["vo"] is not None:
         data = ds[var_map["vo"]] # DataArray, no further selection necessary
         as_state = lambda t, da: State.from_vorticity(grid, t, da.values)
     # States from absolute vorticity
-    elif var_map["pv"] is not None:
-        data = ds[var_map["pv"]] # DataArray, no further selection necessary
+    elif var_map["avo"] is not None:
+        data = ds[var_map["avo"]] # DataArray, no further selection necessary
         as_state = lambda t, da: State(grid, t, pv=da.values)
     else:
         raise ValueError(
             "no fields for state construction detected, please specify"
-            " names of either 'u' and 'v', 'rv' or 'pv'."
+            " names of either 'u' and 'v', 'vo' or 'avo'."
         )
 
     # Make sure last two dimensions are lat and lon
@@ -236,7 +243,7 @@ def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
     # than lon and lat are flattened
     dims_flatten = data.dims[:-2]
     dims_values = [data.coords[dim].values for dim in dims_flatten]
-    if len(dims_flatten) > 0:
+    if len(dims_flatten) > 1:
         _ = ", ".join(f"'{dim}'" for dim in dims_flatten)
         warnings.warn(f"dimension(s) {_} flattened in output StateList")
 
