@@ -1,7 +1,6 @@
 from collections import abc
 import datetime as dt
 import itertools
-import warnings
 
 import numpy as np
 
@@ -269,7 +268,7 @@ def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
     dlon = dlons[0]
     assert np.isclose(dlon, dlons).all(), "lon spacing is not regular"
     assert dlon > 0, "lon coordinate must be increasing (W to E)"
-    # TODO test peridodicity
+    assert np.isclose(lon[-1] - lon[0], 360. - dlon), "lon coordinate irregular at periodic boundary"
 
     # Verify latitude coordinate
     if var_map["lat"] is None:
@@ -291,8 +290,8 @@ def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
     # Consider multiple options to construct states:
     # States from horizontal wind components
     if var_map["u"] is not None and var_map["v"] is not None:
-        if ds[var_map["u"]].dims != ds[var_map["v"]].dims:
-            raise ValueError(f"dims of fields '{var_map['u']}' and '{var_map['v']}' not identical")
+        assert ds[var_map["u"]].dims == ds[var_map["v"]].dims, \
+                f"dims of fields '{var_map['u']}' and '{var_map['v']}' not identical"
         data = ds[var_map["u"]]
         # Two fields required to initialize: proceed with DataArray of u for
         # data, and select matching v field during construction of the State
@@ -322,9 +321,6 @@ def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
     # than lon and lat are flattened
     dims_flatten = data.dims[:-2]
     dims_values = [data.coords[dim].values for dim in dims_flatten]
-    if len(dims_flatten) > 1:
-        _ = ", ".join(f"'{dim}'" for dim in dims_flatten)
-        warnings.warn(f"dimension(s) {_} flattened in output StateList")
 
     states = []
     # Because itertools.product returns an empty tuple when called without any
