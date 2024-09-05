@@ -9,6 +9,7 @@ import barotropic as bt
 from . import ATOL_WIND, ATOL_VO, ATOL_PV
 
 
+@pytest.mark.skipif(importlib.util.find_spec("xarray") is None, reason="unable to import xarray")
 class TestAsDataset:
 
     def test_empty(self):
