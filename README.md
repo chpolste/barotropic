@@ -47,10 +47,15 @@ Dependencies:
 
 - [numpy](https://github.com/numpy/numpy)
 - [scipy](https://github.com/scipy/scipy)
-- [pyspharm](https://github.com/jswhit/pyspharm)
+- [pyspharm](https://github.com/jswhit/pyspharm) ⚠️ 
 - [matplotlib](https://github.com/matplotlib/matplotlib) (optional)
-- [PyWavelets](https://github.com/PyWavelets/pywt) (optional, >= 1.1)
-- [falwa](https://github.com/csyhuang/hn2016_falwa) (optional, hn2016_falwa for 3.0.x)
+- [PyWavelets](https://github.com/PyWavelets/pywt) (optional)
+- [falwa](https://github.com/csyhuang/hn2016_falwa) (optional; hn2016_falwa until 3.0.x)
+
+Because the latest version of pyspharm (1.0.9, last accessed in September 2024) on PyPI is broken, no dependency on Pypharm is declared, but the package must be installed.
+Please install the package manually from its GitHub repository after the installing barotropic with
+
+    $ pip install git+https://github.com/jswhit/pyspharm
 
 
 ## License

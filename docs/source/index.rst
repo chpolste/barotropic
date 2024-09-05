@@ -57,10 +57,18 @@ Dependencies:
 
 - :py:mod:`numpy`
 - :py:mod:`scipy`
-- :py:mod:`pyspharm`
+- :py:mod:`pyspharm` ⚠️
 - :py:mod:`matplotlib` (optional)
 - :py:mod:`pywt` (optional)
 - :py:mod:`hn2016_falwa` (optional)
+
+Because the latest version of pyspharm (1.0.9, last accessed in September 2024) on PyPI is broken, no dependency on Pypharm is declared, but the package must be installed.
+Please install the package manually from its GitHub repository after the installing barotropic with
+
+.. code::
+    bash
+
+    $ pip install git+https://github.com/jswhit/pyspharm
 
 
 Package Documentation

@@ -9,7 +9,7 @@ authors = [
 ]
 description = "A framework for barotropic analysis and modelling of the atmosphere"
 readme = "readme.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { file="LICENSE" }
 dynamic = ["version"]
 classifiers = [
@@ -22,7 +22,8 @@ classifiers = [
 dependencies = [
     "numpy >=1.20.3",
     "scipy >=1.6.3",
-    "pyspharm >=1.0.9",
+    # Pyspharm on PyPI broken, must install manually
+    #"pyspharm >=1.0.9",
 ]
 
 [project.optional-dependencies]
