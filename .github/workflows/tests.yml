@@ -1,0 +1,51 @@
+name: Unit Tests
+
+on:
+  push:
+    branches:
+      - "*"
+  # Allow running on demand
+  workflow_dispatch:
+
+jobs:
+
+  test-minimal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install compiler
+        run: sudo apt-get install -y gfortran
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package and dependencies
+        run: pip install .[test]
+      - name: Install pyspharm
+        run: pip install git+https://github.com/jswhit/pyspharm
+      - name: Run tests
+        run: pytest -v tests
+
+  test-with-extras:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pyversion: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install compiler
+        run: sudo apt-get install -y gfortran
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.pyversion }}
+      - name: Install package and dependencies
+        run: pip install .[extras,test]
+      - name: Install pyspharm
+        run: pip install git+https://github.com/jswhit/pyspharm
+      - name: Run tests
+        run: pytest -v tests
+
