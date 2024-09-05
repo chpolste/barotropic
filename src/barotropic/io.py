@@ -336,10 +336,11 @@ def from_dataset(ds, names=None, grid_kwargs=None, time_fill=0):
             time = field.coords[var_map["time"]].values
             # Convert numpy datetime type into a regular datetime instance
             if isinstance(time, np.datetime64):
-                # https://stackoverflow.com/questions/13703720/
-                time = dt.datetime.utcfromtimestamp(
-                    (time - np.datetime64(0, "s")) / np.timedelta64(1, "s")
-                )
+                # https://stackoverflow.com/questions/13703720/, but
+                # utcfromtimestamp is deprecated, start with UTC and drop the
+                # timezone info for now
+                timestamp = (time - np.datetime64(0, "s")) / np.timedelta64(1, "s")
+                time = dt.datetime.fromtimestamp(timestamp, dt.timezone.utc).replace(tzinfo=None)
         # Create State and add to collection
         states.append(as_state(time, field))
 
