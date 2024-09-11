@@ -32,9 +32,7 @@ last.plot.summary()
 
 ![example of the summary plot preset](examples/example-summary-plot.png)
 
-Consult the [online documentation](https://chpolste.github.io/barotropic/build/html) to learn more about features and how to use the package.
-Note that the API has changed substantially with the release of version 3 in Feb 2022.
-Version 2 will remain accessible from the [master](https://github.com/chpolste/barotropic/tree/master) branch for a while longer, while development continues on the new main branch.
+Consult the [online documentation](https://chpolste.github.io/barotropic) to learn more about features and how to use the package.
 
 
 ## Installation
