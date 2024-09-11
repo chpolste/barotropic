@@ -1,0 +1,53 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+  # Allow running on demand
+  workflow_dispatch:
+
+concurrency:
+  group: docs
+  cancel-in-progress: true
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install compiler and pandoc
+        run: sudo apt-get install -y gfortran pandoc
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package and dependencies
+        run: pip install .[extras,docs]
+      - name: Install pyspharm
+        run: pip install git+https://github.com/jswhit/pyspharm
+      - name: Build docs website
+        run: cd docs && make html
+      - name: Create artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./docs/build/html"
+
+  deploy:
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+
