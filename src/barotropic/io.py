@@ -126,7 +126,7 @@ def as_dataset(states, fields=("u", "v"), concat_dim="time"):
 _VAR_NAMES = {
     "lon": ["longitude", "lon"],
     "lat": ["latitude", "lat"],
-    "time": ["time"],
+    "time": ["time", "valid_time"],
     "u": ["u", "ugrd", "eastward_wind"],
     "v": ["v", "vgrd", "northward_wind"],
     "vo": ["vo", "relv", "vorticity", "relative_vorticity"],
